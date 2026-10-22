@@ -19,6 +19,8 @@ function getInitials(name?: string): string {
 
 function formatRole(role?: string): string {
   switch (role) {
+    case 'admin':
+      return 'Administrador Geral (Total)';
     case 'gestor':
       return 'Recepção / Gestão';
     case 'recepcionista':

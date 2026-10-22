@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   getDoctorWorkspaceState,
   doctorCallPatient,
   doctorStartConsultation,
   doctorFinishConsultation,
   type DoctorWorkspaceStateResponse,
+  type ActiveConsultationDto,
 } from './doctorWorkspaceApi';
 import {
   updateDraftMedicalRecord,
@@ -26,14 +27,29 @@ import { DOCTOR_PATHS } from '../../navigation/routes';
 
 export function DoctorWorkspace() {
   const { addToast } = useToast();
-  const [loading, setLoading] = useState(true);
-  const [state, setState] = useState<DoctorWorkspaceStateResponse | null>(null);
+  const location = useLocation();
+  const navState = location.state as { activeConsultation?: ActiveConsultationDto } | undefined;
+  const initialActive = navState?.activeConsultation || null;
+
+  const [loading, setLoading] = useState(() => !initialActive);
+  const [state, setState] = useState<DoctorWorkspaceStateResponse | null>(() => {
+    if (initialActive) {
+      return {
+        doctorId: '',
+        doctorName: '',
+        clinicId: '',
+        activeConsultation: initialActive,
+        waitingQueue: [],
+      };
+    }
+    return null;
+  });
 
   // SOAP State
-  const [subjective, setSubjective] = useState('');
-  const [objective, setObjective] = useState('');
-  const [assessment, setAssessment] = useState('');
-  const [plan, setPlan] = useState('');
+  const [subjective, setSubjective] = useState(() => initialActive?.medicalRecord?.subjective || '');
+  const [objective, setObjective] = useState(() => initialActive?.medicalRecord?.objective || '');
+  const [assessment, setAssessment] = useState(() => initialActive?.medicalRecord?.assessment || '');
+  const [plan, setPlan] = useState(() => initialActive?.medicalRecord?.plan || '');
   const [draftStatus, setDraftStatus] = useState<string>('');
   const [savingDraft, setSavingDraft] = useState(false);
   const [finishing, setFinishing] = useState(false);
@@ -162,17 +178,21 @@ export function DoctorWorkspace() {
   const loadWorkspace = useCallback(async () => {
     try {
       const data = await getDoctorWorkspaceState();
+      if (!data.activeConsultation && initialActive) {
+        data.activeConsultation = initialActive;
+      }
       setState(data);
 
-      if (data.activeConsultation?.medicalRecord) {
-        setSubjective(data.activeConsultation.medicalRecord.subjective || '');
-        setObjective(data.activeConsultation.medicalRecord.objective || '');
-        setAssessment(data.activeConsultation.medicalRecord.assessment || '');
-        setPlan(data.activeConsultation.medicalRecord.plan || '');
+      const activeRecord = data.activeConsultation?.medicalRecord || initialActive?.medicalRecord;
+      if (activeRecord) {
+        setSubjective(activeRecord.subjective || '');
+        setObjective(activeRecord.objective || '');
+        setAssessment(activeRecord.assessment || '');
+        setPlan(activeRecord.plan || '');
 
         // Carrega dados ginecológicos da consulta e perfil longitudinal do paciente
-        const recId = data.activeConsultation.medicalRecord.id;
-        const patId = data.activeConsultation.patientId;
+        const recId = activeRecord.id;
+        const patId = data.activeConsultation?.patientId || initialActive?.patientId;
 
         getGynecologicalConsultationData(recId)
           .then((gyn) => {
@@ -219,7 +239,7 @@ export function DoctorWorkspace() {
     } finally {
       setLoading(false);
     }
-  }, [addToast]);
+  }, [addToast, initialActive]);
 
   useEffect(() => {
     void loadWorkspace();
@@ -596,7 +616,7 @@ export function DoctorWorkspace() {
               {/* Barramento Semântico de Alertas Críticos (SPEC-0035 / RN-008) */}
               <ClinicalAlertsBar
                 bloodPressure={active.triage?.bloodPressure}
-                fastingBloodGlucose={active.triage?.bloodGlucoseMgDl}
+                fastingBloodGlucose={active.triage?.glucose}
                 rhFactor={gynProfile ? (gynProfile as unknown as { rhFactor?: string }).rhFactor : undefined}
                 bloodType={gynProfile ? (gynProfile as unknown as { bloodType?: string }).bloodType : undefined}
               />

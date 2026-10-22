@@ -188,7 +188,19 @@ public sealed class IdentityDomainTests
         Assert.True(Roles.RequiresMfa(Roles.Manager));
         Assert.False(Roles.RequiresMfa(Roles.Receptionist));
         Assert.False(Roles.RequiresMfa(Roles.Professional));
+        Assert.False(Roles.RequiresMfa(Roles.Admin));
         Assert.False(Roles.Exists("papel-inventado"));
+    }
+
+    [Fact]
+    public void Roles_Admin_DevePossuirTodasAsPermissoes()
+    {
+        var adminPerms = Roles.PermissionsFor(Roles.Admin);
+        Assert.Equal(Permissions.All.Count, adminPerms.Count);
+        foreach (var perm in Permissions.All)
+        {
+            Assert.Contains(perm, adminPerms);
+        }
     }
 
     [Fact]

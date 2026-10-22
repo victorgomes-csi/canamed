@@ -233,6 +233,36 @@ public static class DevelopmentDataSeeder
             ? defaultPasswordHash
             : hasher.Hash(envPassword);
 
+        // 0. Administrador Geral com Controle Total (gestão + clínico + operacional)
+        var adminEmail = "admin@canamed.local";
+        var existingAdmin = await dbContext.Users
+            .FirstOrDefaultAsync(u => u.Email == adminEmail, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (existingAdmin is null)
+        {
+            var adminUser = User.Create("Administrador Geral", adminEmail, defaultPasswordHash, now);
+            dbContext.Users.Add(adminUser);
+            dbContext.ClinicMemberships.Add(ClinicMembership.Create(
+                adminUser.Id,
+                clinic.Id,
+                Roles.Admin,
+                DevelopmentDefaults.DemoProfessionalId,
+                now));
+        }
+        else
+        {
+            existingAdmin.ChangePassword(defaultPasswordHash, now);
+            var adminMembership = await dbContext.ClinicMemberships
+                .FirstOrDefaultAsync(m => m.UserId == existingAdmin.Id && m.ClinicId == clinic.Id, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (adminMembership is not null)
+            {
+                adminMembership.Update(Roles.Admin, DevelopmentDefaults.DemoProfessionalId, now);
+            }
+        }
+
         // 1. Gestor
         var existingManager = await dbContext.Users
             .FirstOrDefaultAsync(u => u.Email == managerEmail, cancellationToken)
@@ -314,24 +344,38 @@ public static class DevelopmentDataSeeder
         var clinicId = clinic.Id;
 
         // 1. Salas
-        if (!await dbContext.Rooms.AnyAsync(r => r.ClinicId == clinicId, cancellationToken).ConfigureAwait(false))
+        var demoRooms = new (Guid Id, string Name)[]
         {
-            dbContext.Rooms.AddRange(
-                Room.Create(clinicId, "Consultório 01 — Dra. Camila", now, DevelopmentDefaults.DemoRoom1Id),
-                Room.Create(clinicId, "Consultório 02 — Dr. Lucas", now, DevelopmentDefaults.DemoRoom2Id),
-                Room.Create(clinicId, "Sala de Exames & Procedimentos", now, DevelopmentDefaults.DemoRoomUltrasoundId));
-            await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            (DevelopmentDefaults.DemoRoom1Id, "Consultório 01 — Dra. Camila"),
+            (DevelopmentDefaults.DemoRoom2Id, "Consultório 02 — Dr. Lucas"),
+            (DevelopmentDefaults.DemoRoomUltrasoundId, "Sala de Exames & Procedimentos"),
+        };
+
+        foreach (var r in demoRooms)
+        {
+            if (!await dbContext.Rooms.AnyAsync(room => room.Id == r.Id, cancellationToken).ConfigureAwait(false))
+            {
+                dbContext.Rooms.Add(Room.Create(clinicId, r.Name, now, r.Id));
+            }
         }
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         // 2. Convênios
-        if (!await dbContext.HealthPlans.AnyAsync(hp => hp.ClinicId == clinicId, cancellationToken).ConfigureAwait(false))
+        var demoHealthPlans = new (Guid Id, string Name, string AnsCode)[]
         {
-            dbContext.HealthPlans.AddRange(
-                HealthPlan.Create(clinicId, "Bradesco Saúde", "005711", now, DevelopmentDefaults.DemoHealthPlanBradescoId),
-                HealthPlan.Create(clinicId, "Unimed Recife", "345678", now, DevelopmentDefaults.DemoHealthPlanUnimedId),
-                HealthPlan.Create(clinicId, "Sulamérica", "006246", now, DevelopmentDefaults.DemoHealthPlanSulAmericaId));
-            await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            (DevelopmentDefaults.DemoHealthPlanBradescoId, "Bradesco Saúde", "005711"),
+            (DevelopmentDefaults.DemoHealthPlanUnimedId, "Unimed Recife", "345678"),
+            (DevelopmentDefaults.DemoHealthPlanSulAmericaId, "Sulamérica", "006246"),
+        };
+
+        foreach (var plan in demoHealthPlans)
+        {
+            if (!await dbContext.HealthPlans.AnyAsync(hp => hp.Id == plan.Id, cancellationToken).ConfigureAwait(false))
+            {
+                dbContext.HealthPlans.Add(HealthPlan.Create(clinicId, plan.Name, plan.AnsCode, now, plan.Id));
+            }
         }
+        await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         // 3. Profissional Adicional (Dr. Lucas Mendes)
         if (!await dbContext.Professionals.AnyAsync(p => p.Id == DevelopmentDefaults.DemoDoctorLucasId, cancellationToken).ConfigureAwait(false))
@@ -356,6 +400,11 @@ public static class DevelopmentDataSeeder
             (DevelopmentDefaults.DemoPatientFernandaId, "Fernanda Lima Queiroz", "(81) 99345-6789", "fernanda.queiroz@canamed.local", new DateOnly(1985, 8, 5), "567.890.123-45"),
         };
 
+        var healthPlanExists = await dbContext.HealthPlans
+            .AnyAsync(hp => hp.Id == DevelopmentDefaults.DemoHealthPlanBradescoId, cancellationToken)
+            .ConfigureAwait(false);
+        var targetHealthPlanId = healthPlanExists ? DevelopmentDefaults.DemoHealthPlanBradescoId : (Guid?)null;
+
         foreach (var p in patientsData)
         {
             if (!await dbContext.Patients.AnyAsync(pt => pt.Id == p.Id, cancellationToken).ConfigureAwait(false))
@@ -369,7 +418,7 @@ public static class DevelopmentDataSeeder
                     p.Email,
                     p.BirthDate,
                     p.Cpf,
-                    DevelopmentDefaults.DemoHealthPlanBradescoId));
+                    targetHealthPlanId));
             }
         }
         await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
@@ -451,6 +500,11 @@ public static class DevelopmentDataSeeder
             var appType = await dbContext.AppointmentTypes.FirstAsync(cancellationToken).ConfigureAwait(false);
             var profId = DevelopmentDefaults.DemoProfessionalId;
 
+            var room1Exists = await dbContext.Rooms
+                .AnyAsync(r => r.Id == DevelopmentDefaults.DemoRoom1Id, cancellationToken)
+                .ConfigureAwait(false);
+            var targetRoom1Id = room1Exists ? DevelopmentDefaults.DemoRoom1Id : (Guid?)null;
+
             // Agendamento 1: Finalizado / Atendido mais cedo (Mariana)
             var app1 = Appointment.CreatePastForSeed(
                 clinicId,
@@ -460,7 +514,7 @@ public static class DevelopmentDataSeeder
                 baseDate.AddHours(9),
                 30,
                 now,
-                DevelopmentDefaults.DemoRoom1Id);
+                targetRoom1Id);
             app1.Confirm(now.AddHours(-5));
             app1.MarkAttended(now.AddHours(-4));
             app1.MarkPaid(now.AddHours(-4));
@@ -474,7 +528,7 @@ public static class DevelopmentDataSeeder
                 baseDate.AddHours(10),
                 30,
                 now,
-                DevelopmentDefaults.DemoRoom1Id);
+                targetRoom1Id);
             app2.Confirm(now.AddHours(-3));
             app2.MarkPaid(now.AddHours(-2));
 
@@ -487,7 +541,7 @@ public static class DevelopmentDataSeeder
                 baseDate.AddHours(11),
                 30,
                 now,
-                DevelopmentDefaults.DemoRoom1Id);
+                targetRoom1Id);
             app3.Confirm(now.AddHours(-1));
             app3.MarkPaid(now.AddMinutes(-30));
 
@@ -500,7 +554,7 @@ public static class DevelopmentDataSeeder
                 baseDate.AddHours(14),
                 30,
                 now,
-                DevelopmentDefaults.DemoRoom1Id);
+                targetRoom1Id);
             app4.Confirm(now.AddMinutes(-10));
 
             // Agendamento 5: Futuro / Agendado (Fernanda)
@@ -512,7 +566,7 @@ public static class DevelopmentDataSeeder
                 baseDate.AddHours(15),
                 30,
                 now,
-                DevelopmentDefaults.DemoRoom1Id);
+                targetRoom1Id);
 
             dbContext.Appointments.AddRange(app1, app2, app3, app4, app5);
             await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

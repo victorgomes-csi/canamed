@@ -1,4 +1,4 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DoctorWorkspace } from './DoctorWorkspace';
@@ -223,5 +223,72 @@ describe('DoctorWorkspace Component', () => {
         })
       );
     });
+  });
+  it('preserva os dados digitados no formulário durante os ciclos de polling da fila', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    mocks.apiGet.mockResolvedValue({
+      doctorId: 'doc-1',
+      doctorName: 'Dr. Roberto Canamed',
+      clinicId: 'clinic-1',
+      activeConsultation: {
+        queueEntryId: '00000000-0000-0000-0000-000000000010',
+        patientId: '00000000-0000-0000-0000-000000000005',
+        patientName: 'Maria Francisca da Silva',
+        medicalRecord: {
+          id: '00000000-0000-0000-0000-000000000001',
+          clinicId: 'clinic-1',
+          patientId: '00000000-0000-0000-0000-000000000005',
+          doctorId: 'doc-1',
+          doctorName: 'Dr. Roberto Canamed',
+          status: 'draft',
+          subjective: 'Relato inicial',
+          objective: '',
+          assessment: '',
+          plan: '',
+          createdAt: '2026-10-02T10:05:00Z',
+          finalizedAt: null,
+          addenda: [],
+        },
+        startedAt: '2026-10-02T10:05:00Z',
+      },
+      waitingQueue: [],
+    });
+
+    render(
+      <MemoryRouter>
+        <DoctorWorkspace />
+      </MemoryRouter>,
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
+    });
+
+    const subjectiveInput = screen.getByPlaceholderText(/Relato dos sintomas pelo paciente/i);
+    expect(subjectiveInput).toHaveValue('Relato inicial');
+
+    // Usuário digita novas observações clínicas
+    act(() => {
+      fireEvent.change(subjectiveInput, {
+        target: { value: 'Texto recém-digitado pela médica que não pode ser apagado!' },
+      });
+    });
+    expect(subjectiveInput).toHaveValue('Texto recém-digitado pela médica que não pode ser apagado!');
+
+    // Simula 10 segundos decorridos (momento em que o polling dispara em background)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(11000);
+    });
+
+    // O texto digitado DEVE permanecer íntegro e NÃO voltar para o estado inicial
+    expect(subjectiveInput).toHaveValue('Texto recém-digitado pela médica que não pode ser apagado!');
+
+    // Simula mais 20 segundos decorridos (múltiplos ciclos de polling)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(20000);
+    });
+    expect(subjectiveInput).toHaveValue('Texto recém-digitado pela médica que não pode ser apagado!');
+
+    vi.useRealTimers();
   });
 });

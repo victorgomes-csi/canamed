@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import {
   getDoctorWorkspaceState,
@@ -79,6 +79,7 @@ export function DoctorWorkspace() {
   const [finishing, setFinishing] = useState(false);
   const [hasFinishedCurrent, setHasFinishedCurrent] = useState(false);
   const [showFinishConfirmModal, setShowFinishConfirmModal] = useState(false);
+  const loadedRecordIdRef = useRef<string | null>(null);
 
   // Gynecological Specialized State
   const [gynProfile, setGynProfile] = useState<GynecologicalProfileDto | null>(null);
@@ -217,7 +218,7 @@ export function DoctorWorkspace() {
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [attachmentsModalOpen, setAttachmentsModalOpen] = useState(false);
 
-  const loadWorkspace = useCallback(async () => {
+  const loadWorkspace = useCallback(async (forceReload = false) => {
     try {
       const data = await getDoctorWorkspaceState({
         recordId: paramRecordId,
@@ -230,6 +231,14 @@ export function DoctorWorkspace() {
 
       const activeRecord = data.activeConsultation?.medicalRecord || initialActive?.medicalRecord;
       if (activeRecord) {
+        // PREVENÇÃO CRÍTICA: Se o mesmo prontuário já foi carregado para a sessão de atendimento atual,
+        // NUNCA sobrescreve os campos locais que a médica está digitando!
+        const isSameRecord = loadedRecordIdRef.current === activeRecord.id;
+        if (isSameRecord && !forceReload) {
+          return;
+        }
+
+        loadedRecordIdRef.current = activeRecord.id;
         setSubjective(activeRecord.subjective || '');
         setObjective(activeRecord.objective || '');
         setAssessment(activeRecord.assessment || '');
@@ -314,7 +323,8 @@ export function DoctorWorkspace() {
     try {
       const active = await doctorStartConsultation({ queueEntryId });
       addToast(`Atendimento iniciado: ${active.patientName}`, 'success');
-      await loadWorkspace();
+      loadedRecordIdRef.current = null;
+      await loadWorkspace(true);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Falha ao iniciar consulta.';
       addToast(msg, 'error');
@@ -560,6 +570,7 @@ export function DoctorWorkspace() {
       setPrescriptionNotes('');
       setGeneralOrientationNotes('');
       setDraftStatus('');
+      loadedRecordIdRef.current = null;
 
       // Desativa a consulta ativa no estado local imediatamente
       setState((prev) => (prev ? { ...prev, activeConsultation: undefined } : null));

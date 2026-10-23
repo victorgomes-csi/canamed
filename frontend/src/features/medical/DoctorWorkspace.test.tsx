@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DoctorWorkspace } from './DoctorWorkspace';
@@ -159,6 +159,69 @@ describe('DoctorWorkspace Component', () => {
       expect(screen.getByText(/Toque Bimanual/i)).toBeInTheDocument();
     });
   });
+
+  it('abre o modal de confirmação acessível e finaliza o atendimento clínico', async () => {
+    mocks.apiGet.mockResolvedValue({
+      doctorId: 'doc-1',
+      doctorName: 'Dr. Roberto Canamed',
+      clinicId: 'clinic-1',
+      activeConsultation: {
+        queueEntryId: '00000000-0000-0000-0000-000000000010',
+        patientId: '00000000-0000-0000-0000-000000000005',
+        patientName: 'Maria Francisca da Silva',
+        medicalRecord: {
+          id: '00000000-0000-0000-0000-000000000001',
+          clinicId: 'clinic-1',
+          patientId: '00000000-0000-0000-0000-000000000005',
+          doctorId: 'doc-1',
+          doctorName: 'Dr. Roberto Canamed',
+          status: 'draft',
+          subjective: 'Queixa de dor pélvica.',
+          objective: 'Exame ginecológico normal.',
+          assessment: 'Dismenorreia primária.',
+          plan: 'Prescrição de AINE.',
+          createdAt: '2026-10-02T10:05:00Z',
+          finalizedAt: null,
+          addenda: [],
+        },
+        startedAt: '2026-10-02T10:05:00Z',
+      },
+      waitingQueue: [],
+    });
+    mocks.apiPut.mockResolvedValue({});
+    mocks.apiPost.mockResolvedValue({});
+
+    render(
+      <MemoryRouter>
+        <DoctorWorkspace />
+      </MemoryRouter>,
+    );
+
+    // Espera carregar os dados
+    await waitFor(() => {
+      expect(screen.getByText('✓ Finalizar Atendimento Clínico')).toBeInTheDocument();
+    });
+
+    // Clica no botão de finalizar
+    const finishBtn = screen.getByText('✓ Finalizar Atendimento Clínico');
+    fireEvent.click(finishBtn);
+
+    // Modal acessível deve ser exibido com alerta do CFM e da Lei 13.787
+    expect(screen.getByText(/Encerramento oficial da consulta e guarda legal do prontuário/i)).toBeInTheDocument();
+    expect(screen.getByText('✓ Sim, Finalizar Prontuário')).toBeInTheDocument();
+
+    // Clica para confirmar a finalização
+    const confirmBtn = screen.getByText('✓ Sim, Finalizar Prontuário');
+    fireEvent.click(confirmBtn);
+
+    // Deve chamar a finalização
+    await waitFor(() => {
+      expect(mocks.apiPost).toHaveBeenCalledWith(
+        '/doctor-workspace/finish-consultation',
+        expect.objectContaining({
+          medicalRecordId: '00000000-0000-0000-0000-000000000001',
+        })
+      );
+    });
+  });
 });
-
-

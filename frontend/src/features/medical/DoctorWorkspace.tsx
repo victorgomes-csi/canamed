@@ -31,7 +31,7 @@ import { DOCTOR_PATHS } from '../../navigation/routes';
 export function DoctorWorkspace() {
   const { addToast } = useToast();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const paramRecordId = searchParams.get('recordId') || undefined;
   const paramPatientId = searchParams.get('patientId') || undefined;
 
@@ -76,6 +76,8 @@ export function DoctorWorkspace() {
   const [draftStatus, setDraftStatus] = useState<string>('');
   const [savingDraft, setSavingDraft] = useState(false);
   const [finishing, setFinishing] = useState(false);
+  const [hasFinishedCurrent, setHasFinishedCurrent] = useState(false);
+  const [showFinishConfirmModal, setShowFinishConfirmModal] = useState(false);
 
   // Gynecological Specialized State
   const [gynProfile, setGynProfile] = useState<GynecologicalProfileDto | null>(null);
@@ -220,7 +222,7 @@ export function DoctorWorkspace() {
         recordId: paramRecordId,
         patientId: paramPatientId,
       });
-      if (!data.activeConsultation && initialActive) {
+      if (!data.activeConsultation && initialActive && !hasFinishedCurrent) {
         data.activeConsultation = initialActive;
       }
       setState(data);
@@ -367,43 +369,75 @@ export function DoctorWorkspace() {
     }
   }
 
-  async function handleFinishConsultation() {
+  function handleFinishConsultation() {
+    if (!state?.activeConsultation?.medicalRecord) {
+      addToast('Nenhum atendimento clínico ativo encontrado para finalizar.', 'error');
+      return;
+    }
+
+    const hasClinicalContent = Boolean(
+      subjective.trim() ||
+      objective.trim() ||
+      assessment.trim() ||
+      plan.trim() ||
+      chiefComplaint.trim() ||
+      hma.trim() ||
+      procedurePerformed.trim() ||
+      procedureNotes.trim() ||
+      prescriptionNotes.trim() ||
+      generalOrientationNotes.trim() ||
+      dum.trim() ||
+      !exam.breastsIsNormal ||
+      !exam.abdomenIsNormal ||
+      !exam.externalGenitaliaIsNormal ||
+      !exam.speculumExamIsNormal ||
+      !exam.bimanualPalpationIsNormal
+    );
+
+    if (!hasClinicalContent) {
+      addToast('Preencha ao menos uma seção do prontuário ou exame antes de finalizar.', 'error');
+      return;
+    }
+
+    setShowFinishConfirmModal(true);
+  }
+
+  async function executeFinishConsultation() {
     if (!state?.activeConsultation?.medicalRecord) return;
-
-    if (
-      !subjective.trim() &&
-      !objective.trim() &&
-      !assessment.trim() &&
-      !plan.trim() &&
-      !procedurePerformed.trim() &&
-      !prescriptionNotes.trim()
-    ) {
-      addToast('Preencha ao menos uma seção do prontuário antes de finalizar.', 'error');
-      return;
-    }
-
-    if (!window.confirm('Tem certeza de que deseja finalizar o atendimento clínico deste paciente? O prontuário se tornará imutável conforme as diretrizes do CFM e Lei nº 13.787/2018.')) {
-      return;
-    }
 
     setFinishing(true);
     try {
       const recordId = state.activeConsultation.medicalRecord.id;
 
-      // 1. Salva notas atuais e dados ginecológicos
+      // Consolida campos clínicos para garantir persistência íntegra no prontuário
+      const finalSubjective = subjective.trim() || [
+        chiefComplaint.trim() ? `Queixa Principal: ${chiefComplaint.trim()}` : '',
+        hma.trim() ? `HMA: ${hma.trim()}` : ''
+      ].filter(Boolean).join('\n\n') || 'Atendimento ginecológico registrado.';
+
+      const finalPlan = plan.trim() || [
+        prescriptionNotes.trim() ? `Prescrições:\n${prescriptionNotes.trim()}` : '',
+        generalOrientationNotes.trim() ? `Orientações:\n${generalOrientationNotes.trim()}` : ''
+      ].filter(Boolean).join('\n\n');
+
+      const finalObjective = objective.trim() || (
+        procedurePerformed.trim() ? `Procedimento Realizado: ${procedurePerformed.trim()}` : ''
+      );
+
+      // 1. Salva notas consolidadas e dados ginecológicos especializados
       await Promise.all([
         updateDraftMedicalRecord(recordId, {
-          subjective,
-          objective,
-          assessment,
-          plan,
+          subjective: finalSubjective,
+          objective: finalObjective,
+          assessment: assessment.trim(),
+          plan: finalPlan,
         }),
         updateGynecologicalConsultationData(recordId, {
           dum: dum || null,
           isDumUncertain,
           isMenopausal,
-          chiefComplaint: chiefComplaint || subjective || null,
-          hma: hma || subjective || null,
+          chiefComplaint: chiefComplaint || finalSubjective || null,
+          hma: hma || finalSubjective || null,
           isSexuallyActive,
           dyspareunia: dyspareunia || null,
           breastsIsNormal: exam.breastsIsNormal,
@@ -424,17 +458,35 @@ export function DoctorWorkspace() {
         }).catch(() => null),
       ]);
 
-      // 2. Finaliza prontuário e fila
+      // 2. Valida UUID da fila
+      const isGuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+      const safeQueueId = isGuidRegex.test(state.activeConsultation.queueEntryId || '')
+        ? state.activeConsultation.queueEntryId
+        : '00000000-0000-0000-0000-000000000000';
+
+      // 3. Finaliza prontuário e fila
       await doctorFinishConsultation({
         medicalRecordId: recordId,
-        queueEntryId: state.activeConsultation.queueEntryId || '00000000-0000-0000-0000-000000000000',
+        queueEntryId: safeQueueId,
       });
 
       addToast('Atendimento finalizado com sucesso!', 'success');
+      setShowFinishConfirmModal(false);
+      setHasFinishedCurrent(true);
+
+      // Limpa parâmetros de busca da URL para não recarregar consulta finalizada
+      setSearchParams({});
+      if (typeof window !== 'undefined' && window.history?.replaceState) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      // Limpa os estados locais do formulário
       setSubjective('');
       setObjective('');
       setAssessment('');
       setPlan('');
+      setChiefComplaint('');
+      setHma('');
       setDum('');
       setIsDumUncertain(false);
       setIsMenopausal(false);
@@ -446,6 +498,10 @@ export function DoctorWorkspace() {
       setPrescriptionNotes('');
       setGeneralOrientationNotes('');
       setDraftStatus('');
+
+      // Desativa a consulta ativa no estado local imediatamente
+      setState((prev) => (prev ? { ...prev, activeConsultation: undefined } : null));
+
       await loadWorkspace();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Falha ao finalizar atendimento.';
@@ -915,6 +971,89 @@ export function DoctorWorkspace() {
           )}
         </section>
       </div>
+
+            {/* Modal Acessível de Confirmação de Finalização do Atendimento */}
+      {showFinishConfirmModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.55)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem',
+          }}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: 'var(--radius-lg, 12px)',
+              maxWidth: '520px',
+              width: '100%',
+              padding: '1.75rem',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.25)',
+              border: '1px solid var(--color-neutral-border, #CBD5E1)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div
+                style={{
+                  width: '2.5rem',
+                  height: '2.5rem',
+                  borderRadius: '50%',
+                  background: '#E0F2F1',
+                  color: 'var(--color-primary-dark, #005F6A)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.25rem',
+                  fontWeight: 'bold',
+                }}
+              >
+                ✓
+              </div>
+              <div>
+                <h3 style={{ margin: 0, color: 'var(--color-primary-dark, #005F6A)', fontSize: '1.15rem', fontWeight: 700 }}>
+                  Finalizar Atendimento Clínico
+                </h3>
+                <span style={{ fontSize: '0.8rem', color: '#64748B' }}>
+                  Encerramento oficial da consulta e guarda legal do prontuário
+                </span>
+              </div>
+            </div>
+
+            <p style={{ fontSize: '0.875rem', color: '#334155', lineHeight: 1.55, marginBottom: '1.5rem' }}>
+              Tem certeza de que deseja finalizar o atendimento clínico de{' '}
+              <strong style={{ color: 'var(--color-primary-dark, #005F6A)' }}>
+                {state?.activeConsultation?.patientName || 'Paciente'}
+              </strong>
+              ? O prontuário se tornará imutável conforme as diretrizes do CFM e da Lei nº 13.787/2018. Qualquer retificação futura deverá ser realizada exclusivamente via adendo clínico justificado.
+            </p>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <button
+                type="button"
+                className="button button--secondary"
+                onClick={() => setShowFinishConfirmModal(false)}
+                disabled={finishing}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="button button--primary"
+                onClick={executeFinishConsultation}
+                disabled={finishing}
+                style={{ background: 'var(--color-primary-dark, #005F6A)' }}
+              >
+                {finishing ? 'Finalizando…' : '✓ Sim, Finalizar Prontuário'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modais de Documentos, Histórico e Exames Anteriores */}
       {active && (

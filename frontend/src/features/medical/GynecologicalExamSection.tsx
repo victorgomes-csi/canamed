@@ -81,7 +81,7 @@ function ExamSegment({
                 border: 'none',
                 cursor: 'pointer',
                 fontWeight: isNormal ? 700 : 400,
-                background: isNormal ? 'var(--color-primary)' : '#ffffff',
+                background: isNormal ? 'var(--color-brand-primary, #008080)' : '#ffffff',
                 color: isNormal ? '#ffffff' : 'var(--color-neutral-dark)',
                 transition: 'background 0.15s ease',
               }}
@@ -97,7 +97,7 @@ function ExamSegment({
                 borderLeft: '1px solid var(--color-neutral-border)',
                 cursor: 'pointer',
                 fontWeight: !isNormal ? 700 : 400,
-                background: !isNormal ? '#dd6b20' : '#ffffff',
+                background: !isNormal ? '#B45309' : '#ffffff',
                 color: !isNormal ? '#ffffff' : 'var(--color-neutral-dark)',
                 transition: 'background 0.15s ease',
               }}
@@ -137,7 +137,7 @@ function ExamSegment({
               value={findings}
               onChange={(e) => onFindingsChange(e.target.value)}
               style={{
-                borderColor: '#dd6b20',
+                borderColor: '#B45309',
                 background: '#ffffff',
                 fontSize: '0.875rem',
                 marginTop: '0.25rem',
@@ -229,7 +229,7 @@ export function GynecologicalExamSection({ exam, onChange, readOnly }: Props) {
         <button
           type="button"
           className="button button--ghost button--small"
-          style={{ fontSize: '0.8rem', color: '#852A91' }}
+          style={{ fontSize: '0.8rem', color: 'var(--color-primary-dark, #005F6A)', fontWeight: 600 }}
           onClick={() => setShowCervicalMap(!showCervicalMap)}
         >
           {showCervicalMap ? '▲ Ocultar Mapa Cervical 12h' : '🎯 Abrir Mapa Cervical 12h (Odontograma Colposcópico)'}

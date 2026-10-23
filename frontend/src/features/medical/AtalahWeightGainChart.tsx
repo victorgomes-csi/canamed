@@ -1,7 +1,7 @@
 import type { PrenatalVisitDto } from './medicalRecordsApi';
 
 interface Props {
-  visits: PrenatalVisitDto[];
+  visits: Array<Partial<PrenatalVisitDto> & { gestationalAgeWeeks?: number | null; bmi?: number | null }>;
 }
 
 export function AtalahWeightGainChart({ visits }: Props) {

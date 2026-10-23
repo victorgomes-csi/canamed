@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Download, Plus, Baby, Calendar, Scale, Activity } from 'lucide-react';
+import { Download, Plus, Baby, Calendar, Activity } from 'lucide-react';
 import { useToast } from '../layout/Toast';
 import { AtalahWeightGainChart } from './AtalahWeightGainChart';
 import { UterineHeightChart } from './UterineHeightChart';
-import type { PrenatalVisitDto } from './medicalRecordsApi';
 
 export interface PrenatalVisitItem {
   id: string;
@@ -49,10 +48,10 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
   const [bp, setBp] = useState('');
   const [uterineHeight, setUterineHeight] = useState('');
   const [fhr, setFhr] = useState('');
-  const [movement, setMovement] = useState<boolean | null>(true);
+  const [movement] = useState<boolean | null>(true);
   const [edema, setEdema] = useState('Ausente');
-  const [presentation, setPresentation] = useState('Cefálica');
-  const [notes, setNotes] = useState('');
+  const [presentation] = useState('Cefálica');
+  const [notes] = useState('');
 
   const handleDownloadPdf = async () => {
     try {
@@ -220,32 +219,8 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
       {/* Curvas Obstétricas Automatizadas (Atalah e Altura Uterina) */}
       {visits.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '1rem', marginTop: '1.25rem' }}>
-          <AtalahWeightGainChart
-            visits={visits.map((v) => ({
-              ...v,
-              clinicId: '',
-              patientId,
-              medicalRecordId: null,
-              maternalBmi: v.bmi,
-              systolicBp: null,
-              diastolicBp: null,
-              conductNotes: v.clinicalNotes,
-              createdAt: '',
-            }))}
-          />
-          <UterineHeightChart
-            visits={visits.map((v) => ({
-              ...v,
-              clinicId: '',
-              patientId,
-              medicalRecordId: null,
-              maternalBmi: v.bmi,
-              systolicBp: null,
-              diastolicBp: null,
-              conductNotes: v.clinicalNotes,
-              createdAt: '',
-            }))}
-          />
+          <AtalahWeightGainChart visits={visits} />
+          <UterineHeightChart visits={visits} />
         </div>
       )}
 

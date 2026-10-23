@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Calendar,
-  Clock,
   User,
   Phone,
   ArrowLeft,
@@ -10,12 +9,10 @@ import {
   Check,
   X,
   AlertCircle,
-  HelpCircle,
   LogOut,
   MapPin,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
   Info,
 } from 'lucide-react';
 import {
@@ -65,7 +62,7 @@ export function PatientPortal({ initialTab = 'home', onTabChange, clinic, onLogo
 
   // Agendamentos
   const [appointments, setAppointments] = useState<OnlineAppointment[]>([]);
-  const [loadingAppointments, setLoadingAppointments] = useState(false);
+  const [, setLoadingAppointments] = useState(false);
 
   // Auth / OTP Modal
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -387,8 +384,6 @@ export function PatientPortal({ initialTab = 'home', onTabChange, clinic, onLogo
     sessionStorage.clear();
     setSession(null);
     setAppointments([]);
-    setDocuments([]);
-    setExamAttachments([]);
     onLogoutRequested?.();
     navigateTo('home');
     addToast('Sessão encerrada com segurança.', 'info');
@@ -408,8 +403,7 @@ export function PatientPortal({ initialTab = 'home', onTabChange, clinic, onLogo
 
   // Próxima consulta em destaque
   const nextAppointment = useMemo(() => {
-    const now = new Date();
-    return appointments
+      return appointments
       .filter((a) => a.status === 'agendado' || a.status === 'Agendado' || a.status === 'confirmado')
       .sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime())[0];
   }, [appointments]);

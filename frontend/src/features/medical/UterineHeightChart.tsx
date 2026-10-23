@@ -1,7 +1,7 @@
 import type { PrenatalVisitDto } from './medicalRecordsApi';
 
 interface Props {
-  visits: PrenatalVisitDto[];
+  visits: Array<Partial<PrenatalVisitDto> & { gestationalAgeWeeks?: number | null; uterineHeightCm?: number | null }>;
 }
 
 export function UterineHeightChart({ visits }: Props) {

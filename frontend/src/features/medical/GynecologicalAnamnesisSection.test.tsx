@@ -4,6 +4,8 @@ import { GynecologicalAnamnesisSection } from './GynecologicalAnamnesisSection';
 import type { GynecologicalProfileDto } from './medicalRecordsApi';
 
 const mockProfile: GynecologicalProfileDto = {
+  id: 'profile-123',
+  createdAt: new Date().toISOString(),
   patientId: 'patient-123',
   clinicId: 'clinic-123',
   menarcheAge: 12,

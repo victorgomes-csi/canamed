@@ -17,11 +17,13 @@ import {
 } from './medicalRecordsApi';
 import { GynecologicalExamSection, type GynecologicalExamState } from './GynecologicalExamSection';
 import { GynecologicalAnamnesisSection } from './GynecologicalAnamnesisSection';
+import { GynecologicalProceduresSection } from './GynecologicalProceduresSection';
+import { SoapEvolutionSection } from './SoapEvolutionSection';
+import { PrescriptionsAndOrientationsSection } from './PrescriptionsAndOrientationsSection';
 import { DocumentModal } from './DocumentModal';
 import { PatientHistoryModal } from './PatientHistoryModal';
 import { PatientExamAttachmentsSection } from './PatientExamAttachmentsSection';
 import { ClinicalAlertsBar } from './ClinicalAlertsBar';
-import { ObstetricCalculatorWidget } from './ObstetricCalculatorWidget';
 import { useAutoSave } from './useAutoSave';
 import { useToast } from '../layout/Toast';
 import { DOCTOR_PATHS } from '../../navigation/routes';
@@ -803,181 +805,39 @@ export function DoctorWorkspace() {
               </div>
 
               {/* Bloco 3: Procedimentos Ginecológicos Ambulatoriais */}
-              <div
-                id="sec-proc"
-                style={{
-                  border: '1px solid var(--color-neutral-border)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '1.25rem',
-                  marginBottom: '1.25rem',
-                  background: '#fafafa',
-                }}
-              >
-                <h3 style={{ fontSize: '1.05rem', color: 'var(--color-primary-dark)', margin: '0 0 1rem 0' }}>
-                  💉 Procedimentos Ambulatoriais (Opcional)
-                </h3>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem', marginBottom: '0.75rem' }}>
-                  <div>
-                    <label className="form__label" htmlFor="gyn-procedure">Procedimento Realizado</label>
-                    <select
-                      id="gyn-procedure"
-                      className="form__select"
-                      value={procedurePerformed}
-                      onChange={(e) => setProcedurePerformed(e.target.value)}
-                    >
-                      <option value="">Nenhum procedimento realizado</option>
-                      <option value="Inserção de DIU de Cobre">Inserção de DIU de Cobre</option>
-                      <option value="Inserção de DIU Hormonal (Mirena/Kyleena)">Inserção de DIU Hormonal (Mirena/Kyleena)</option>
-                      <option value="Retirada de DIU">Retirada de DIU</option>
-                      <option value="Biópsia de Colo Uterino">Biópsia de Colo Uterino</option>
-                      <option value="Biópsia de Endométrio (Pipelle)">Biópsia de Endométrio (Pipelle)</option>
-                      <option value="Cauterização Química de Colo">Cauterização Química de Colo</option>
-                      <option value="Polipectomia Cervical">Polipectomia Cervical</option>
-                      <option value="Coleta de Citopatológico">Coleta de Citopatológico</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="form__label" htmlFor="gyn-batch">Lote / Validade do Dispositivo / Amostra</label>
-                    <input
-                      id="gyn-batch"
-                      type="text"
-                      className="form__input"
-                      placeholder="Ex.: Lote: DIU-9821, Val: 08/2028"
-                      value={procedureBatch}
-                      onChange={(e) => setProcedureBatch(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                {procedurePerformed && (
-                  <div className="form__group">
-                    <label className="form__label" htmlFor="gyn-proc-notes">Notas do Procedimento & Intercorrências</label>
-                    <textarea
-                      id="gyn-proc-notes"
-                      className="form__textarea"
-                      rows={2}
-                      placeholder="Tolerância ao procedimento, posicionamento, histerometria (cm), fios cortados a quantos cm..."
-                      value={procedureNotes}
-                      onChange={(e) => setProcedureNotes(e.target.value)}
-                    />
-                  </div>
-                )}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <GynecologicalProceduresSection
+                  procedurePerformed={procedurePerformed}
+                  onProcedurePerformedChange={setProcedurePerformed}
+                  procedureBatch={procedureBatch}
+                  onProcedureBatchChange={setProcedureBatch}
+                  procedureNotes={procedureNotes}
+                  onProcedureNotesChange={setProcedureNotes}
+                />
               </div>
 
               {/* Bloco 4: Editor SOAP Tradicional & Diagnósticos */}
-              <div id="sec-soap" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.25rem' }}>
-                <h3 style={{ fontSize: '1.05rem', color: 'var(--color-primary-dark)', margin: '0' }}>
-                  📝 Evolução Clínica Estruturada (SOAP)
-                </h3>
-
-                <div className="form__group">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
-                    <label htmlFor="soap-s" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark)', margin: 0 }}>
-                      [S] Subjetivo — Síntese da Anamnese
-                    </label>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--color-neutral-muted)' }}>
-                      Sincronizado automaticamente com Queixa Principal e HMA
-                    </span>
-                  </div>
-                  <textarea
-                    id="soap-s"
-                    className="form__textarea"
-                    rows={3}
-                    placeholder="Relato dos sintomas pelo paciente, história da moléstia atual, tempo de início..."
-                    value={subjective}
-                    onChange={(e) => setSubjective(e.target.value)}
-                  />
-                </div>
-
-                <div className="form__group">
-                  <label htmlFor="soap-o" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark)' }}>
-                    [O] Objetivo — Exame Físico Geral & Sistêmico
-                  </label>
-                  <textarea
-                    id="soap-o"
-                    className="form__textarea"
-                    rows={2}
-                    placeholder="Achados gerais (ectoscopia, aparelhos cardiovascular e respiratório, dados vitais complementares)..."
-                    value={objective}
-                    onChange={(e) => setObjective(e.target.value)}
-                  />
-                </div>
-
-                <div className="form__group">
-                  <label htmlFor="soap-a" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark)' }}>
-                    [A] Avaliação — Hipóteses Diagnósticas & Diagnósticos Definitivos
-                  </label>
-                  <textarea
-                    id="soap-a"
-                    className="form__textarea"
-                    rows={2}
-                    placeholder="Hipóteses diagnósticas principais, diferenciais e CID-10 quando aplicável..."
-                    value={assessment}
-                    onChange={(e) => setAssessment(e.target.value)}
-                  />
-                </div>
-
-                <div className="form__group">
-                  <label htmlFor="soap-p" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark)' }}>
-                    [P] Plano — Conduta Clínica & Encaminhamentos
-                  </label>
-                  <textarea
-                    id="soap-p"
-                    className="form__textarea"
-                    rows={2}
-                    placeholder="Conduta clínica, solicitação de exames complementares, retornos programados..."
-                    value={plan}
-                    onChange={(e) => setPlan(e.target.value)}
-                  />
-                </div>
+              <div style={{ marginBottom: '1.25rem' }}>
+                <SoapEvolutionSection
+                  subjective={subjective}
+                  onSubjectiveChange={setSubjective}
+                  objective={objective}
+                  onObjectiveChange={setObjective}
+                  assessment={assessment}
+                  onAssessmentChange={setAssessment}
+                  plan={plan}
+                  onPlanChange={setPlan}
+                />
               </div>
 
               {/* Bloco 5: Prescrições Segregadas vs Orientações Gerais */}
-              <div
-                id="sec-presc"
-                style={{
-                  border: '1px solid var(--color-neutral-border)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '1.25rem',
-                  marginBottom: '1.5rem',
-                  background: '#fafafa',
-                }}
-              >
-                <h3 style={{ fontSize: '1.05rem', color: 'var(--color-primary-dark)', margin: '0 0 1rem 0' }}>
-                  💊 Prescrições & Recomendações Assistenciais
-                </h3>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
-                  <div className="form__group">
-                    <label className="form__label" htmlFor="presc-meds" style={{ fontWeight: 600 }}>
-                      Prescrição Medicamentosa (Fármacos, Doses e Posologia)
-                    </label>
-                    <textarea
-                      id="presc-meds"
-                      className="form__textarea"
-                      rows={3}
-                      placeholder="Ex.: 1. Anticoncepcional oral combinado - 1 cp/dia por 21 dias..."
-                      value={prescriptionNotes}
-                      onChange={(e) => setPrescriptionNotes(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="form__group">
-                    <label className="form__label" htmlFor="presc-orientations" style={{ fontWeight: 600 }}>
-                      Orientações Gerais, Estilo de Vida & Retornos
-                    </label>
-                    <textarea
-                      id="presc-orientations"
-                      className="form__textarea"
-                      rows={3}
-                      placeholder="Ex.: Retorno com USG transvaginal em 30 dias. Manter hidratação adequada..."
-                      value={generalOrientationNotes}
-                      onChange={(e) => setGeneralOrientationNotes(e.target.value)}
-                    />
-                  </div>
-                </div>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <PrescriptionsAndOrientationsSection
+                  prescriptionNotes={prescriptionNotes}
+                  onPrescriptionNotesChange={setPrescriptionNotes}
+                  generalOrientationNotes={generalOrientationNotes}
+                  onGeneralOrientationNotesChange={setGeneralOrientationNotes}
+                />
               </div>
 
               {/* Barra de Ações do Atendimento */}

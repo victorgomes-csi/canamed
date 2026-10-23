@@ -9,6 +9,7 @@ import {
   type ActiveConsultationDto,
 } from './doctorWorkspaceApi';
 import {
+  startOrGetMedicalRecord,
   updateDraftMedicalRecord,
   getGynecologicalConsultationData,
   updateGynecologicalConsultationData,
@@ -321,10 +322,32 @@ export function DoctorWorkspace() {
   }
 
   async function handleSaveDraft() {
-    if (!state?.activeConsultation?.medicalRecord) return;
+    if (!state?.activeConsultation) return;
     setSavingDraft(true);
     try {
-      const recordId = state.activeConsultation.medicalRecord.id;
+      let recordId = state.activeConsultation.medicalRecord?.id;
+      if (!recordId && state.activeConsultation.patientId) {
+        const record = await startOrGetMedicalRecord({
+          patientId: state.activeConsultation.patientId,
+        });
+        recordId = record.id;
+        setState((prev) =>
+          prev && prev.activeConsultation
+            ? {
+                ...prev,
+                activeConsultation: {
+                  ...prev.activeConsultation,
+                  medicalRecord: record,
+                },
+              }
+            : prev
+        );
+      }
+
+      if (!recordId) {
+        addToast('Identificador do prontuário não encontrado.', 'error');
+        return;
+      }
 
       await Promise.all([
         updateDraftMedicalRecord(recordId, {
@@ -359,8 +382,9 @@ export function DoctorWorkspace() {
         }).catch(() => null),
       ]);
 
-      setDraftStatus(`Rascunho salvo às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`);
-      addToast('Rascunho do prontuário salvo com sucesso.', 'success');
+      const now = new Date();
+      setDraftStatus(`Salvo às ${now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`);
+      addToast('Rascunho clínico e dados ginecológicos salvos!', 'success');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Falha ao salvar rascunho.';
       addToast(msg, 'error');
@@ -369,8 +393,8 @@ export function DoctorWorkspace() {
     }
   }
 
-  function handleFinishConsultation() {
-    if (!state?.activeConsultation?.medicalRecord) {
+  async function handleFinishConsultation() {
+    if (!state?.activeConsultation) {
       addToast('Nenhum atendimento clínico ativo encontrado para finalizar.', 'error');
       return;
     }
@@ -399,15 +423,53 @@ export function DoctorWorkspace() {
       return;
     }
 
+    // Se o medicalRecord ainda não estiver associado no estado local, vincula agora
+    if (!state.activeConsultation.medicalRecord?.id && state.activeConsultation.patientId) {
+      try {
+        setFinishing(true);
+        const record = await startOrGetMedicalRecord({
+          patientId: state.activeConsultation.patientId,
+        });
+        setState((prev) =>
+          prev && prev.activeConsultation
+            ? {
+                ...prev,
+                activeConsultation: {
+                  ...prev.activeConsultation,
+                  medicalRecord: record,
+                },
+              }
+            : prev
+        );
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Falha ao vincular prontuário clínico.';
+        addToast(msg, 'error');
+        return;
+      } finally {
+        setFinishing(false);
+      }
+    }
+
     setShowFinishConfirmModal(true);
   }
 
   async function executeFinishConsultation() {
-    if (!state?.activeConsultation?.medicalRecord) return;
+    if (!state?.activeConsultation) return;
 
     setFinishing(true);
     try {
-      const recordId = state.activeConsultation.medicalRecord.id;
+      let recordId = state.activeConsultation.medicalRecord?.id;
+      if (!recordId && state.activeConsultation.patientId) {
+        const record = await startOrGetMedicalRecord({
+          patientId: state.activeConsultation.patientId,
+        });
+        recordId = record.id;
+      }
+
+      if (!recordId) {
+        addToast('Identificador do prontuário clínico não encontrado.', 'error');
+        return;
+      }
 
       // Consolida campos clínicos para garantir persistência íntegra no prontuário
       const finalSubjective = subjective.trim() || [

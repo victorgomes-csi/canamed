@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   getPatientMedicalRecordHistory,
   addMedicalRecordAddendum,
@@ -28,6 +28,7 @@ import { DOCTOR_PATHS } from '../../navigation/routes';
 export function DoctorMedicalRecordsPage() {
   const { patientId } = useParams<{ patientId?: string }>();
   const { addToast } = useToast();
+  const navigate = useNavigate();
 
   const [patients, setPatients] = useState<ManagedPatient[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -488,7 +489,52 @@ export function DoctorMedicalRecordsPage() {
             />
           ) : activeTab === 'records' ? (
             /* Histórico de Atendimentos SOAP e Exames Ginecológicos */
-            records.length === 0 ? (
+            <>
+              {records.some((r) => r.status !== 'finalizado') && (
+                <div
+                  style={{
+                    background: '#fffbeb',
+                    border: '1px solid #fde68a',
+                    borderLeft: '4px solid #f59e0b',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '0.85rem 1.25rem',
+                    marginBottom: '1rem',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <span style={{ fontSize: '1.4rem' }}>⏳</span>
+                    <div>
+                      <strong style={{ color: '#92400e', fontSize: '0.95rem', display: 'block' }}>
+                        Atendimento Clínico em Andamento
+                      </strong>
+                      <span style={{ color: '#b45309', fontSize: '0.82rem' }}>
+                        Esta paciente possui anotações clínicas em aberto aguardando finalização.
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="button button--primary button--small"
+                    onClick={() => {
+                      const draft = records.find((r) => r.status !== 'finalizado');
+                      if (draft && selectedPatient) {
+                        navigate(`/medico/consultorio?recordId=${draft.id}&patientId=${draft.patientId}`, {
+                          state: { resumeRecord: draft, patient: selectedPatient },
+                        });
+                      }
+                    }}
+                    style={{ background: '#b45309' }}
+                  >
+                    ▶ Continuar Atendimento no Consultório
+                  </button>
+                </div>
+              )}
+            {records.length === 0 ? (
               <div
                 style={{
                   background: '#ffffff',
@@ -537,18 +583,35 @@ export function DoctorMedicalRecordsPage() {
                         )}
                       </div>
 
-                      <span
-                        style={{
-                          padding: '0.25rem 0.75rem',
-                          borderRadius: '999px',
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          background: record.status === 'finalizado' ? '#dcfce7' : '#fef9c3',
-                          color: record.status === 'finalizado' ? '#15803d' : '#854d0e',
-                        }}
-                      >
-                        {record.status === 'finalizado' ? '✓ Prontuário Finalizado' : '⏳ Em Andamento'}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span
+                          style={{
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: '999px',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            background: record.status === 'finalizado' ? '#dcfce7' : '#fef9c3',
+                            color: record.status === 'finalizado' ? '#15803d' : '#854d0e',
+                          }}
+                        >
+                          {record.status === 'finalizado' ? '✓ Prontuário Finalizado' : '⏳ Em Andamento'}
+                        </span>
+                        {record.status !== 'finalizado' && (
+                          <button
+                            type="button"
+                            className="button button--primary button--small"
+                            onClick={() => {
+                              navigate(`/medico/consultorio?recordId=${record.id}&patientId=${record.patientId}`, {
+                                state: { resumeRecord: record, patient: selectedPatient },
+                              });
+                            }}
+                            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
+                            title="Abrir este atendimento no consultório virtual para preencher ou finalizar"
+                          >
+                            ▶ Abrir no Consultório
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     {/* Dados Ginecológicos Especializados da Consulta (se existirem) */}
@@ -815,7 +878,8 @@ export function DoctorMedicalRecordsPage() {
                   </article>
                 ))}
               </div>
-            )
+            )}
+            </>
           ) : activeTab === 'attachments' ? (
             /* Aba de Exames Anteriores Anexados */
             <PatientExamAttachmentsSection patientId={patientId!} canEdit={true} />

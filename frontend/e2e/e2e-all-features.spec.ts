@@ -216,4 +216,29 @@ test.describe('Cana Med Mulher — Validação E2E de Todas as Funcionalidades',
     await expect(page.getByRole('heading', { name: /Meu Consultório Virtual/i })).toBeVisible({ timeout: 10000 });
     await expect(page.getByText(/Carregando consultório virtual/i)).not.toBeVisible({ timeout: 10000 });
   });
+
+  // =========================================================================
+  // 13. RETOMAR ATENDIMENTO A PARTIR DO HISTÓRICO DE PRONTUÁRIOS
+  // =========================================================================
+  test('13. Retomar atendimento clínico diretamente do histórico de prontuários da paciente (/medico/prontuario)', async ({ page }) => {
+    await loginAsDoctor(page);
+
+    // Navega para prontuários
+    await page.goto('/medico/prontuario');
+    await expect(page.getByRole('heading', { name: /Prontuário Eletrônico do Paciente|PEP/i })).toBeVisible({ timeout: 10000 });
+
+    // Clica na primeira paciente listada se houver
+    const patientItem = page.locator('aside button, [role="button"]').first();
+    if (await patientItem.isVisible()) {
+      await patientItem.click();
+
+      // Se houver atendimento em andamento ou botão "Abrir no Consultório", clica
+      const resumeBtn = page.getByRole('button', { name: /Abrir no Consultório|Continuar Atendimento/i }).first();
+      if (await resumeBtn.isVisible()) {
+        await resumeBtn.click();
+        await expect(page).toHaveURL(/\/medico\/consultorio/, { timeout: 15000 });
+        await expect(page.getByRole('heading', { name: /Meu Consultório Virtual/i })).toBeVisible({ timeout: 10000 });
+      }
+    }
+  });
 });

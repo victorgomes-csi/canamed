@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import {
   getDoctorWorkspaceState,
   doctorCallPatient,
@@ -28,8 +28,28 @@ import { DOCTOR_PATHS } from '../../navigation/routes';
 export function DoctorWorkspace() {
   const { addToast } = useToast();
   const location = useLocation();
-  const navState = location.state as { activeConsultation?: ActiveConsultationDto } | undefined;
-  const initialActive = navState?.activeConsultation || null;
+  const [searchParams] = useSearchParams();
+  const paramRecordId = searchParams.get('recordId') || undefined;
+  const paramPatientId = searchParams.get('patientId') || undefined;
+
+  const navState = location.state as {
+    activeConsultation?: ActiveConsultationDto;
+    resumeRecord?: any;
+    patient?: { id: string; name: string; birthDate?: string };
+  } | undefined;
+
+  const initialActive: ActiveConsultationDto | null = navState?.activeConsultation || (
+    navState?.resumeRecord && navState?.patient
+      ? {
+          queueEntryId: '',
+          patientId: navState.patient.id,
+          patientName: navState.patient.name,
+          patientBirthDate: navState.patient.birthDate,
+          medicalRecord: navState.resumeRecord,
+          startedAt: navState.resumeRecord.createdAt,
+        }
+      : null
+  );
 
   const [loading, setLoading] = useState(() => !initialActive);
   const [state, setState] = useState<DoctorWorkspaceStateResponse | null>(() => {
@@ -177,7 +197,10 @@ export function DoctorWorkspace() {
 
   const loadWorkspace = useCallback(async () => {
     try {
-      const data = await getDoctorWorkspaceState();
+      const data = await getDoctorWorkspaceState({
+        recordId: paramRecordId,
+        patientId: paramPatientId,
+      });
       if (!data.activeConsultation && initialActive) {
         data.activeConsultation = initialActive;
       }
@@ -225,13 +248,15 @@ export function DoctorWorkspace() {
             // Em testes ou ambientes com fallback
           });
 
-        getGynecologicalProfile(patId)
-          .then((prof) => {
-            if (prof) setGynProfile(prof);
-          })
-          .catch(() => {
-            // Fallback seguro
-          });
+        if (patId) {
+          getGynecologicalProfile(patId)
+            .then((prof) => {
+              if (prof) setGynProfile(prof);
+            })
+            .catch(() => {
+              // Fallback seguro
+            });
+        }
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Falha ao carregar consultório.';
@@ -239,7 +264,7 @@ export function DoctorWorkspace() {
     } finally {
       setLoading(false);
     }
-  }, [addToast, initialActive]);
+  }, [addToast, initialActive, paramRecordId, paramPatientId]);
 
   useEffect(() => {
     void loadWorkspace();

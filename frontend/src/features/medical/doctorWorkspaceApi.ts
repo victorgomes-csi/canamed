@@ -74,8 +74,12 @@ export interface DoctorDashboardSummaryResponse {
   upcomingAppointments: DoctorDashboardAppointmentDto[];
 }
 
-export async function getDoctorWorkspaceState(): Promise<DoctorWorkspaceStateResponse> {
-  return apiGet<DoctorWorkspaceStateResponse>('/doctor-workspace/state');
+export async function getDoctorWorkspaceState(params?: { recordId?: string; patientId?: string }): Promise<DoctorWorkspaceStateResponse> {
+  const query = new URLSearchParams();
+  if (params?.recordId) query.set('recordId', params.recordId);
+  if (params?.patientId) query.set('patientId', params.patientId);
+  const qs = query.toString();
+  return apiGet<DoctorWorkspaceStateResponse>(`/doctor-workspace/state${qs ? `?${qs}` : ''}`);
 }
 
 export async function doctorCallPatient(request: CallNextPatientRequest): Promise<QueueEntry> {

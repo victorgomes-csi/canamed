@@ -16,6 +16,7 @@ import {
   type GynecologicalProfileDto,
 } from './medicalRecordsApi';
 import { GynecologicalExamSection, type GynecologicalExamState } from './GynecologicalExamSection';
+import { GynecologicalAnamnesisSection } from './GynecologicalAnamnesisSection';
 import { DocumentModal } from './DocumentModal';
 import { PatientHistoryModal } from './PatientHistoryModal';
 import { PatientExamAttachmentsSection } from './PatientExamAttachmentsSection';
@@ -76,6 +77,20 @@ export function DoctorWorkspace() {
 
   // Gynecological Specialized State
   const [gynProfile, setGynProfile] = useState<GynecologicalProfileDto | null>(null);
+  const [chiefComplaint, setChiefComplaint] = useState('');
+  const [hma, setHma] = useState('');
+
+  const handleChiefComplaintChange = (val: string) => {
+    setChiefComplaint(val);
+    const narrative = [val ? `Queixa Principal: ${val}` : '', hma ? `HMA: ${hma}` : ''].filter(Boolean).join('\n\n');
+    setSubjective(narrative);
+  };
+
+  const handleHmaChange = (val: string) => {
+    setHma(val);
+    const narrative = [chiefComplaint ? `Queixa Principal: ${chiefComplaint}` : '', val ? `HMA: ${val}` : ''].filter(Boolean).join('\n\n');
+    setSubjective(narrative);
+  };
   const [dum, setDum] = useState('');
   const [isDumUncertain, setIsDumUncertain] = useState(false);
   const [isMenopausal, setIsMenopausal] = useState(false);
@@ -106,6 +121,8 @@ export function DoctorWorkspace() {
     objective,
     assessment,
     plan,
+    chiefComplaint,
+    hma,
     dum,
     isDumUncertain,
     isMenopausal,
@@ -118,7 +135,7 @@ export function DoctorWorkspace() {
     prescriptionNotes,
     generalOrientationNotes,
   }), [
-    subjective, objective, assessment, plan, dum, isDumUncertain, isMenopausal,
+    subjective, objective, assessment, plan, chiefComplaint, hma, dum, isDumUncertain, isMenopausal,
     isSexuallyActive, dyspareunia, exam, procedurePerformed, procedureBatch,
     procedureNotes, prescriptionNotes, generalOrientationNotes,
   ]);
@@ -140,8 +157,8 @@ export function DoctorWorkspace() {
           dum: d.dum || null,
           isDumUncertain: d.isDumUncertain,
           isMenopausal: d.isMenopausal,
-          chiefComplaint: d.subjective || null,
-          hma: d.subjective || null,
+          chiefComplaint: d.chiefComplaint || d.subjective || null,
+          hma: d.hma || d.subjective || null,
           isSexuallyActive: d.isSexuallyActive,
           dyspareunia: d.dyspareunia || null,
           breastsIsNormal: d.exam.breastsIsNormal,
@@ -220,6 +237,11 @@ export function DoctorWorkspace() {
         getGynecologicalConsultationData(recId)
           .then((gyn) => {
             if (gyn) {
+              setChiefComplaint(gyn.chiefComplaint || '');
+              setHma(gyn.hma || '');
+              if (!gyn.chiefComplaint && !gyn.hma && activeRecord.subjective) {
+                setHma(activeRecord.subjective);
+              }
               setDum(gyn.dum ? gyn.dum.slice(0, 10) : '');
               setIsDumUncertain(gyn.isDumUncertain ?? false);
               setIsMenopausal(gyn.isMenopausal ?? false);
@@ -311,8 +333,8 @@ export function DoctorWorkspace() {
           dum: dum || null,
           isDumUncertain,
           isMenopausal,
-          chiefComplaint: subjective || null,
-          hma: subjective || null,
+          chiefComplaint: chiefComplaint || subjective || null,
+          hma: hma || subjective || null,
           isSexuallyActive,
           dyspareunia: dyspareunia || null,
           breastsIsNormal: exam.breastsIsNormal,
@@ -378,8 +400,8 @@ export function DoctorWorkspace() {
           dum: dum || null,
           isDumUncertain,
           isMenopausal,
-          chiefComplaint: subjective || null,
-          hma: subjective || null,
+          chiefComplaint: chiefComplaint || subjective || null,
+          hma: hma || subjective || null,
           isSexuallyActive,
           dyspareunia: dyspareunia || null,
           breastsIsNormal: exam.breastsIsNormal,
@@ -646,42 +668,6 @@ export function DoctorWorkspace() {
                 bloodType={gynProfile ? (gynProfile as unknown as { bloodType?: string }).bloodType : undefined}
               />
 
-              {/* Banner Longitudinal Gineco-Obstétrico */}
-              {gynProfile && (
-                <div
-                  style={{
-                    background: '#f0fdfa',
-                    border: '1px solid #99f6e4',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '0.75rem 1rem',
-                    marginBottom: '1rem',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                  }}
-                >
-                  <div>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-primary-dark)', textTransform: 'uppercase' }}>
-                      🌸 Ficha Gineco-Obstétrica Longitudinal
-                    </span>
-                    <div style={{ fontSize: '0.875rem', color: '#134e4a', marginTop: '0.2rem' }}>
-                      <strong>Obstétrico:</strong> G{gynProfile.gravida} P{gynProfile.para} (Cesáreas: {gynProfile.cesareans}, Abortos: {gynProfile.abortions}, Filhos: {gynProfile.livingChildren}) • <strong>Contracepção:</strong> {gynProfile.currentMethod || 'Nenhum'} • <strong>Ciclo:</strong> {gynProfile.cycleIntervalDays || 28}d ({gynProfile.isCycleRegular ? 'Regular' : 'Irregular'})
-                    </div>
-                  </div>
-                  <Link
-                    to={DOCTOR_PATHS.patientRecord(active.patientId)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="button button--ghost button--small"
-                    style={{ color: 'var(--color-primary-dark)', borderColor: '#5eead4', fontSize: '0.75rem' }}
-                  >
-                    Ver Ficha Completa ↗
-                  </Link>
-                </div>
-              )}
-
               {/* Alerta de Alergias Persistente (SPEC-0012 RN-004) */}
               {(active.allergies || active.triage?.allergies) && (
                 <div
@@ -768,8 +754,8 @@ export function DoctorWorkspace() {
                   overflowX: 'auto',
                 }}
               >
-                <a href="#sec-gyn" className="button button--ghost button--small" style={{ fontSize: '0.8rem' }}>
-                  🌸 DUM & Anamnese
+                <a href="#sec-gyn-anamnesis" className="button button--ghost button--small" style={{ fontSize: '0.8rem' }}>
+                  🌸 Anamnese & Ciclo
                 </a>
                 <a href="#sec-exam" className="button button--ghost button--small" style={{ fontSize: '0.8rem' }}>
                   🩺 Exame Físico Ginecológico
@@ -785,102 +771,31 @@ export function DoctorWorkspace() {
                 </a>
               </div>
 
-              {/* Bloco 1: Anamnese Ginecológica & DUM */}
-              <div
-                id="sec-gyn"
-                style={{
-                  border: '1px solid var(--color-neutral-border)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '1.25rem',
-                  marginBottom: '1.25rem',
-                  background: '#fafafa',
+              {/* Central de Anamnese Ginecológica Integrada */}
+              <GynecologicalAnamnesisSection
+                chiefComplaint={chiefComplaint}
+                onChiefComplaintChange={handleChiefComplaintChange}
+                hma={hma}
+                onHmaChange={handleHmaChange}
+                dum={dum}
+                onDumChange={setDum}
+                isDumUncertain={isDumUncertain}
+                onIsDumUncertainChange={setIsDumUncertain}
+                isMenopausal={isMenopausal}
+                onIsMenopausalChange={setIsMenopausal}
+                isSexuallyActive={isSexuallyActive}
+                onIsSexuallyActiveChange={setIsSexuallyActive}
+                dyspareunia={dyspareunia}
+                onDyspareuniaChange={setDyspareunia}
+                profile={gynProfile}
+                onProfileUpdated={setGynProfile}
+                onApplyObstetricValues={(val) => {
+                  addToast(
+                    `Reconciliação aplicada: ${val.effectiveGaWeeks}s ${val.effectiveGaDays}d (DPP: ${new Date(val.effectiveEdd + 'T00:00:00').toLocaleDateString('pt-BR')})`,
+                    'success'
+                  );
                 }}
-              >
-                <h3 style={{ fontSize: '1.05rem', color: 'var(--color-primary-dark)', margin: '0 0 1rem 0' }}>
-                  🌸 Anamnese Ginecológica Contextualizada & Ciclo
-                </h3>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
-                  <div>
-                    <label className="form__label" htmlFor="gyn-dum">Data da Última Menstruação (DUM)</label>
-                    <input
-                      id="gyn-dum"
-                      type="date"
-                      className="form__input"
-                      value={dum}
-                      disabled={isMenopausal}
-                      onChange={(e) => setDum(e.target.value)}
-                    />
-                    <div style={{ display: 'flex', gap: '1rem', marginTop: '0.4rem', fontSize: '0.8rem' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={isDumUncertain}
-                          onChange={(e) => setIsDumUncertain(e.target.checked)}
-                          disabled={isMenopausal}
-                        />
-                        DUM incerta / esquecida
-                      </label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={isMenopausal}
-                          onChange={(e) => {
-                            setIsMenopausal(e.target.checked);
-                            if (e.target.checked) setDum('');
-                          }}
-                        />
-                        Menopausa / Climatério
-                      </label>
-                    </div>
-
-                    {/* Calculadora Obstétrica Interativa FEBRASGO (SPEC-0035 / RN-005, RN-006) */}
-                    {!isMenopausal && (
-                      <div style={{ marginTop: '0.75rem' }}>
-                        <ObstetricCalculatorWidget
-                          dum={dum}
-                          isDumUncertain={isDumUncertain}
-                          onApplyCalculatedValues={(val) => {
-                            addToast(`Reconciliação aplicada: ${val.effectiveGaWeeks}s ${val.effectiveGaDays}d (DPP: ${new Date(val.effectiveEdd + 'T00:00:00').toLocaleDateString('pt-BR')})`, 'success');
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="form__label" htmlFor="gyn-sexually-active">Vida Sexual Ativa?</label>
-                    <select
-                      id="gyn-sexually-active"
-                      className="form__select"
-                      value={isSexuallyActive === null ? '' : isSexuallyActive ? 'true' : 'false'}
-                      onChange={(e) => {
-                        if (e.target.value === '') setIsSexuallyActive(null);
-                        else setIsSexuallyActive(e.target.value === 'true');
-                      }}
-                    >
-                      <option value="">Não informado</option>
-                      <option value="true">Sim, sexualmente ativa</option>
-                      <option value="false">Não sexualmente ativa</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="form__label" htmlFor="gyn-dyspareunia">Dispareunia (Dor na Relação)</label>
-                    <select
-                      id="gyn-dyspareunia"
-                      className="form__select"
-                      value={dyspareunia}
-                      onChange={(e) => setDyspareunia(e.target.value)}
-                    >
-                      <option value="ausente">Ausente / Sem dor</option>
-                      <option value="superficial">Superficial (introito)</option>
-                      <option value="profunda">Profunda (pélvica)</option>
-                      <option value="ambas">Mista / Ambas</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
+              />
 
               {/* Bloco 2: Exame Físico Ginecológico Segmentado */}
               <div id="sec-exam" style={{ marginBottom: '1.25rem' }}>
@@ -958,9 +873,14 @@ export function DoctorWorkspace() {
                 </h3>
 
                 <div className="form__group">
-                  <label htmlFor="soap-s" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark)' }}>
-                    [S] Subjetivo — Queixa Principal & Anamnese
-                  </label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
+                    <label htmlFor="soap-s" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark)', margin: 0 }}>
+                      [S] Subjetivo — Síntese da Anamnese
+                    </label>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-neutral-muted)' }}>
+                      Sincronizado automaticamente com Queixa Principal e HMA
+                    </span>
+                  </div>
                   <textarea
                     id="soap-s"
                     className="form__textarea"

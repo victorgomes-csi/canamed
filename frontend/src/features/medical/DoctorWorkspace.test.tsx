@@ -147,7 +147,9 @@ describe('DoctorWorkspace Component', () => {
       expect(screen.getByText(/Finalizar Atendimento Clínico/i)).toBeInTheDocument();
 
       // Seções ginecológicas especializadas (SPEC-0027)
-      expect(screen.getByText(/DUM & Anamnese/i)).toBeInTheDocument();
+      expect(screen.getByText(/Anamnese & Ciclo/i)).toBeInTheDocument();
+      expect(screen.getByText(/Anamnese Ginecológica Integrada/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Queixa Principal/i).length).toBeGreaterThan(0);
       expect(screen.getByText(/Exame Físico Ginecológico/i)).toBeInTheDocument();
       expect(screen.getByText(/Procedimentos \(DIU\/Biópsia\)/i)).toBeInTheDocument();
       expect(screen.getByText(/Prescrições & Orientações/i)).toBeInTheDocument();

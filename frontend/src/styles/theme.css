@@ -2745,4 +2745,28 @@ body {
   border-color: var(--brand-primary, #852a91);
 }
 
+/* ==========================================================================
+   Central de Anamnese Ginecológica (Cana Med Mulher)
+   ========================================================================== */
+.complaint-chip {
+  user-select: none;
+}
+.complaint-chip:hover:not(:disabled) {
+  background-color: #E2E8F0 !important;
+  border-color: var(--color-brand-primary, #008080) !important;
+  color: var(--color-primary-dark, #005F6A) !important;
+}
+.complaint-chip--active {
+  background-color: #E6F4F1 !important;
+  border-color: var(--color-brand-primary, #008080) !important;
+  color: var(--color-primary-dark, #005F6A) !important;
+  box-shadow: 0 1px 3px rgba(0, 128, 128, 0.15);
+}
+.hma-snippet-btn:hover:not(:disabled) {
+  background-color: #E2E8F0 !important;
+  border-color: var(--color-brand-primary, #008080) !important;
+  color: var(--color-primary-dark, #005F6A) !important;
+}
+
+
 

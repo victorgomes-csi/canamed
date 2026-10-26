@@ -105,8 +105,8 @@ export function UserProfileMenu({ session, onSignOut, portalSubtitle }: UserProf
             width: '38px',
             height: '38px',
             borderRadius: '50%',
-            backgroundColor: 'var(--brand-soft, #E6F3F3)',
-            color: 'var(--brand-primary, #008080)',
+            backgroundColor: 'var(--brand-soft, #F7ECF8)',
+            color: 'var(--brand-primary, #852A91)',
             border: '1px solid rgba(183, 122, 216, 0.35)',
             display: 'flex',
             alignItems: 'center',
@@ -203,7 +203,7 @@ export function UserProfileMenu({ session, onSignOut, portalSubtitle }: UserProf
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = 'var(--base-muted, #F1F3F6)';
-                e.currentTarget.style.color = 'var(--brand-primary, #008080)';
+                e.currentTarget.style.color = 'var(--brand-primary, #852A91)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';

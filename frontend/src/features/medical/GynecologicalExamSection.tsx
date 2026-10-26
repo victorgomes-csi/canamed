@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { CervicalClockMap } from './CervicalClockMap';
 
 export type PhysicalExamStatus = 'NotEvaluated' | 'Normal' | 'Abnormal';
@@ -79,7 +79,7 @@ function ExamSegment({
           gap: '0.5rem',
         }}
       >
-        <strong style={{ fontSize: '0.95rem', color: 'var(--color-primary-dark, #005F6A)' }}>
+        <strong style={{ fontSize: '0.95rem', color: 'var(--color-primary-dark, #6F217B)' }}>
           {title}
         </strong>
 
@@ -117,7 +117,7 @@ function ExamSegment({
                 borderLeft: '1px solid var(--color-neutral-border)',
                 cursor: 'pointer',
                 fontWeight: isNormal ? 700 : 400,
-                background: isNormal ? 'var(--color-brand-primary, #008080)' : '#ffffff',
+                background: isNormal ? 'var(--color-brand-primary, #852A91)' : '#ffffff',
                 color: isNormal ? '#ffffff' : 'var(--color-neutral-dark)',
                 transition: 'background 0.15s ease',
               }}
@@ -318,7 +318,7 @@ export function GynecologicalExamSection({ exam, onChange, readOnly }: Props) {
         <button
           type="button"
           className="button button--ghost button--small"
-          style={{ fontSize: '0.8rem', color: 'var(--color-primary-dark, #005F6A)', fontWeight: 600 }}
+          style={{ fontSize: '0.8rem', color: 'var(--color-primary-dark, #6F217B)', fontWeight: 600 }}
           onClick={() => setShowCervicalMap(!isCervicalMapExpanded)}
         >
           {isCervicalMapExpanded ? '▲ Ocultar Mapa Cervical 12h' : '🎯 Abrir Mapa Cervical 12h (Odontograma Colposcópico)'}
@@ -361,3 +361,4 @@ export function GynecologicalExamSection({ exam, onChange, readOnly }: Props) {
     </div>
   );
 }
+

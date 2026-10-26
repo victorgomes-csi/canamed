@@ -182,7 +182,7 @@ export function PatientProfileSection({ sessionToken }: PatientProfileSectionPro
             disabled={saving}
             style={{
               padding: '10px 20px',
-              backgroundColor: 'var(--brand-primary, #008080)',
+              backgroundColor: 'var(--brand-primary, #852A91)',
               color: '#ffffff',
               border: 'none',
               borderRadius: '8px',

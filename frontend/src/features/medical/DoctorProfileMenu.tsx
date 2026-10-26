@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { ChevronDown, LogOut, ShieldCheck, Stethoscope } from 'lucide-react';
 import type { Session } from '../auth/authApi';
 
@@ -131,7 +131,7 @@ export function DoctorProfileMenu({ session, onSignOut }: DoctorProfileMenuProps
                 href="/app/dashboard"
                 className="doctor-profile-dropdown__item"
                 role="menuitem"
-                style={{ textDecoration: 'none', color: 'var(--color-primary-dark, #005F6A)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem' }}
+                style={{ textDecoration: 'none', color: 'var(--color-primary-dark, #6F217B)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem' }}
               >
                 <ShieldCheck size={16} />
                 <span>Recepção & Gestão da Clínica</span>
@@ -154,3 +154,4 @@ export function DoctorProfileMenu({ session, onSignOut }: DoctorProfileMenuProps
     </div>
   );
 }
+

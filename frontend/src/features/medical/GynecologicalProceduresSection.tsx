@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+﻿import { useState, useMemo } from 'react';
 import { createLarcRecord, type LarcPlacementDto } from './larcApi';
 
 export interface GynecologicalProceduresSectionProps {
@@ -125,7 +125,7 @@ export function GynecologicalProceduresSection({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <span style={{ fontSize: '1.3rem' }}>💉</span>
           <div>
-            <h3 style={{ fontSize: '1.05rem', color: 'var(--color-primary-dark, #005F6A)', margin: 0, fontWeight: 700 }}>
+            <h3 style={{ fontSize: '1.05rem', color: 'var(--color-primary-dark, #6F217B)', margin: 0, fontWeight: 700 }}>
               Procedimentos Ambulatoriais Especializados
             </h3>
             <span style={{ fontSize: '0.8rem', color: 'var(--color-neutral-muted, #64748B)' }}>
@@ -183,9 +183,9 @@ export function GynecologicalProceduresSection({
                   fontWeight: isSelected ? 700 : 500,
                   padding: '0.35rem 0.65rem',
                   borderRadius: '999px',
-                  border: isSelected ? '1.5px solid var(--color-brand-primary, #008080)' : '1px solid #CBD5E1',
-                  background: isSelected ? 'var(--color-brand-surface-accent, #E6F4F1)' : '#F8FAFC',
-                  color: isSelected ? 'var(--color-primary-dark, #005F6A)' : '#334155',
+                  border: isSelected ? '1.5px solid var(--color-brand-primary, #852A91)' : '1px solid #CBD5E1',
+                  background: isSelected ? 'var(--color-brand-surface-accent, #F7ECF8)' : '#F8FAFC',
+                  color: isSelected ? 'var(--color-primary-dark, #6F217B)' : '#334155',
                   cursor: disabled ? 'not-allowed' : 'pointer',
                   transition: 'all 0.15s ease-in-out',
                 }}
@@ -351,7 +351,7 @@ export function GynecologicalProceduresSection({
                   padding: '0.35rem 0.8rem',
                   borderRadius: '6px',
                   border: 'none',
-                  background: 'var(--color-brand-primary, #008080)',
+                  background: 'var(--color-brand-primary, #852A91)',
                   color: '#ffffff',
                   cursor: disabled || isSavingLarc ? 'not-allowed' : 'pointer',
                 }}
@@ -374,7 +374,7 @@ export function GynecologicalProceduresSection({
           {/* Pílulas de Apoio Específicas para DIU / LARCs */}
           {isLarc && (
             <div style={{ marginBottom: '0.65rem' }}>
-              <span style={{ fontSize: '0.74rem', color: 'var(--color-primary-dark, #005F6A)', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
+              <span style={{ fontSize: '0.74rem', color: 'var(--color-primary-dark, #6F217B)', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>
                 Atalhos Rápidos de Parâmetros de Inserção:
               </span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
@@ -434,3 +434,4 @@ export function GynecologicalProceduresSection({
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-</Agente Planejador (Cana Med)>
+﻿</Agente Planejador (Cana Med)>
 <Consolidação do PEP Ginecológico & Obstétrico e Experiência de Agendamento do Paciente - Plano de Implementação>
 > **SPEC de Referência:** [SPEC-0035 — Consolidação do PEP Ginecológico & Obstétrico e Experiência de Agendamento do Paciente](../../specs/0035-spec-consolidacao-pep-ginecologico-e-agendamento-paciente.md)
 > **Para Agentes Executores:** Executar este plano via `subagent-driven-development` ou `executing-plans`. Cada tarefa utiliza sintaxe de checklist (`- [ ]`).
@@ -7,7 +7,7 @@
 
 ## Visão Geral do Plano
 
-Este plano decompõe a implementação integral da **SPEC-0035**, resolvendo todos os apontamentos de segurança (P0), risco clínico (P0), conformidade médico-legal (Lei 13.787, CFM 1.821, Portaria 344/98 e CFM 1.958), identidade visual oficial (#008080 teal, #005F6A petróleo e #66CDAA menta) e completude funcional do PEP e Agendamento em 5 Fases estruturadas e 17 Tarefas atômicas orientadas a TDD (Red-Green-Refactor).
+Este plano decompõe a implementação integral da **SPEC-0035**, resolvendo todos os apontamentos de segurança (P0), risco clínico (P0), conformidade médico-legal (Lei 13.787, CFM 1.821, Portaria 344/98 e CFM 1.958), identidade visual oficial (#852A91 teal, #6F217B petróleo e #B77AD8 menta) e completude funcional do PEP e Agendamento em 5 Fases estruturadas e 17 Tarefas atômicas orientadas a TDD (Red-Green-Refactor).
 
 ---
 
@@ -91,7 +91,7 @@ Este plano decompõe a implementação integral da **SPEC-0035**, resolvendo tod
   - [ ] 2. **RED:** Criar teste em `GynecologicalExamSection.test.tsx` verificando renderização dos 3 botões por segmento (`Não Avaliado`, `Normal`, `Alterado`) e abertura da textarea quando "Alterado".
   - [ ] 3. **GREEN:** Em `GynecologicalConsultationData.cs`, atualizar as propriedades para `string? BreastsStatus` (ou nullable tri-state), ajustar o método `Create` para não definir `true`, e atualizar `Update(...)`.
   - [ ] 4. **GREEN:** Em `GynecologicalContracts.cs`, expor os novos campos nos DTOs de Request e Response.
-  - [ ] 5. **GREEN:** Em `GynecologicalExamSection.tsx`, implementar o componente com visual segment control oficial (#005F6A / #008080) e textarea de preenchimento obrigatório para achados alterados.
+  - [ ] 5. **GREEN:** Em `GynecologicalExamSection.tsx`, implementar o componente com visual segment control oficial (#6F217B / #852A91) e textarea de preenchimento obrigatório para achados alterados.
   - [ ] 6. **REFACTOR:** Assegurar que consultas legadas sem valor explícito sejam exibidas com segurança e que a experiência seja fluida.
 - **Comandos de verificação:**
   - Backend: `dotnet test backend/tests/Canamed.UnitTests/Canamed.UnitTests.csproj --filter "FullyQualifiedName~GynecologicalConsultationDataTests"`
@@ -170,7 +170,7 @@ Este plano decompõe a implementação integral da **SPEC-0035**, resolvendo tod
 ## Fase 2: Bloco 2 — Identidade Visual Canônica e Ergonomia UI/UX
 
 ### Task 7: Saneamento Integral dos Tokens Visuais e Erradicação do Roxo/Magenta (Frontend)
-- **Objetivo:** Remover permanentemente qualquer resquício de roxo, magenta ou lilás em `theme.css`, `AgendaRecepcaoPanel.tsx` e componentes auxiliares, padronizando rigorosamente na paleta oficial (#008080 Teal, #005F6A Petróleo e #66CDAA Menta).
+- **Objetivo:** Remover permanentemente qualquer resquício de roxo, magenta ou lilás em `theme.css`, `AgendaRecepcaoPanel.tsx` e componentes auxiliares, padronizando rigorosamente na paleta oficial (#852A91 Teal, #6F217B Petróleo e #B77AD8 Menta).
 - **Arquivos afetados:**
   - `frontend/src/styles/theme.css`
   - `frontend/src/features/agenda/AgendaRecepcaoPanel.tsx`
@@ -179,11 +179,11 @@ Este plano decompõe a implementação integral da **SPEC-0035**, resolvendo tod
 - **Passos TDD / Verificação Estética:**
   - [x] 1. **RED / Auditoria:** Executar busca regex em `frontend/src/` procurando por `#852A91`, `#6F217B`, `#D83C91`, `#B77AD8`, `#F7ECF8` e registrar todos os arquivos com ocorrências.
   - [x] 2. **GREEN:** Substituir tokens e classes em `theme.css`:
-    - `--brand-primary`: de `#852A91` para `#008080` (Teal)
-    - `--brand-hover`: de `#6F217B` para `#006666`
-    - `--brand-magenta` / `--brand-dark`: de `#D83C91` para `#005F6A` (Azul Petróleo)
-    - `--brand-lilac` / `--brand-accent`: para `#66CDAA` (Verde Menta)
-    - `--brand-soft`: de `#f7ecf8` para `#E6F3F3`
+    - `--brand-primary`: de `#852A91` para `#852A91` (Teal)
+    - `--brand-hover`: de `#6F217B` para `#6F217B`
+    - `--brand-magenta` / `--brand-dark`: de `#D83C91` para `#6F217B` (Azul Petróleo)
+    - `--brand-lilac` / `--brand-accent`: para `#B77AD8` (Verde Menta)
+    - `--brand-soft`: de `#f7ecf8` para `#F7ECF8`
   - [x] 3. **GREEN:** Atualizar estilos inline e classes em `AgendaRecepcaoPanel.tsx` e `Sidebar.tsx`.
   - [x] 4. **REFACTOR:** Reexecutar busca regex e confirmar zero ocorrências de cores legadas roxas/magentas.
 - **Comandos de verificação:**
@@ -337,7 +337,7 @@ Este plano decompõe a implementação integral da **SPEC-0035**, resolvendo tod
     - Abertura obrigatória do modal de preparo pré-exame ao selecionar Preventivo ou Inserção de DIU.
     - Bloqueio do avanço para a etapa de seleção de horário enquanto o checklist de preparo não for confirmado.
   - [ ] 2. **GREEN:** Criar o componente `PreExamInstructionsModal.tsx` com as orientações clínicas canônicas (48h abstinência, fora do período menstrual, preparo de bexiga, etc.).
-  - [ ] 3. **GREEN:** Refatorar `PatientPortal.tsx` implementando o Stepper de 4 etapas e a grade responsiva de cards de serviço GO com a paleta institucional (#005F6A / #008080).
+  - [ ] 3. **GREEN:** Refatorar `PatientPortal.tsx` implementando o Stepper de 4 etapas e a grade responsiva de cards de serviço GO com a paleta institucional (#6F217B / #852A91).
   - [ ] 4. **REFACTOR:** Adicionar mensagens explicativas e microinterações com transições de 150ms.
 - **Comando de verificação:**
   `npm --prefix frontend test -- features/patient/PatientPortal.test.tsx --run`
@@ -412,4 +412,5 @@ Este plano decompõe a implementação integral da **SPEC-0035**, resolvendo tod
 | Versão | Data | Autor | Descrição |
 | :--- | :--- | :--- | :--- |
 | **1.0** | 2026-10-26 | Planejador e Arquiteto de Produto | Decomposição formal atômica da SPEC-0035 em 17 tarefas TDD. |
+
 

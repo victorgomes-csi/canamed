@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import {
   FileText,
   Printer,
@@ -369,7 +369,7 @@ export function DocumentModal({
 
     const renderHeader = (viaLabel?: string) => `
       ${viaLabel ? `
-        <div style="background: #005f6a; color: #ffffff; text-align: center; font-weight: 700; font-size: 0.85rem; padding: 0.4rem; border-radius: 4px; margin-bottom: 1.25rem; letter-spacing: 0.05em; text-transform: uppercase;">
+        <div style="background: #6F217B; color: #ffffff; text-align: center; font-weight: 700; font-size: 0.85rem; padding: 0.4rem; border-radius: 4px; margin-bottom: 1.25rem; letter-spacing: 0.05em; text-transform: uppercase;">
           ${viaLabel}
         </div>
       ` : ''}
@@ -659,13 +659,13 @@ export function DocumentModal({
                 <span style={{ fontWeight: 600, color: 'var(--color-text-muted)' }}>Código Verificador Público:</span>
                 <code
                   style={{
-                    background: '#e6fffa',
-                    color: '#005f6a',
+                    background: '#F7ECF8',
+                    color: '#6F217B',
                     fontWeight: 700,
                     padding: '0.25rem 0.6rem',
                     borderRadius: 'var(--radius-sm)',
                     fontSize: '0.95rem',
-                    border: '1px solid #66cdaa',
+                    border: '1px solid #B77AD8',
                   }}
                 >
                   {issuedDoc.publicToken}
@@ -761,9 +761,9 @@ export function DocumentModal({
                     role="status"
                     style={{
                       marginBottom: '1rem',
-                      background: 'var(--brand-soft, #e6fffa)',
-                      border: '1px solid #66cdaa',
-                      color: '#005f6a',
+                      background: 'var(--brand-soft, #F7ECF8)',
+                      border: '1px solid #B77AD8',
+                      color: '#6F217B',
                       padding: '0.85rem 1rem',
                       borderRadius: '8px',
                       fontSize: '0.88rem',
@@ -1014,3 +1014,4 @@ export function DocumentModal({
     </div>
   );
 }
+

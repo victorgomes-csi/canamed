@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import { Calculator, Calendar, CheckCircle2, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
 export interface ObstetricCalculatorWidgetProps {
@@ -194,7 +194,7 @@ export const ObstetricCalculatorWidget: React.FC<ObstetricCalculatorWidgetProps>
               padding: '0.45rem',
               borderRadius: '8px',
               background: 'rgba(0, 128, 128, 0.1)',
-              color: 'var(--color-primary-dark, #005F6A)',
+              color: 'var(--color-primary-dark, #6F217B)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -203,7 +203,7 @@ export const ObstetricCalculatorWidget: React.FC<ObstetricCalculatorWidgetProps>
             <Calculator style={{ width: '1.15rem', height: '1.15rem' }} />
           </div>
           <div>
-            <h4 style={{ fontSize: '0.925rem', fontWeight: 700, color: 'var(--color-primary-dark, #005F6A)', margin: 0 }}>
+            <h4 style={{ fontSize: '0.925rem', fontWeight: 700, color: 'var(--color-primary-dark, #6F217B)', margin: 0 }}>
               Calculadora Obstétrica & Reconciliação FEBRASGO
             </h4>
             <p style={{ fontSize: '0.75rem', color: 'var(--color-neutral-muted, #64748B)', margin: 0 }}>
@@ -222,7 +222,7 @@ export const ObstetricCalculatorWidget: React.FC<ObstetricCalculatorWidgetProps>
             borderRadius: 'var(--radius-sm, 4px)',
             background: showUsgInputs ? '#E0F2F1' : '#FFFFFF',
             border: '1px solid #B2DFDB',
-            color: 'var(--color-primary-dark, #005F6A)',
+            color: 'var(--color-primary-dark, #6F217B)',
             cursor: 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
@@ -279,7 +279,7 @@ export const ObstetricCalculatorWidget: React.FC<ObstetricCalculatorWidgetProps>
             </div>
           ) : (
             <>
-              <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-primary-dark, #005F6A)' }}>
+              <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-primary-dark, #6F217B)' }}>
                 {calculation.gaDumWeeks !== null
                   ? `${calculation.gaDumWeeks}s ${calculation.gaDumDays}d`
                   : 'Data futura'}
@@ -307,12 +307,12 @@ export const ObstetricCalculatorWidget: React.FC<ObstetricCalculatorWidgetProps>
             <span style={{ color: 'var(--color-neutral-muted, #64748B)', fontWeight: 600, fontSize: '0.75rem' }}>
               Estimativa por 1º USG Precoce
             </span>
-            <CheckCircle2 style={{ width: '0.9rem', height: '0.9rem', color: 'var(--color-brand-primary, #008080)' }} />
+            <CheckCircle2 style={{ width: '0.9rem', height: '0.9rem', color: 'var(--color-brand-primary, #852A91)' }} />
           </div>
 
           {calculation.gaUsgWeeks !== null ? (
             <>
-              <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-primary-dark, #005F6A)' }}>
+              <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-primary-dark, #6F217B)' }}>
                 {calculation.gaUsgWeeks}s {calculation.gaUsgDays}d
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--color-neutral-muted, #64748B)', marginTop: '0.2rem' }}>
@@ -401,7 +401,7 @@ export const ObstetricCalculatorWidget: React.FC<ObstetricCalculatorWidgetProps>
             padding: '0.75rem 1rem',
             borderRadius: '8px',
             background: '#FFFFFF',
-            border: '1.5px solid var(--color-brand-primary, #008080)',
+            border: '1.5px solid var(--color-brand-primary, #852A91)',
             display: 'flex',
             flexWrap: 'wrap',
             alignItems: 'center',
@@ -413,13 +413,13 @@ export const ObstetricCalculatorWidget: React.FC<ObstetricCalculatorWidgetProps>
             <span style={{ color: 'var(--color-neutral-muted, #64748B)', fontWeight: 600 }}>
               Reconciliação Oficial Adotada:{' '}
             </span>
-            <strong style={{ fontSize: '1rem', color: 'var(--color-primary-dark, #005F6A)', marginLeft: '0.25rem' }}>
+            <strong style={{ fontSize: '1rem', color: 'var(--color-primary-dark, #6F217B)', marginLeft: '0.25rem' }}>
               {calculation.effectiveWeeks}s {calculation.effectiveDays}d
             </strong>
             <span
               style={{
                 fontSize: '0.78rem',
-                color: 'var(--color-brand-primary, #008080)',
+                color: 'var(--color-brand-primary, #852A91)',
                 fontWeight: 600,
                 display: 'block',
                 marginTop: '0.15rem',
@@ -449,3 +449,4 @@ export const ObstetricCalculatorWidget: React.FC<ObstetricCalculatorWidgetProps>
     </div>
   );
 };
+

@@ -181,7 +181,7 @@ export function PreventiveScreeningList({
           <button
             type="button"
             className="button button--primary button--small"
-            style={{ background: '#008080', borderColor: '#008080' }}
+            style={{ background: '#852A91', borderColor: '#852A91' }}
             onClick={() => setModalOpen(true)}
           >
             ➕ Registrar Exame Preventivo
@@ -223,7 +223,7 @@ export function PreventiveScreeningList({
                 key={s.id}
                 style={{
                   border: isHighRisk ? '1px solid #F5B5BC' : isWarningRisk ? '1px solid #F8D3A6' : '1px solid var(--color-neutral-border)',
-                  borderLeft: isHighRisk ? '4px solid #C33D49' : isWarningRisk ? '4px solid #A96512' : '4px solid #008080',
+                  borderLeft: isHighRisk ? '4px solid #C33D49' : isWarningRisk ? '4px solid #A96512' : '4px solid #852A91',
                   borderRadius: 'var(--radius-md)',
                   padding: '0.85rem 1rem',
                   background: isHighRisk ? '#FFF8F8' : isWarningRisk ? '#FFFAF5' : 'var(--color-neutral-surface)',
@@ -303,7 +303,7 @@ export function PreventiveScreeningList({
                           padding: '0.15rem 0.5rem',
                           borderRadius: '12px',
                           background: s.hpvDnaResult === 'negativo' ? '#E9F5EC' : s.hpvDnaResult.includes('16_18') ? '#FCECEE' : '#FFF0F6',
-                          color: s.hpvDnaResult === 'negativo' ? '#237A52' : s.hpvDnaResult.includes('16_18') ? '#C33D49' : '#005F6A',
+                          color: s.hpvDnaResult === 'negativo' ? '#237A52' : s.hpvDnaResult.includes('16_18') ? '#C33D49' : '#D83C91',
                           border: `1px solid ${s.hpvDnaResult === 'negativo' ? '#BDE5C8' : s.hpvDnaResult.includes('16_18') ? '#F5B5BC' : '#FCC2D7'}`,
                         }}
                       >
@@ -324,7 +324,7 @@ export function PreventiveScreeningList({
                         padding: '0.5rem 0.75rem',
                         borderRadius: 'var(--radius-sm)',
                         background: '#FAF5FF',
-                        borderLeft: '3px solid #008080',
+                        borderLeft: '3px solid #852A91',
                         fontSize: '0.84rem',
                         color: '#481361',
                       }}
@@ -337,7 +337,7 @@ export function PreventiveScreeningList({
                 {s.nextDueDate && (
                   <div style={{ textAlign: 'right', fontSize: '0.8rem' }}>
                     <span style={{ color: '#626B79', display: 'block' }}>Próximo Controle:</span>
-                    <strong style={{ color: isDue ? '#C33D49' : '#008080' }}>
+                    <strong style={{ color: isDue ? '#C33D49' : '#852A91' }}>
                       {isDue ? '⚠️ Vigilância Atrasada: ' : '✅ Próximo: '}
                       {new Date(s.nextDueDate).toLocaleDateString('pt-BR')}
                     </strong>
@@ -501,7 +501,7 @@ export function PreventiveScreeningList({
               <label className="field">
                 <span className="field__label" style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>Conduta Clínica e Seguimento (Diretrizes INCA / MS / FEBRASGO)</span>
-                  <span style={{ fontSize: '0.75rem', color: '#008080', fontWeight: 600 }}>Sugestão Baseada em Evidência</span>
+                  <span style={{ fontSize: '0.75rem', color: '#852A91', fontWeight: 600 }}>Sugestão Baseada em Evidência</span>
                 </span>
                 <textarea
                   className="form__textarea"
@@ -563,7 +563,7 @@ export function PreventiveScreeningList({
                 <button
                   type="submit"
                   className="button button--primary"
-                  style={{ background: '#008080', borderColor: '#008080' }}
+                  style={{ background: '#852A91', borderColor: '#852A91' }}
                   disabled={saving}
                 >
                   {saving ? 'Registrando…' : 'Salvar Exame'}

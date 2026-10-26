@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+﻿import { useState, useMemo } from 'react';
 import { AlertTriangle, Check, Search } from 'lucide-react';
 
 import { createAppointment, type Appointment, type AppointmentType, type Patient, type Professional } from './agendaApi';
@@ -235,7 +235,7 @@ export function AppointmentForm({
                   padding: '0.6rem 0.85rem',
                   border: 'none',
                   borderBottom: '1px solid #F1F5F9',
-                  background: p.id === patientId ? '#E6F3F3' : '#FFFFFF',
+                  background: p.id === patientId ? '#F7ECF8' : '#FFFFFF',
                   color: '#1E293B',
                   fontSize: '0.85rem',
                   cursor: 'pointer',
@@ -250,7 +250,7 @@ export function AppointmentForm({
                     {p.phone || 'Sem telefone'} {(p as unknown as { cpf?: string }).cpf ? `· CPF: ${(p as unknown as { cpf?: string }).cpf}` : ''}
                   </div>
                 </div>
-                {p.id === patientId && <Check size={16} color="#008080" />}
+                {p.id === patientId && <Check size={16} color="#852A91" />}
               </button>
             ))}
           </div>
@@ -275,7 +275,7 @@ export function AppointmentForm({
           ))}
         </select>
         {selectedPatient && (
-          <div style={{ fontSize: '0.75rem', color: '#005F6A', marginTop: '0.25rem', fontWeight: 600 }}>
+          <div style={{ fontSize: '0.75rem', color: '#6F217B', marginTop: '0.25rem', fontWeight: 600 }}>
             ✓ Selecionada: {selectedPatient.name}
           </div>
         )}
@@ -354,3 +354,4 @@ export function AppointmentForm({
     </form>
   );
 }
+

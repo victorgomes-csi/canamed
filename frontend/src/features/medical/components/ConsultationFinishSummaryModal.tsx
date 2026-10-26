@@ -1,4 +1,4 @@
-import {
+﻿import {
   CheckCircle,
   Calendar,
   FileText,
@@ -85,7 +85,7 @@ export function ConsultationFinishSummaryModal({
         <div
           style={{
             padding: '1.25rem 1.5rem',
-            background: 'linear-gradient(135deg, #005F6A 0%, #008080 100%)',
+            background: 'linear-gradient(135deg, #6F217B 0%, #852A91 100%)',
             color: '#FFFFFF',
             display: 'flex',
             alignItems: 'center',
@@ -113,7 +113,7 @@ export function ConsultationFinishSummaryModal({
               >
                 Resumo de Alta & Fechamento
               </h2>
-              <span style={{ fontSize: '0.82rem', color: '#E6F3F3' }}>
+              <span style={{ fontSize: '0.82rem', color: '#F7ECF8' }}>
                 Atendimento concluído para <strong>{patientName}</strong>
               </span>
             </div>
@@ -158,7 +158,7 @@ export function ConsultationFinishSummaryModal({
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.65rem' }}>
-              <Activity size={18} color="#008080" />
+              <Activity size={18} color="#852A91" />
               <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1E293B' }}>
                 Diagnósticos & Avaliação SOAP [A]
               </span>
@@ -183,7 +183,7 @@ export function ConsultationFinishSummaryModal({
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ fontWeight: 700, color: '#005F6A' }}>{diag.code}</span>
+                        <span style={{ fontWeight: 700, color: '#6F217B' }}>{diag.code}</span>
                         <span style={{ color: '#334155' }}>{diag.description}</span>
                       </div>
                       <span
@@ -193,8 +193,8 @@ export function ConsultationFinishSummaryModal({
                           padding: '0.15rem 0.5rem',
                           borderRadius: '6px',
                           background: isHypothesis ? '#FEF3C7' : '#F0FDF9',
-                          color: isHypothesis ? '#92400E' : '#005F6A',
-                          border: `1px solid ${isHypothesis ? '#FDE68A' : '#66CDAA'}`,
+                          color: isHypothesis ? '#92400E' : '#6F217B',
+                          border: `1px solid ${isHypothesis ? '#FDE68A' : '#B77AD8'}`,
                         }}
                       >
                         {isHypothesis ? 'Hipótese' : 'Confirmado'}
@@ -269,18 +269,18 @@ export function ConsultationFinishSummaryModal({
           {plannedReturnDays > 0 && (
             <div
               style={{
-                background: '#E6F3F3',
+                background: '#F7ECF8',
                 borderRadius: '12px',
                 padding: '1rem',
-                border: '1px solid #66CDAA',
+                border: '1px solid #B77AD8',
                 display: 'flex',
                 alignItems: 'flex-start',
                 gap: '0.75rem',
               }}
             >
-              <Calendar size={22} color="#008080" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <Calendar size={22} color="#852A91" style={{ flexShrink: 0, marginTop: '2px' }} />
               <div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#005F6A' }}>
+                <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#6F217B' }}>
                   Retorno programado em {plannedReturnDays} dias
                 </div>
                 <div style={{ fontSize: '0.78rem', color: '#0F766E', marginTop: '3px', lineHeight: 1.4 }}>
@@ -398,7 +398,7 @@ export function ConsultationFinishSummaryModal({
                 padding: '0.65rem 1.25rem',
                 borderRadius: '8px',
                 border: 'none',
-                background: '#008080',
+                background: '#852A91',
                 color: '#FFFFFF',
                 fontSize: '0.85rem',
                 fontWeight: 700,
@@ -415,3 +415,4 @@ export function ConsultationFinishSummaryModal({
     </div>
   );
 }
+

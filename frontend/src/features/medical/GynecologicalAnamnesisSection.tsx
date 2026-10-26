@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import type { GynecologicalProfileDto } from './medicalRecordsApi';
 import { QuickChiefComplaintSelector } from './QuickChiefComplaintSelector';
 import { GuidedHmaEditor } from './GuidedHmaEditor';
@@ -88,7 +88,7 @@ export function GynecologicalAnamnesisSection({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <span style={{ fontSize: '1.4rem' }}>🌸</span>
           <div>
-            <h3 style={{ fontSize: '1.15rem', color: 'var(--color-primary-dark, #005F6A)', margin: 0, fontWeight: 700 }}>
+            <h3 style={{ fontSize: '1.15rem', color: 'var(--color-primary-dark, #6F217B)', margin: 0, fontWeight: 700 }}>
               Anamnese Ginecológica Integrada
             </h3>
             <span style={{ fontSize: '0.8rem', color: 'var(--color-neutral-muted, #64748B)' }}>
@@ -145,7 +145,7 @@ export function GynecologicalAnamnesisSection({
           fontSize: '0.85rem',
         }}
       >
-        <span style={{ fontWeight: 700, color: 'var(--color-primary-dark, #005F6A)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+        <span style={{ fontWeight: 700, color: 'var(--color-primary-dark, #6F217B)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
           <span>📋</span> Resumo GO:
         </span>
 
@@ -157,7 +157,7 @@ export function GynecologicalAnamnesisSection({
             borderRadius: 'var(--radius-sm, 4px)',
             border: '1px solid #E2E8F0',
             fontWeight: 600,
-            color: 'var(--color-primary-dark, #005F6A)',
+            color: 'var(--color-primary-dark, #6F217B)',
             filter: privacyMode ? 'blur(4px)' : 'none',
             transition: 'filter 0.2s',
           }}
@@ -233,7 +233,7 @@ export function GynecologicalAnamnesisSection({
           padding: '1rem',
         }}
       >
-        <h4 style={{ fontSize: '0.95rem', color: 'var(--color-primary-dark, #005F6A)', margin: '0 0 0.85rem 0', fontWeight: 700 }}>
+        <h4 style={{ fontSize: '0.95rem', color: 'var(--color-primary-dark, #6F217B)', margin: '0 0 0.85rem 0', fontWeight: 700 }}>
           Controle Menstrual & DUM Contextualizada
         </h4>
 
@@ -373,7 +373,7 @@ export function GynecologicalAnamnesisSection({
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ margin: 0, color: 'var(--color-primary-dark, #005F6A)', fontSize: '1.2rem' }}>
+              <h3 style={{ margin: 0, color: 'var(--color-primary-dark, #6F217B)', fontSize: '1.2rem' }}>
                 Editar Histórico Gineco-Obstétrico da Paciente
               </h3>
               <button
@@ -398,3 +398,4 @@ export function GynecologicalAnamnesisSection({
     </section>
   );
 }
+

@@ -66,7 +66,7 @@ export function LinksPanel() {
           borderRadius: '12px',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--brand-primary, #008080)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--brand-primary, #852A91)' }}>
           <Globe size={18} />
           <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Página Pública da Paciente</span>
         </div>
@@ -106,9 +106,9 @@ export function LinksPanel() {
                 padding: '0.5rem 0.85rem',
                 fontSize: '0.85rem',
                 fontWeight: 600,
-                color: copied ? '#059669' : 'var(--brand-primary, #008080)',
-                background: copied ? '#ECFDF5' : 'var(--brand-soft, #E6F3F3)',
-                border: copied ? '1px solid #A7F3D0' : '1px solid var(--brand-primary, #008080)',
+                color: copied ? '#059669' : 'var(--brand-primary, #852A91)',
+                background: copied ? '#ECFDF5' : 'var(--brand-soft, #F7ECF8)',
+                border: copied ? '1px solid #A7F3D0' : '1px solid var(--brand-primary, #852A91)',
                 borderRadius: '6px',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',

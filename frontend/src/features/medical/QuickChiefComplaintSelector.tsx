@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 
 export interface QuickComplaintArchetype {
   id: string;
@@ -124,9 +124,9 @@ export function QuickChiefComplaintSelector({ value, onChange, disabled = false 
                 fontSize: '0.8rem',
                 fontWeight: isSelected ? 700 : 500,
                 borderRadius: '999px',
-                border: isSelected ? '1.5px solid var(--color-brand-primary, #008080)' : '1px solid var(--color-neutral-border, #CBD5E1)',
-                background: isSelected ? 'var(--color-brand-surface-accent, #E6F4F1)' : '#F8FAFC',
-                color: isSelected ? 'var(--color-primary-dark, #005F6A)' : '#334155',
+                border: isSelected ? '1.5px solid var(--color-brand-primary, #852A91)' : '1px solid var(--color-neutral-border, #CBD5E1)',
+                background: isSelected ? 'var(--color-brand-surface-accent, #F7ECF8)' : '#F8FAFC',
+                color: isSelected ? 'var(--color-primary-dark, #6F217B)' : '#334155',
                 cursor: disabled ? 'not-allowed' : 'pointer',
                 transition: 'all 0.15s ease-in-out',
               }}
@@ -157,3 +157,4 @@ export function QuickChiefComplaintSelector({ value, onChange, disabled = false 
     </div>
   );
 }
+

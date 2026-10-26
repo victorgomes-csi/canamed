@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { AlertCircle, CheckCircle2, ShieldAlert, X } from 'lucide-react';
 
 export interface PreExamInstructionsModalProps {
@@ -87,7 +87,7 @@ export function PreExamInstructionsModal({
         <div
           style={{
             padding: '1.25rem 1.5rem',
-            background: 'linear-gradient(135deg, #005F6A 0%, #008080 100%)',
+            background: 'linear-gradient(135deg, #6F217B 0%, #852A91 100%)',
             color: '#FFFFFF',
             display: 'flex',
             alignItems: 'center',
@@ -115,7 +115,7 @@ export function PreExamInstructionsModal({
               >
                 Orientações de Preparo Pré-Exame
               </h2>
-              <span style={{ fontSize: '0.8rem', color: '#E6F3F3' }}>
+              <span style={{ fontSize: '0.8rem', color: '#F7ECF8' }}>
                 {careTitle}
               </span>
             </div>
@@ -144,17 +144,17 @@ export function PreExamInstructionsModal({
         <div style={{ padding: '1.25rem 1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div
             style={{
-              background: '#E6F3F3',
+              background: '#F7ECF8',
               borderRadius: '10px',
               padding: '0.85rem 1rem',
               display: 'flex',
               gap: '0.75rem',
               alignItems: 'flex-start',
-              borderLeft: '4px solid #008080',
+              borderLeft: '4px solid #852A91',
             }}
           >
-            <AlertCircle size={20} color="#005F6A" style={{ flexShrink: 0, marginTop: '2px' }} />
-            <div style={{ fontSize: '0.82rem', color: '#005F6A', lineHeight: 1.5 }}>
+            <AlertCircle size={20} color="#6F217B" style={{ flexShrink: 0, marginTop: '2px' }} />
+            <div style={{ fontSize: '0.82rem', color: '#6F217B', lineHeight: 1.5 }}>
               Para garantir a confiabilidade diagnóstica da amostra e sua segurança assistencial, é indispensável cumprir as orientações pré-exame abaixo antes de prosseguir com o agendamento.
             </div>
           </div>
@@ -213,7 +213,7 @@ export function PreExamInstructionsModal({
                     gap: '0.75rem',
                     padding: '0.75rem 0.85rem',
                     borderRadius: '10px',
-                    border: isChecked ? '1px solid #008080' : '1px solid #E2E8F0',
+                    border: isChecked ? '1px solid #852A91' : '1px solid #E2E8F0',
                     background: isChecked ? '#F0FDF9' : '#FFFFFF',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
@@ -227,13 +227,13 @@ export function PreExamInstructionsModal({
                       width: '18px',
                       height: '18px',
                       marginTop: '2px',
-                      accentColor: '#008080',
+                      accentColor: '#852A91',
                       cursor: 'pointer',
                       flexShrink: 0,
                     }}
                   />
                   <div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 600, color: isChecked ? '#005F6A' : '#1E293B' }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 600, color: isChecked ? '#6F217B' : '#1E293B' }}>
                       {item.text}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>
@@ -281,7 +281,7 @@ export function PreExamInstructionsModal({
               padding: '0.65rem 1.25rem',
               borderRadius: '8px',
               border: 'none',
-              background: allRequiredChecked ? '#008080' : '#CBD5E1',
+              background: allRequiredChecked ? '#852A91' : '#CBD5E1',
               color: '#FFFFFF',
               fontSize: '0.85rem',
               fontWeight: 700,
@@ -300,3 +300,4 @@ export function PreExamInstructionsModal({
     </div>
   );
 }
+

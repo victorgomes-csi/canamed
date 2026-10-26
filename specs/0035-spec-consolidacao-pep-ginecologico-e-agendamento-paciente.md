@@ -1,4 +1,4 @@
-# SPEC-0035 — Consolidação do PEP Ginecológico & Obstétrico e Experiência de Agendamento do Paciente
+﻿# SPEC-0035 — Consolidação do PEP Ginecológico & Obstétrico e Experiência de Agendamento do Paciente
 
 | Campo | Valor |
 | :--- | :--- |
@@ -19,7 +19,7 @@
 Esta especificação consolida e resolve de forma definitiva todos os apontamentos de segurança, conformidade médico-legal (LGPD, CFM, Lei nº 13.787/2018, Portaria SVS/MS nº 344/1998 e Resolução CFM nº 1.958/2010), risco clínico, identidade visual canônica e completude funcional do **Prontuário Eletrônico do Paciente (PEP) Ginecológico e Obstétrico** e da **Jornada de Agendamento (Portal da Paciente, Recepção e Totem/Kiosk)** da plataforma Cana Med Mulher.
 
 Pergunta de controle do `GEMINI.md`: **Isso reduz atrito na rotina da clínica?**
-**Sim, drasticamente.** A consolidação elimina o risco assistencial de falso-positivo no exame físico (modelo Tri-State), corrige a cegueira do alerta crítico de aloimunização em gestantes Rh negativo, blinda a privacidade da paciente no Totem e na Recepção, unifica os fluxos do consultório médico (dock rápido, pré-natal, preventivo, LARC e SOAP) em uma interface acolhedora com tokens oficiais (#008080 teal, #005F6A petróleo e #66CDAA menta), e automatiza a retenção com retorno programado e orientações pré-exame no agendamento.
+**Sim, drasticamente.** A consolidação elimina o risco assistencial de falso-positivo no exame físico (modelo Tri-State), corrige a cegueira do alerta crítico de aloimunização em gestantes Rh negativo, blinda a privacidade da paciente no Totem e na Recepção, unifica os fluxos do consultório médico (dock rápido, pré-natal, preventivo, LARC e SOAP) em uma interface acolhedora com tokens oficiais (#852A91 teal, #6F217B petróleo e #B77AD8 menta), e automatiza a retenção com retorno programado e orientações pré-exame no agendamento.
 
 ---
 
@@ -29,7 +29,7 @@ As auditorias especializadas conduzidas pelo `canamed-go-auditor` e as análises
 1. **Vulnerabilidades de Privacidade e Segurança Médico-Legal (P0):** O endpoint anônimo do Totem (`/api/v1/kiosk/{clinicId}/search`) permitia enumeração parcial de pacientes por termos genéricos; o interceptor de imutabilidade do EF Core não protegia registros vitais de pré-natal, rastreamento oncológico e DIU contra deleção física; o papel `Admin` detinha poderes clínicos irrestritos sem validação de CRM; receitas de controle especial eram emitidas em via única sem os campos obrigatórios da Portaria SVS/MS nº 344/98 e RDC ANVISA nº 44/2009; e pré-anamneses com dados íntimos de saúde ficavam desnecessariamente expostas a atendentes na Recepção.
 2. **Falha Silenciosa de Alerta Clínico (P0):** No consultório médico (`DoctorWorkspace.tsx`), o alerta de risco de aloimunização Rh materno-fetal lia `rhFactor` e `bloodType` de `gynProfile`, onde tais atributos inexistem, fazendo com que gestantes Rh negativo nunca acionassem a vigilância clínica de Coombs indireto e profilaxia anti-D.
 3. **Falso-Positivo no Exame Físico Ginecológico (P0):** Segmentos anatômicos (mamas, abdome, genitália, especular, toque) possuíam default booleano `true` ("Normal"), violando a diretriz de integridade do PEP e gerando falso registro de normalidade para procedimentos não executados na consulta.
-4. **Desvio de Identidade Visual e Fragmentação Ergonômica:** Componentes da recepção e o arquivo `theme.css` utilizavam tokens residuais roxo/magenta (`#852A91`, `#D83C91`), desconectados da paleta oficial (#008080 / #005F6A / #66CDAA). O médico sofria com perda de estado em reloads, ausência de navegação rápida, falta de integração visual do cartão de pré-natal e rastreamento preventivo no cockpit do atendimento, e ausência de pré-carregamento de receitas emitidas.
+4. **Desvio de Identidade Visual e Fragmentação Ergonômica:** Componentes da recepção e o arquivo `theme.css` utilizavam tokens residuais roxo/magenta (`#852A91`, `#D83C91`), desconectados da paleta oficial (#852A91 / #6F217B / #B77AD8). O médico sofria com perda de estado em reloads, ausência de navegação rápida, falta de integração visual do cartão de pré-natal e rastreamento preventivo no cockpit do atendimento, e ausência de pré-carregamento de receitas emitidas.
 5. **Atrito no Agendamento e Preparo Pré-Exame:** O Portal da Paciente apresentava dropdowns estéreis de agendamento sem instruções cruciais de preparo pré-exame (abstinência sexual, período menstrual, preparo de bexiga ou exames prévios para inserção de DIU), elevando cancelamentos e amostras inadequadas de Papanicolaou no laboratório.
 
 ---
@@ -48,7 +48,7 @@ As auditorias especializadas conduzidas pelo `canamed-go-auditor` e as análises
 - **Receita de Controle Especial em 2 Vias (Portaria 344/98 e RDC 44/2009):** Emissão padronizada em 2 vias (1ª Via: Farmácia, 2ª Via: Paciente) com blocos de Identificação do Emitente, do Comprador e do Fornecedor em `DocumentModal.tsx`, e pré-carregamento automático dos medicamentos prescritos na consulta.
 
 #### Bloco 2 — Identidade Visual Canônica e Ergonomia UI/UX:
-- **Saneamento Visual Completo:** Erradicação de roxo/magenta legados em `frontend/src/styles/theme.css` e `AgendaRecepcaoPanel.tsx`, aplicando estritamente Verde Água Teal (`#008080`), Azul Petróleo (`#005F6A`) e Verde Menta (`#66CDAA`).
+- **Saneamento Visual Completo:** Erradicação de roxo/magenta legados em `frontend/src/styles/theme.css` e `AgendaRecepcaoPanel.tsx`, aplicando estritamente Verde Água Teal (`#852A91`), Azul Petróleo (`#6F217B`) e Lilás Apoio (`#B77AD8`).
 - **Cockpit do Consultório (`DoctorWorkspace.tsx`):**
   - Dock sticky lateral/superior de navegação rápida entre as seções do prontuário com indicador visual de preenchimento (`✓` preenchido, `○` não preenchido).
   - Persistência e restauração de contexto via URL query parameter (`?appointmentId=...` ou `?patientId=...`).
@@ -103,7 +103,7 @@ A autorização é validada rigorosamente no backend por recurso (ADR-0008). A i
 | **RN-005** | **Segregação de Pré-Anamnese Clínica Confidencial:** No agendamento da paciente, queixas íntimas, sintomas ginecológicos ou histórico de saúde informado no ato da marcação são gravados no campo `ClinicalPreAnamnesis`, criptografado em repouso com AES-GCM-256 e acessível exclusivamente por profissionais com permissão `RecordsRead`/`WorkspaceAccess`. Operadores da recepção com permissão `AgendaRead` visualizam apenas anotações operacionais (`Notes`) e o tipo de serviço. | LGPD Art. 5º, II e Art. 11 (Tratamento de Dados Pessoais Sensíveis) e Código de Ética Médica Art. 73 (Sigilo Profissional). |
 | **RN-006** | **Privilégio Mínimo e Segregação de Funções Administrativas:** O papel `Admin` não recebe automaticamente permissões de leitura ou criação de prontuários (`RecordsRead`, `RecordsCreate`, `RecordsFinalize`, `RecordsAddendum`, `DocumentsSign`, `WorkspaceAccess`). O acesso aos dados clínicos exige que o usuário possua perfil de profissional assistencial (`Professional`) e registro ativo no CRM. | Princípio do Menor Privilégio (Least Privilege), ISO/IEC 27001 e CFM nº 1.821/2007. |
 | **RN-007** | **Receita de Controle Especial em Duas Vias Regulatórias:** Prescrições do tipo `receita_controle_especial` devem ser geradas obrigatoriamente em 2 vias identificadas (`1ª VIA — RETENÇÃO DA FARMÁCIA` e `2ª VIA — ORIENTAÇÃO DA PACIENTE`), contendo campos formais para Identificação do Emitente (com CRM), Identificação do Comprador (Nome, RG, CPF, Endereço, Fone) e Identificação do Fornecedor/Farmácia (CRF, Lote, Assinatura e Data). Medicamentos inseridos no bloco de prescrições da consulta devem ser pré-carregados no modal de emissão. | Portaria SVS/MS nº 344/1998, RDC ANVISA nº 44/2009 e Lei Federal nº 5.991/1973. |
-| **RN-008** | **Padronização Estrita do Design System (Anti-Purple):** Nenhuma tela, componente, estilo ou token do frontend pode utilizar variações de roxo/magenta (`#852A91`, `#D83C91`, lilás). As únicas cores de marca admitidas são Verde Água Teal (`#008080`), Azul Petróleo (`#005F6A`) e Verde Menta (`#66CDAA`), combinadas com cinzas neutros de alto contraste WCAG AA. | `GEMINI.md` (Identidade Visual Obrigatória) e Guia Canônico de Marca Cana Med Mulher. |
+| **RN-008** | **Padronização Estrita do Design System (Anti-Purple):** Nenhuma tela, componente, estilo ou token do frontend pode utilizar variações de roxo/magenta (`#852A91`, `#D83C91`, lilás). As únicas cores de marca admitidas são Verde Água Teal (`#852A91`), Azul Petróleo (`#6F217B`) e Lilás Apoio (`#B77AD8`), combinadas com cinzas neutros de alto contraste WCAG AA. | `GEMINI.md` (Identidade Visual Obrigatória) e Guia Canônico de Marca Cana Med Mulher. |
 | **RN-009** | **Resiliência do Workspace e Persistência de Contexto na URL:** A consulta ativa deve manter seu identificador sincronizado na URL (`?appointmentId=...` ou `?patientId=...`). Em caso de recarregamento acidental da página pelo navegador, o workspace deve restaurar o estado da consulta e os dados em edição através do rascunho salvo no cache/backend. | Usabilidade Clínica, Prevenção de Perda de Dados e Ergonomia Ambulatorial. |
 | **RN-010** | **Sincronização Segura e Não Destrutiva entre Anamnese e SOAP:** A seleção de chips de queixa ou inserção de snippets na História da Moléstia Atual (HMA) não pode sobrescrever textos clínicos digitados livremente pela médica no campo Subjetivo do SOAP. A concatenação deve respeitar separadores explícitos ou mesclagem inteligente. | Integridade do Raciocínio Clínico e Segurança do Paciente. |
 | **RN-011** | **Segregação Diagnóstica SOAP [A] (Hipóteses vs. Confirmados):** No bloco de Avaliação do SOAP, o sistema deve segregar explicitamente hipóteses diagnósticas preliminares de diagnósticos médicos confirmados com código CID-10, persistindo na estrutura JSON correspondente. Hipóteses nunca podem ser exibidas em atestados ou documentos públicos como diagnósticos definitivos. | ANVISA RDC nº 657/2022 e CFM nº 2.217/2018 (Código de Ética Médica). |
@@ -371,10 +371,10 @@ Todos os estilos devem respeitar rigorosamente os tokens oficiais da marca:
 ```css
 :root {
   /* Marca Oficial Cana Med Mulher */
-  --brand-primary: #008080;        /* Verde Água Teal - Ação principal, tabs ativas, links */
-  --brand-dark: #005F6A;           /* Azul Petróleo Institucional - Headers, títulos, bordas estruturais */
-  --brand-accent: #66CDAA;         /* Verde Menta - Destaques positivos, badges de sucesso, anéis de foco */
-  --brand-soft: #E6F3F3;           /* Verde Água Suave - Fundo de itens selecionados, cards ativos */
+  --brand-primary: #852A91;        /* Verde Água Teal - Ação principal, tabs ativas, links */
+  --brand-dark: #6F217B;           /* Roxo Escuro / Hover - Headers, títulos, bordas estruturais */
+  --brand-accent: #B77AD8;         /* Lilás Apoio - Destaques positivos, badges de sucesso, anéis de foco */
+  --brand-soft: #F7ECF8;           /* Lilás Suave - Fundo de itens selecionados, cards ativos */
   --brand-soft-menta: #F0FDF9;     /* Menta Suave - Fundos de alertas positivos e confirmações */
 
   /* Neutral Base & Content */
@@ -396,7 +396,7 @@ Todos os estilos devem respeitar rigorosamente os tokens oficiais da marca:
 1. **Dock Sticky de Navegação Rápida:**
    - Posicionado no topo ou na lateral da área de trabalho clínica.
    - 5 Seções com atalhos de teclado (`Alt+1` a `Alt+5`) e indicadores de preenchimento:
-     - `1. Anamnese GO` (`✓` verde menta se preenchida QP e DUM)
+     - `1. Anamnese GO` (`✓` Lilás Apoio se preenchida QP e DUM)
      - `2. Exame Físico` (`✓` se avaliado ao menos um segmento)
      - `3. Rastreamento & Pré-Natal` (exibe badge com IG calculada)
      - `4. SOAP & Diagnósticos` (`✓` se preenchido diagnóstico)
@@ -523,7 +523,7 @@ Cenário: Operador da recepção visualiza agendamento com pré-anamnese confide
 | `ImmutableRecordsInterceptor` | Direto | Incluir `PrenatalVisitRecord`, `PreventiveScreeningRecord`, `LarcPlacementRecord` e `PatientExamAttachment` no método `IsImmutableEntity`. |
 | `Roles.cs` / `Permissions.cs` | Direto | Remover concessão automática de permissões clínicas para o papel `Admin`. |
 | `KioskEndpoints` / `KioskCheckInService` | Direto | Modificar regra de filtro para exigir CPF exato ou 6 dígitos + Data Nasc. |
-| `frontend/src/styles/theme.css` | Direto | Substituir referências legadas `#852A91` / `#D83C91` por tokens oficiais `#008080` e `#005F6A`. |
+| `frontend/src/styles/theme.css` | Direto | Substituir referências legadas `#852A91` / `#D83C91` por tokens oficiais `#852A91` e `#6F217B`. |
 | `DocumentModal.tsx` | Direto | Implementar layout de 2 vias com quadros da Portaria 344/98 e pré-carregar medicamentos. |
 | `PatientPortal.tsx` | Direto | Introduzir stepper de 4 etapas, cards de serviços GO e modal de instruções de preparo. |
 | `PrenatalCardPdfGenerator.cs` | Direto | Adicionar coluna `FetalPresentation` e paginação multifolha para histórico longo. |
@@ -615,4 +615,5 @@ Cenário: Operador da recepção visualiza agendamento com pré-anamnese confide
 | **Medical Systems Expert** | Medical Systems Domain Expert | 2026-10-26 | Aprovado |
 | **UI/UX Reviewer** | Cana Med UI/UX Reviewer | 2026-10-26 | Aprovado |
 | **Auditor Chefe GO** | Auditor Mestre GO | 2026-10-26 | Aprovado |
+
 

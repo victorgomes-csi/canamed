@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DOCTOR_PATHS, LOBBY_TV_PATH, STAFF_PATHS } from '../../navigation/routes';
 import { CanamedLogoCurta, CanamedLogoLonga } from '../../shared/CanamedLogo';
@@ -29,9 +29,9 @@ const PROFILES: ProfileOption[] = [
     title: 'Sou paciente',
     desc: 'Acesse suas consultas e informações pessoais.',
     btnText: 'Receber código de confirmação',
-    bgIcon: 'rgba(0, 128, 128, 0.1)', // #E6F3F3
-    textIcon: '#008080', // Cor primária da marca
-    hoverBorder: '#005F6A',
+    bgIcon: 'rgba(0, 128, 128, 0.1)', // #F7ECF8
+    textIcon: '#852A91', // Cor primária da marca
+    hoverBorder: '#6F217B',
     identifierLabel: 'Celular (WhatsApp / SMS)',
     identifierPlaceholder: '(81) 99999-9999',
     targetPath: '/p/cana-med',
@@ -410,7 +410,7 @@ export function HomePage() {
               borderRadius: '9999px',
               backgroundColor: 'rgba(255, 255, 255, 0.8)',
               border: '1px solid #FECDD3',
-              color: 'var(--brand-primary, #008080)',
+              color: 'var(--brand-primary, #852A91)',
               fontSize: '0.75rem',
               fontWeight: 700,
               letterSpacing: '0.05em',
@@ -434,7 +434,7 @@ export function HomePage() {
           >
             Cuidado conectado,
             <br />
-            <span style={{ color: 'var(--brand-primary, #008080)' }}>gestão inteligente.</span>
+            <span style={{ color: 'var(--brand-primary, #852A91)' }}>gestão inteligente.</span>
           </h1>
 
           <p
@@ -469,12 +469,12 @@ export function HomePage() {
                 width: '40px',
                 height: '40px',
                 borderRadius: '50%',
-                backgroundColor: 'var(--brand-soft, #E6F3F3)',
+                backgroundColor: 'var(--brand-soft, #F7ECF8)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
-                color: 'var(--brand-primary, #008080)',
+                color: 'var(--brand-primary, #852A91)',
               }}
             >
               <svg
@@ -548,7 +548,7 @@ export function HomePage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <CanamedLogoCurta style={{ height: '32px', width: 'auto' }} />
             <span style={{ fontSize: '1.125rem', fontWeight: 700, color: '#0F172A', letterSpacing: '-0.025em' }}>
-              CANA MED <span style={{ fontWeight: 600, color: 'var(--brand-primary, #008080)' }}>Mulher</span>
+              CANA MED <span style={{ fontWeight: 600, color: 'var(--brand-primary, #852A91)' }}>Mulher</span>
             </span>
           </div>
           <a
@@ -660,8 +660,8 @@ export function HomePage() {
                               style={{
                                 fontSize: '0.68rem',
                                 fontWeight: 700,
-                                color: 'var(--brand-primary, #008080)',
-                                backgroundColor: 'var(--brand-soft, #E6F3F3)',
+                                color: 'var(--brand-primary, #852A91)',
+                                backgroundColor: 'var(--brand-soft, #F7ECF8)',
                                 padding: '2px 8px',
                                 borderRadius: '999px',
                                 textTransform: 'uppercase',
@@ -707,7 +707,7 @@ export function HomePage() {
                     background: 'transparent',
                     border: 'none',
                     padding: 0,
-                    color: 'var(--brand-primary, #008080)',
+                    color: 'var(--brand-primary, #852A91)',
                     fontSize: '0.875rem',
                     fontWeight: 600,
                     cursor: 'pointer',
@@ -921,7 +921,7 @@ export function HomePage() {
                         borderRadius: '0.75rem',
                         color: '#FFFFFF',
                         fontWeight: 600,
-                        backgroundColor: status === 'loading' ? '#66CDAA' : 'var(--brand-primary, #008080)',
+                        backgroundColor: status === 'loading' ? '#B77AD8' : 'var(--brand-primary, #852A91)',
                         cursor: status === 'loading' ? 'not-allowed' : 'pointer',
                         border: 'none',
                         boxShadow: '0 4px 12px rgba(133, 42, 145, 0.25)',
@@ -1074,7 +1074,7 @@ export function HomePage() {
                           borderRadius: '0.75rem',
                           color: '#FFFFFF',
                           fontWeight: 600,
-                          backgroundColor: status === 'loading' ? '#66CDAA' : 'var(--brand-primary, #008080)',
+                          backgroundColor: status === 'loading' ? '#B77AD8' : 'var(--brand-primary, #852A91)',
                           cursor: status === 'loading' ? 'not-allowed' : 'pointer',
                           border: 'none',
                           boxShadow: '0 4px 12px rgba(133, 42, 145, 0.25)',
@@ -1097,7 +1097,7 @@ export function HomePage() {
                             e.preventDefault();
                             navigate('/p/cana-med');
                           }}
-                          style={{ color: 'var(--brand-primary, #008080)', fontWeight: 600, textDecoration: 'underline' }}
+                          style={{ color: 'var(--brand-primary, #852A91)', fontWeight: 600, textDecoration: 'underline' }}
                         >
                           Ir para o agendamento
                         </a>
@@ -1132,7 +1132,7 @@ export function HomePage() {
                           borderRadius: '0.75rem',
                           padding: '0.85rem 1rem',
                           fontSize: '0.85rem',
-                          color: '#008080',
+                          color: '#852A91',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
@@ -1142,7 +1142,7 @@ export function HomePage() {
                         <button
                           type="button"
                           onClick={() => setPatientOtpSent(false)}
-                          style={{ background: 'transparent', border: 'none', color: '#008080', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', fontSize: '0.78rem' }}
+                          style={{ background: 'transparent', border: 'none', color: '#852A91', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline', fontSize: '0.78rem' }}
                         >
                           Alterar
                         </button>
@@ -1196,7 +1196,7 @@ export function HomePage() {
                           borderRadius: '0.75rem',
                           color: '#FFFFFF',
                           fontWeight: 600,
-                          backgroundColor: status === 'loading' ? '#66CDAA' : 'var(--brand-primary, #008080)',
+                          backgroundColor: status === 'loading' ? '#B77AD8' : 'var(--brand-primary, #852A91)',
                           cursor: status === 'loading' ? 'not-allowed' : 'pointer',
                           border: 'none',
                           boxShadow: '0 4px 12px rgba(133, 42, 145, 0.25)',
@@ -1318,7 +1318,7 @@ export function HomePage() {
                           style={{
                             fontSize: '0.875rem',
                             fontWeight: 500,
-                            color: 'var(--brand-primary, #008080)',
+                            color: 'var(--brand-primary, #852A91)',
                             textDecoration: 'none',
                           }}
                         >
@@ -1412,7 +1412,7 @@ export function HomePage() {
                         borderRadius: '0.75rem',
                         color: '#FFFFFF',
                         fontWeight: 600,
-                        backgroundColor: status === 'loading' ? '#66CDAA' : 'var(--brand-primary, #008080)',
+                        backgroundColor: status === 'loading' ? '#B77AD8' : 'var(--brand-primary, #852A91)',
                         cursor: status === 'loading' ? 'not-allowed' : 'pointer',
                         border: 'none',
                         boxShadow: '0 4px 12px rgba(133, 42, 145, 0.25)',
@@ -1480,18 +1480,18 @@ export function HomePage() {
         }
 
         .login-profile-card:hover {
-          border-color: var(--brand-magenta, #005F6A) !important;
+          border-color: var(--brand-magenta, #6F217B) !important;
           box-shadow: 0 10px 20px -3px rgba(133, 42, 145, 0.12), 0 4px 6px -4px rgba(0, 0, 0, 0.03) !important;
         }
         .login-profile-card:hover .login-icon-box {
           transform: scale(1.08);
         }
         .login-profile-card:hover .login-card-title {
-          color: var(--brand-primary, #008080) !important;
+          color: var(--brand-primary, #852A91) !important;
         }
 
         .login-input-field:focus {
-          border-color: var(--brand-primary, #008080) !important;
+          border-color: var(--brand-primary, #852A91) !important;
           box-shadow: 0 0 0 4px rgba(133, 42, 145, 0.15) !important;
         }
 
@@ -1515,3 +1515,4 @@ export function HomePage() {
     </div>
   );
 }
+

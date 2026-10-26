@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+﻿import { useState, useMemo } from 'react';
 import { CalendarDays, Users, Clock, Search, UserCheck, X } from 'lucide-react';
 import { AgendaPage } from './AgendaPage';
 import { QueuePanel } from '../queue/QueuePanel';
@@ -61,8 +61,8 @@ export function AgendaRecepcaoPanel({
               width: '40px',
               height: '40px',
               borderRadius: '10px',
-              backgroundColor: 'var(--brand-soft, #E6F3F3)',
-              color: 'var(--brand-primary, #008080)',
+              backgroundColor: 'var(--brand-soft, #F7ECF8)',
+              color: 'var(--brand-primary, #852A91)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -104,7 +104,7 @@ export function AgendaRecepcaoPanel({
               padding: '0.45rem 0.95rem',
               fontSize: '0.85rem',
               fontWeight: viewMode === 'agenda' ? 600 : 500,
-              color: viewMode === 'agenda' ? 'var(--brand-primary, #008080)' : 'var(--content-secondary, #626B79)',
+              color: viewMode === 'agenda' ? 'var(--brand-primary, #852A91)' : 'var(--content-secondary, #626B79)',
               background: viewMode === 'agenda' ? 'var(--base-surface, #FFFFFF)' : 'transparent',
               border: 'none',
               borderRadius: '8px',
@@ -127,7 +127,7 @@ export function AgendaRecepcaoPanel({
               padding: '0.45rem 0.95rem',
               fontSize: '0.85rem',
               fontWeight: viewMode === 'queue' ? 600 : 500,
-              color: viewMode === 'queue' ? 'var(--brand-primary, #008080)' : 'var(--content-secondary, #626B79)',
+              color: viewMode === 'queue' ? 'var(--brand-primary, #852A91)' : 'var(--content-secondary, #626B79)',
               background: viewMode === 'queue' ? 'var(--base-surface, #FFFFFF)' : 'transparent',
               border: 'none',
               borderRadius: '8px',
@@ -232,7 +232,7 @@ export function AgendaRecepcaoPanel({
                 }}
               >
                 <div>
-                  <div style={{ fontWeight: 600, color: '#005F6A' }}>{p.name}</div>
+                  <div style={{ fontWeight: 600, color: '#6F217B' }}>{p.name}</div>
                   <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '2px' }}>
                     Tel: {p.phone || 'N/I'} {(p as unknown as { cpf?: string }).cpf ? `· CPF: ${(p as unknown as { cpf?: string }).cpf}` : ''}
                   </div>
@@ -240,8 +240,8 @@ export function AgendaRecepcaoPanel({
                 <span
                   style={{
                     fontSize: '0.75rem',
-                    color: '#008080',
-                    background: '#E6F3F3',
+                    color: '#852A91',
+                    background: '#F7ECF8',
                     padding: '0.2rem 0.5rem',
                     borderRadius: '6px',
                     fontWeight: 600,
@@ -261,7 +261,7 @@ export function AgendaRecepcaoPanel({
               marginTop: '0.75rem',
               padding: '0.65rem 0.85rem',
               background: '#F0FDF9',
-              border: '1px solid #66CDAA',
+              border: '1px solid #B77AD8',
               borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
@@ -269,8 +269,8 @@ export function AgendaRecepcaoPanel({
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <UserCheck size={18} color="#008080" />
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#005F6A' }}>
+              <UserCheck size={18} color="#852A91" />
+              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#6F217B' }}>
                 Paciente selecionada: <strong>{selectedPatient.name}</strong> ({selectedPatient.phone || 'Sem telefone'})
               </span>
             </div>
@@ -300,3 +300,4 @@ export function AgendaRecepcaoPanel({
     </div>
   );
 }
+

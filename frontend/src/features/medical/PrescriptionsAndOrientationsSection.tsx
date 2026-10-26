@@ -1,4 +1,4 @@
-export interface PrescriptionsAndOrientationsSectionProps {
+﻿export interface PrescriptionsAndOrientationsSectionProps {
   prescriptionNotes: string;
   onPrescriptionNotesChange: (val: string) => void;
   generalOrientationNotes: string;
@@ -78,7 +78,7 @@ export function PrescriptionsAndOrientationsSection({
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
         <span style={{ fontSize: '1.3rem' }}>💊</span>
         <div>
-          <h3 style={{ fontSize: '1.05rem', color: 'var(--color-primary-dark, #005F6A)', margin: 0, fontWeight: 700 }}>
+          <h3 style={{ fontSize: '1.05rem', color: 'var(--color-primary-dark, #6F217B)', margin: 0, fontWeight: 700 }}>
             Prescrições Segregadas & Recomendações Assistenciais
           </h3>
           <span style={{ fontSize: '0.8rem', color: 'var(--color-neutral-muted, #64748B)' }}>
@@ -91,7 +91,7 @@ export function PrescriptionsAndOrientationsSection({
         {/* Prescrição Medicamentosa */}
         <div className="form__group" style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap', gap: '0.4rem' }}>
-            <label className="form__label" htmlFor="presc-meds" style={{ fontWeight: 700, color: 'var(--color-primary-dark, #005F6A)', margin: 0 }}>
+            <label className="form__label" htmlFor="presc-meds" style={{ fontWeight: 700, color: 'var(--color-primary-dark, #6F217B)', margin: 0 }}>
               Prescrição Medicamentosa (Fármacos & Doses)
             </label>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
@@ -147,7 +147,7 @@ export function PrescriptionsAndOrientationsSection({
         {/* Orientações Gerais & Estilo de Vida */}
         <div className="form__group" style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap', gap: '0.4rem' }}>
-            <label className="form__label" htmlFor="presc-orientations" style={{ fontWeight: 700, color: 'var(--color-primary-dark, #005F6A)', margin: 0 }}>
+            <label className="form__label" htmlFor="presc-orientations" style={{ fontWeight: 700, color: 'var(--color-primary-dark, #6F217B)', margin: 0 }}>
               Orientações Gerais, Estilo de Vida & Retornos
             </label>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
@@ -181,3 +181,4 @@ export function PrescriptionsAndOrientationsSection({
     </div>
   );
 }
+

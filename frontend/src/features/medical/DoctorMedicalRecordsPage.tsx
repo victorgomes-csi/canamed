@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+﻿import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   getPatientMedicalRecordHistory,
@@ -678,7 +678,7 @@ export function DoctorMedicalRecordsPage() {
                           {record.gynecologicalData.procedurePerformed && (
                             <div>
                               <span className="form__hint" style={{ fontSize: '0.75rem' }}>Procedimento Realizado</span>
-                              <strong style={{ color: '#005F6A' }}>
+                              <strong style={{ color: '#6F217B' }}>
                                 💉 {record.gynecologicalData.procedurePerformed}
                               </strong>
                               {record.gynecologicalData.procedureBatch && (
@@ -1011,3 +1011,4 @@ export function DoctorMedicalRecordsPage() {
     </div>
   );
 }
+

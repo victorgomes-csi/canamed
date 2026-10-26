@@ -14,7 +14,7 @@ type RevenueTypesSettingsProps = {
 };
 
 const CATEGORY_LABELS: Record<RevenueCategory, { label: string; color: string; bg: string }> = {
-  consulta: { label: 'Consulta', color: '#008080', bg: '#E6F3F3' },
+  consulta: { label: 'Consulta', color: '#852A91', bg: '#F7ECF8' },
   procedimento: { label: 'Procedimento', color: '#1B6B93', bg: '#E3F2FD' },
   exame: { label: 'Exame / Coleta', color: '#2E7D32', bg: '#E8F5E9' },
   outros: { label: 'Outros', color: '#626B79', bg: '#F1F3F6' },

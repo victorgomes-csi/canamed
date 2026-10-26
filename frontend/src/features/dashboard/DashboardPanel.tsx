@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import {
   Activity,
   CalendarPlus,
@@ -355,7 +355,7 @@ export function DashboardPanel({ onNavigate }: DashboardPanelProps) {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-              <Activity size={18} style={{ color: 'var(--brand-primary, #008080)' }} />
+              <Activity size={18} style={{ color: 'var(--brand-primary, #852a91)' }} />
               <h2
                 id="pulse-heading"
                 style={{
@@ -455,7 +455,7 @@ export function DashboardPanel({ onNavigate }: DashboardPanelProps) {
                 <span
                   style={{
                     fontSize: '0.78rem',
-                    color: 'var(--brand-primary, #008080)',
+                    color: 'var(--brand-primary, #852a91)',
                     fontWeight: 600,
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -500,7 +500,7 @@ export function DashboardPanel({ onNavigate }: DashboardPanelProps) {
                   style={{
                     fontSize: '0.85rem',
                     fontWeight: 600,
-                    color: 'var(--brand-primary, #008080)',
+                    color: 'var(--brand-primary, #852a91)',
                     padding: 0,
                   }}
                 >
@@ -711,7 +711,7 @@ export function DashboardPanel({ onNavigate }: DashboardPanelProps) {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <TrendingUp size={20} style={{ color: 'var(--brand-primary, #008080)' }} />
+            <TrendingUp size={20} style={{ color: 'var(--brand-primary, #852a91)' }} />
             <h2
               id="period-heading"
               style={{
@@ -814,7 +814,7 @@ export function DashboardPanel({ onNavigate }: DashboardPanelProps) {
                             </td>
                             <td style={{ textAlign: 'center' }}>{prof.totalAppointments}</td>
                             <td style={{ textAlign: 'center' }}>
-                              <span style={{ color: '#008080', fontWeight: 600 }}>
+                              <span style={{ color: '#852A91', fontWeight: 600 }}>
                                 {prof.attendedCount}
                               </span>
                             </td>
@@ -912,3 +912,4 @@ export function DashboardPanel({ onNavigate }: DashboardPanelProps) {
     </div>
   );
 }
+

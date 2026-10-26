@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+﻿import { useRef } from 'react';
 
 export interface HmaSnippet {
   id: string;
@@ -90,7 +90,7 @@ export function GuidedHmaEditor({ value, onChange, disabled = false }: Props) {
                 borderRadius: 'var(--radius-sm, 4px)',
                 background: '#F1F5F9',
                 border: '1px solid #CBD5E1',
-                color: 'var(--color-primary-dark, #005F6A)',
+                color: 'var(--color-primary-dark, #6F217B)',
                 cursor: disabled ? 'not-allowed' : 'pointer',
                 transition: 'background 0.15s ease',
               }}
@@ -120,3 +120,4 @@ export function GuidedHmaEditor({ value, onChange, disabled = false }: Props) {
     </div>
   );
 }
+

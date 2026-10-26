@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+﻿import { useState, useMemo } from 'react';
 
 export interface DiagnosisItem {
   code: string;
@@ -129,7 +129,7 @@ export function SoapEvolutionSection({
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
         <span style={{ fontSize: '1.3rem' }}>📝</span>
         <div>
-          <h3 style={{ fontSize: '1.05rem', color: 'var(--color-primary-dark, #005F6A)', margin: 0, fontWeight: 700 }}>
+          <h3 style={{ fontSize: '1.05rem', color: 'var(--color-primary-dark, #6F217B)', margin: 0, fontWeight: 700 }}>
             Evolução Clínica Estruturada (SOAP) & Diagnósticos
           </h3>
           <span style={{ fontSize: '0.8rem', color: 'var(--color-neutral-muted, #64748B)' }}>
@@ -141,10 +141,10 @@ export function SoapEvolutionSection({
       {/* [S] Subjetivo */}
       <div className="form__group" style={{ marginBottom: '1.15rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <label htmlFor="soap-s" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark, #005F6A)', margin: 0 }}>
+          <label htmlFor="soap-s" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark, #6F217B)', margin: 0 }}>
             [S] Subjetivo — Síntese da Queixa & Relato da Paciente
           </label>
-          <span style={{ fontSize: '0.75rem', color: 'var(--color-brand-primary, #008080)', fontWeight: 600 }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--color-brand-primary, #852A91)', fontWeight: 600 }}>
             Sincronizado automaticamente com a Queixa Principal e HMA
           </span>
         </div>
@@ -163,7 +163,7 @@ export function SoapEvolutionSection({
       {/* [O] Objetivo */}
       <div className="form__group" style={{ marginBottom: '1.15rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <label htmlFor="soap-o" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark, #005F6A)', margin: 0 }}>
+          <label htmlFor="soap-o" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark, #6F217B)', margin: 0 }}>
             [O] Objetivo — Exame Físico Geral & Sistêmico
           </label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
@@ -197,7 +197,7 @@ export function SoapEvolutionSection({
       {/* [A] Avaliação — Hipóteses Diagnósticas vs Diagnósticos Confirmados (RN-011) */}
       <div className="form__group" style={{ marginBottom: '1.15rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <label htmlFor="soap-a" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark, #005F6A)', margin: 0 }}>
+          <label htmlFor="soap-a" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark, #6F217B)', margin: 0 }}>
             [A] Avaliação — Hipóteses Diagnósticas & Diagnósticos Confirmados (CID-10)
           </label>
           {/* Seletor de Categoria do Diagnóstico */}
@@ -229,7 +229,7 @@ export function SoapEvolutionSection({
                 fontWeight: 600,
                 padding: '0.25rem 0.6rem',
                 borderRadius: '6px',
-                border: selectedCategory === 'confirmed' ? '2px solid #008080' : '1px solid #CBD5E1',
+                border: selectedCategory === 'confirmed' ? '2px solid #852A91' : '1px solid #CBD5E1',
                 background: selectedCategory === 'confirmed' ? '#D1FAE5' : '#F8FAFC',
                 color: selectedCategory === 'confirmed' ? '#065F46' : '#475569',
                 cursor: 'pointer',
@@ -256,12 +256,12 @@ export function SoapEvolutionSection({
                 borderRadius: '6px',
                 background: '#F8FAFC',
                 border: '1px solid #CBD5E1',
-                color: 'var(--color-primary-dark, #005F6A)',
+                color: 'var(--color-primary-dark, #6F217B)',
                 cursor: disabled ? 'not-allowed' : 'pointer',
               }}
               title={`Inserir como ${selectedCategory === 'confirmed' ? 'Confirmado' : 'Hipótese'}: ${diag.text}`}
             >
-              <strong style={{ color: 'var(--color-brand-primary, #008080)', marginRight: '0.25rem' }}>{diag.code}</strong>
+              <strong style={{ color: 'var(--color-brand-primary, #852A91)', marginRight: '0.25rem' }}>{diag.code}</strong>
               <span>{diag.label}</span>
             </button>
           ))}
@@ -299,7 +299,7 @@ export function SoapEvolutionSection({
               padding: '0.25rem 0.7rem',
               borderRadius: '4px',
               border: 'none',
-              background: 'var(--color-brand-primary, #008080)',
+              background: 'var(--color-brand-primary, #852A91)',
               color: '#ffffff',
               cursor: disabled ? 'not-allowed' : 'pointer',
             }}
@@ -393,7 +393,7 @@ export function SoapEvolutionSection({
       {/* [P] Plano — Conduta Clínica & Encaminhamentos */}
       <div className="form__group">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <label htmlFor="soap-p" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark, #005F6A)', margin: 0 }}>
+          <label htmlFor="soap-p" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark, #6F217B)', margin: 0 }}>
             [P] Plano — Conduta Clínica, Exames & Encaminhamentos
           </label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
@@ -426,3 +426,4 @@ export function SoapEvolutionSection({
     </div>
   );
 }
+

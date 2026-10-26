@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+﻿import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import {
   getDoctorWorkspaceState,
@@ -1298,7 +1298,7 @@ export function DoctorWorkspace() {
                   height: '2.5rem',
                   borderRadius: '50%',
                   background: '#E0F2F1',
-                  color: 'var(--color-primary-dark, #005F6A)',
+                  color: 'var(--color-primary-dark, #6F217B)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1309,7 +1309,7 @@ export function DoctorWorkspace() {
                 ✓
               </div>
               <div>
-                <h3 style={{ margin: 0, color: 'var(--color-primary-dark, #005F6A)', fontSize: '1.15rem', fontWeight: 700 }}>
+                <h3 style={{ margin: 0, color: 'var(--color-primary-dark, #6F217B)', fontSize: '1.15rem', fontWeight: 700 }}>
                   Finalizar Atendimento Clínico
                 </h3>
                 <span style={{ fontSize: '0.8rem', color: '#64748B' }}>
@@ -1320,7 +1320,7 @@ export function DoctorWorkspace() {
 
             <p style={{ fontSize: '0.875rem', color: '#334155', lineHeight: 1.55, marginBottom: '1.5rem' }}>
               Tem certeza de que deseja finalizar o atendimento clínico de{' '}
-              <strong style={{ color: 'var(--color-primary-dark, #005F6A)' }}>
+              <strong style={{ color: 'var(--color-primary-dark, #6F217B)' }}>
                 {state?.activeConsultation?.patientName || 'Paciente'}
               </strong>
               ? O prontuário se tornará imutável conforme as diretrizes do CFM e da Lei nº 13.787/2018. Qualquer retificação futura deverá ser realizada exclusivamente via adendo clínico justificado.
@@ -1329,7 +1329,7 @@ export function DoctorWorkspace() {
             
             {/* Seletor de Prazo de Retorno CFM 1.958/2010 */}
             <div style={{ marginBottom: '1.25rem', textAlign: 'left' }}>
-              <label htmlFor="finish-return-days" style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-primary-dark, #005F6A)', marginBottom: '0.35rem' }}>
+              <label htmlFor="finish-return-days" style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-primary-dark, #6F217B)', marginBottom: '0.35rem' }}>
                 Prazo Sugerido para Retorno (CFM nº 1.958/2010):
               </label>
               <select
@@ -1368,7 +1368,7 @@ export function DoctorWorkspace() {
                 className="button button--primary"
                 onClick={executeFinishConsultation}
                 disabled={finishing}
-                style={{ background: 'var(--color-primary-dark, #005F6A)' }}
+                style={{ background: 'var(--color-primary-dark, #6F217B)' }}
               >
                 {finishing ? 'Finalizando…' : '✓ Sim, Finalizar Prontuário'}
               </button>
@@ -1508,3 +1508,4 @@ export function DoctorWorkspace() {
     </div>
   );
 }
+

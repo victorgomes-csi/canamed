@@ -1,15 +1,15 @@
-/*
+﻿/*
  * Tokens visuais oficiais da marca.
  * Fonte de verdade: assets/brand/ e docs/identidade-visual.md.
  * Não alterar valores sem atualização formal da identidade visual.
  */
 :root {
   /* Cores de Marca Cana Med Mulher (protótipo dashboard_administrativo_canamed.html) */
-  --brand-primary: #008080;       /* Teal de marca (Ações principais) */
-  --brand-hover: #006666;         /* Teal mais escuro (Hover) */
-  --brand-magenta: #005F6A;       /* Destaques sutis */
-  --brand-lilac: #66CDAA;         /* Apoio visual */
-  --brand-soft: #E6F3F3;          /* Fundos selecionados / Destaques suaves */
+  --brand-primary: #852A91;       /* Roxo de marca (Ações principais) */
+  --brand-hover: #6F217B;         /* Roxo mais escuro (Hover) */
+  --brand-magenta: #D83C91;       /* Destaques sutis */
+  --brand-lilac: #B77AD8;         /* Apoio visual */
+  --brand-soft: #F7ECF8;          /* Fundos selecionados / Destaques suaves */
 
   /* Base Clínica Neutra */
   --base-bg: #F7F8FA;            /* Fundo geral do sistema */
@@ -35,8 +35,8 @@
   /* Compatibilidade com tokens legados do tema */
   --color-primary: var(--brand-primary);
   --color-primary-hover: var(--brand-hover);
-  --color-secondary: #006666;
-  --color-secondary-hover: #004d4d;
+  --color-secondary: #6F217B;
+  --color-secondary-hover: #581862;
   --color-accent: var(--brand-magenta);
   --color-text: var(--content-primary);
   --color-text-muted: var(--content-secondary);
@@ -518,7 +518,7 @@ body {
   -webkit-appearance: none;
   -moz-appearance: none;
   padding-right: 2.5rem;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23008080' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23852A91' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 16px;
@@ -718,11 +718,11 @@ body {
 }
 
 .agenda__item--status-agendado {
-  border-left-color: #005F6A;
+  border-left-color: #6F217B;
 }
 
 .agenda__item--status-confirmado {
-  border-left-color: #008080;
+  border-left-color: #852A91;
 }
 
 .agenda__item--status-aguardando {
@@ -800,7 +800,7 @@ body {
 }
 
 .agenda-weekly__header--today {
-  background: #e6f4f1;
+  background: #F7ECF8;
   border-bottom: 2px solid var(--color-primary);
 }
 
@@ -1208,9 +1208,9 @@ body {
 }
 
 .sidebar__floating-toggle:hover {
-  color: var(--brand-primary, #008080);
-  border-color: var(--brand-primary, #008080);
-  box-shadow: 0 0 0 2px var(--brand-soft, #E6F3F3);
+  color: var(--brand-primary, #852a91);
+  border-color: var(--brand-primary, #852a91);
+  box-shadow: 0 0 0 2px var(--brand-soft, #f7ecf8);
 }
 
 .sidebar__item {
@@ -1261,24 +1261,24 @@ body {
 
 .sidebar__item:hover {
   background-color: var(--base-muted, #f1f3f6);
-  color: var(--brand-primary, #008080);
+  color: var(--brand-primary, #852a91);
 }
 
 .sidebar__item:hover .sidebar__item-icon {
-  color: var(--brand-primary, #008080);
+  color: var(--brand-primary, #852a91);
 }
 
 .sidebar__item--active {
-  background-color: var(--brand-soft, #E6F3F3);
-  color: var(--brand-primary, #008080);
+  background-color: var(--brand-soft, #f7ecf8);
+  color: var(--brand-primary, #852a91);
   font-weight: 600;
 }
 
 .sidebar__item--active .sidebar__item-icon {
-  color: var(--brand-primary, #008080);
+  color: var(--brand-primary, #852a91);
 }
 
-/* Indicador lateral da cor de destaque de marca (#008080) no item ativo */
+/* Indicador lateral da cor de destaque de marca (#852A91) no item ativo */
 .sidebar__item-indicator {
   position: absolute;
   left: 0;
@@ -1286,7 +1286,7 @@ body {
   transform: translateY(-50%);
   width: 4px;
   height: 24px;
-  background-color: var(--brand-primary, #008080);
+  background-color: var(--brand-primary, #852a91);
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 }
@@ -1504,8 +1504,8 @@ body {
   width: 36px;
   height: 36px;
   border-radius: var(--radius-full);
-  background-color: var(--brand-soft, #E6F3F3);
-  color: var(--brand-primary, #008080);
+  background-color: var(--brand-soft, #f7ecf8);
+  color: var(--brand-primary, #852a91);
   border: 1px solid rgba(183, 122, 216, 0.35);
   display: flex;
   align-items: center;
@@ -1717,9 +1717,9 @@ body {
 }
 
 .badge--risk-verde {
-  background-color: #e6fffa;
-  color: #005f6a;
-  border: 1px solid #66cdaa;
+  background-color: #F7ECF8;
+  color: #6F217B;
+  border: 1px solid #B77AD8;
 }
 
 .badge--risk-azul {
@@ -1729,9 +1729,9 @@ body {
 }
 
 .badge--payment-pago {
-  background-color: #e6fffa;
-  color: #005f6a;
-  border: 1px solid #66cdaa;
+  background-color: #F7ECF8;
+  color: #6F217B;
+  border: 1px solid #B77AD8;
 }
 
 .badge--payment-pendente {
@@ -2233,7 +2233,7 @@ body {
 .doctor-profile-trigger:hover,
 .doctor-profile-trigger[aria-expanded="true"] {
   background: var(--base-muted, #f1f3f6);
-  border-color: var(--brand-primary, #008080);
+  border-color: var(--brand-primary, #852a91);
   box-shadow: 0 2px 6px rgb(15 23 42 / 6%);
 }
 
@@ -2241,8 +2241,8 @@ body {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--brand-soft, #E6F3F3);
-  color: var(--brand-primary, #008080);
+  background: var(--brand-soft, #f7ecf8);
+  color: var(--brand-primary, #852a91);
   border: 1px solid rgba(183, 122, 216, 0.35);
   display: flex;
   align-items: center;
@@ -2497,7 +2497,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--brand-primary, #008080);
+  color: var(--brand-primary, #852a91);
   flex-shrink: 0;
 }
 
@@ -2572,8 +2572,8 @@ body {
 }
 
 .dashboard-kpi-card__icon-badge--brand {
-  background-color: var(--brand-soft, #E6F3F3);
-  color: var(--brand-primary, #008080);
+  background-color: var(--brand-soft, #f7ecf8);
+  color: var(--brand-primary, #852a91);
 }
 
 .dashboard-kpi-card__icon-badge--success {
@@ -2609,7 +2609,7 @@ body {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background-color: var(--brand-primary, #008080);
+  background-color: var(--brand-primary, #852a91);
   opacity: 0.75;
   animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
@@ -2620,7 +2620,7 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: var(--brand-primary, #008080);
+  background-color: var(--brand-primary, #852a91);
 }
 
 @keyframes ping {
@@ -2705,7 +2705,7 @@ body {
   gap: 0.5rem;
   width: 100%;
   padding: 0.65rem 1rem;
-  background-color: var(--brand-primary, #008080);
+  background-color: var(--brand-primary, #852a91);
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -2718,7 +2718,7 @@ body {
 }
 
 .btn-primary-prototype:hover {
-  background-color: var(--brand-hover, #006666);
+  background-color: var(--brand-hover, #6f217b);
 }
 
 .btn-secondary-prototype {
@@ -2741,8 +2741,8 @@ body {
 
 .btn-secondary-prototype:hover {
   background-color: var(--base-bg, #f7f8fa);
-  color: var(--brand-primary, #008080);
-  border-color: var(--brand-primary, #008080);
+  color: var(--brand-primary, #852a91);
+  border-color: var(--brand-primary, #852a91);
 }
 
 /* ==========================================================================
@@ -2753,19 +2753,19 @@ body {
 }
 .complaint-chip:hover:not(:disabled) {
   background-color: #E2E8F0 !important;
-  border-color: var(--color-brand-primary, #008080) !important;
-  color: var(--color-primary-dark, #005F6A) !important;
+  border-color: var(--color-brand-primary, #852A91) !important;
+  color: var(--color-primary-dark, #6F217B) !important;
 }
 .complaint-chip--active {
-  background-color: #E6F4F1 !important;
-  border-color: var(--color-brand-primary, #008080) !important;
-  color: var(--color-primary-dark, #005F6A) !important;
+  background-color: #F7ECF8 !important;
+  border-color: var(--color-brand-primary, #852A91) !important;
+  color: var(--color-primary-dark, #6F217B) !important;
   box-shadow: 0 1px 3px rgba(0, 128, 128, 0.15);
 }
 .hma-snippet-btn:hover:not(:disabled) {
   background-color: #E2E8F0 !important;
-  border-color: var(--color-brand-primary, #008080) !important;
-  color: var(--color-primary-dark, #005F6A) !important;
+  border-color: var(--color-brand-primary, #852A91) !important;
+  color: var(--color-primary-dark, #6F217B) !important;
 }
 
 
@@ -2811,3 +2811,4 @@ body {
   filter: none;
   user-select: auto;
 }
+

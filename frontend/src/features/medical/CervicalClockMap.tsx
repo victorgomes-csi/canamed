@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 
 export type CervicalFindingType = 'acetobranco' | 'pontilhado' | 'mosaico' | 'vaso_atipico' | 'schiller' | 'biopsia';
 
@@ -117,7 +117,7 @@ export function CervicalClockMap({
     };
   };
 
-  // Cores semânticas clínicas padronizadas pelo design system Cana Med Mulher (#008080 teal, #005F6A petróleo)
+  // Cores semânticas clínicas padronizadas pelo design system Cana Med Mulher (#852A91 teal, #6F217B petróleo)
   const getFindingColor = (type: CervicalFindingType) => {
     switch (type) {
       case 'acetobranco': return '#D97706'; // Âmbar acetobranco
@@ -126,7 +126,7 @@ export function CervicalClockMap({
       case 'vaso_atipico': return '#C33D49';// Vermelho alerta
       case 'schiller': return '#B45309';    // Âmbar escuro (Schiller Positivo / Iodo Negativo)
       case 'biopsia': return '#9B2C2C';     // Vinho biópsia
-      default: return 'var(--brand-primary, #008080)';
+      default: return 'var(--brand-primary, #852A91)';
     }
   };
 
@@ -144,7 +144,7 @@ export function CervicalClockMap({
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '0.65rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-        <strong style={{ fontSize: '0.9rem', color: 'var(--color-primary-dark, #005F6A)' }}>
+        <strong style={{ fontSize: '0.9rem', color: 'var(--color-primary-dark, #6F217B)' }}>
           🎯 Mapa Cervical 12h (Odontograma Colposcópico)
         </strong>
         {(onZtChange || onFindingsChange) && (
@@ -213,7 +213,7 @@ export function CervicalClockMap({
           if (isSelected) {
             fillColor = getFindingColor(currentFinding);
           } else if (isHovered && !readOnly) {
-            fillColor = '#E6F3F3';
+            fillColor = '#F7ECF8';
           }
 
           return (
@@ -234,8 +234,8 @@ export function CervicalClockMap({
           );
         })}
 
-        {/* Orifício Externo do Colo (Centro) - Azul Petróleo Institucional #005F6A */}
-        <ellipse cx={cx} cy={cy} rx={16} ry={9} fill="#005F6A" stroke="#003E46" strokeWidth="1.5" />
+        {/* Orifício Externo do Colo (Centro) - Azul Petróleo Institucional #6F217B */}
+        <ellipse cx={cx} cy={cy} rx={16} ry={9} fill="#6F217B" stroke="#003E46" strokeWidth="1.5" />
         <text x={cx} y={cy + 3} textAnchor="middle" fill="#FFFFFF" fontSize="8" fontWeight="bold">
           OCE
         </text>
@@ -250,7 +250,7 @@ export function CervicalClockMap({
               x={pos.x}
               y={pos.y}
               textAnchor="middle"
-              fill={isSelected ? '#008080' : '#718096'}
+              fill={isSelected ? '#852A91' : '#718096'}
               fontSize="10"
               fontWeight={isSelected ? 'bold' : 'normal'}
             >
@@ -295,3 +295,4 @@ export function CervicalClockMap({
     </div>
   );
 }
+

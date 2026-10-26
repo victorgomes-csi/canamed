@@ -1,4 +1,4 @@
-namespace Canamed.Application.Identity;
+﻿namespace Canamed.Application.Identity;
 
 /// <summary>
 /// Papéis do sistema e o mapa de permissões correspondente.
@@ -41,7 +41,7 @@ public static class Roles
     public static IReadOnlySet<string> PermissionsFor(string? role) =>
         role switch
         {
-            Admin => new HashSet<string>(Permissions.All.Where(p => !ClinicalPermissions.Contains(p)), StringComparer.Ordinal),
+            Admin => new HashSet<string>(Permissions.All, StringComparer.Ordinal),
             Manager => new HashSet<string>(StringComparer.Ordinal)
             {
                 Permissions.AgendaRead,
@@ -119,3 +119,4 @@ public static class Roles
     /// <summary>Indica se o papel exige segundo fator (RN-010).</summary>
     public static bool RequiresMfa(string? role) => role == Manager;
 }
+

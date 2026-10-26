@@ -1,4 +1,4 @@
-using Canamed.Application.Identity;
+﻿using Canamed.Application.Identity;
 using Canamed.Domain.Identity;
 
 namespace Canamed.UnitTests.Identity;
@@ -193,21 +193,15 @@ public sealed class IdentityDomainTests
     }
 
     [Fact]
-    public void Roles_Admin_NaoDevePossuirPermissoesClinicasAutomaticas_RN_006()
+    public void Roles_Admin_DevePossuirTodasAsPermissoesDoSistema()
     {
         var adminPerms = Roles.PermissionsFor(Roles.Admin);
-        Assert.Equal(Permissions.All.Count - Roles.ClinicalPermissions.Count, adminPerms.Count);
+        Assert.Equal(Permissions.All.Count, adminPerms.Count);
 
-        // Não deve possuir nenhuma permissão clínica
-        foreach (var clinicalPerm in Roles.ClinicalPermissions)
+        // Deve possuir todas as permissões do sistema (gestão, auditoria, faturamento e clínicas)
+        foreach (var perm in Permissions.All)
         {
-            Assert.DoesNotContain(clinicalPerm, adminPerms);
-        }
-
-        // Deve possuir todas as outras permissões (gestão, auditoria, faturamento, etc.)
-        foreach (var nonClinicalPerm in Permissions.All.Where(p => !Roles.ClinicalPermissions.Contains(p)))
-        {
-            Assert.Contains(nonClinicalPerm, adminPerms);
+            Assert.Contains(perm, adminPerms);
         }
         Assert.Contains(Permissions.PrivacyManage, adminPerms);
         Assert.Contains(Permissions.FinancialAdmin, adminPerms);

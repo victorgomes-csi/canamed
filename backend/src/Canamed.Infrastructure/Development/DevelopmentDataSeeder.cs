@@ -391,13 +391,14 @@ public static class DevelopmentDataSeeder
         }
 
         // 4. Pacientes
-        var patientsData = new (Guid Id, string Name, string Phone, string Email, DateOnly BirthDate, string Cpf)[]
+        // 4. Pacientes (com tipagem sanguínea e fator Rh para obstetrícia)
+        var patientsData = new (Guid Id, string Name, string Phone, string Email, DateOnly BirthDate, string Cpf, string? BloodType, string? RhFactor)[]
         {
-            (DevelopmentDefaults.DemoPatientMarianaId, "Mariana Alencar Fontes", "(81) 98877-6655", "mariana.fontes@canamed.local", new DateOnly(1994, 6, 12), "123.456.789-01"),
-            (DevelopmentDefaults.DemoPatientCamilaId, "Camila Rodrigues Leite", "(81) 98765-4321", "camila.leite@canamed.local", new DateOnly(1989, 9, 25), "234.567.890-12"),
-            (DevelopmentDefaults.DemoPatientBeatrizId, "Beatriz Costa Neves", "(81) 99123-4567", "beatriz.neves@canamed.local", new DateOnly(2001, 2, 14), "345.678.901-23"),
-            (DevelopmentDefaults.DemoPatientJulianaId, "Juliana Paes de Barros", "(81) 99234-5678", "juliana.barros@canamed.local", new DateOnly(1978, 11, 30), "456.789.012-34"),
-            (DevelopmentDefaults.DemoPatientFernandaId, "Fernanda Lima Queiroz", "(81) 99345-6789", "fernanda.queiroz@canamed.local", new DateOnly(1985, 8, 5), "567.890.123-45"),
+            (DevelopmentDefaults.DemoPatientMarianaId, "Mariana Alencar Fontes", "(81) 98877-6655", "mariana.fontes@canamed.local", new DateOnly(1994, 6, 12), "123.456.789-01", "A", "Positivo"),
+            (DevelopmentDefaults.DemoPatientCamilaId, "Camila Rodrigues Leite", "(81) 98765-4321", "camila.leite@canamed.local", new DateOnly(1989, 9, 25), "234.567.890-12", "B", "Positivo"),
+            (DevelopmentDefaults.DemoPatientBeatrizId, "Beatriz Costa Neves", "(81) 99123-4567", "beatriz.neves@canamed.local", new DateOnly(2001, 2, 14), "345.678.901-23", "O", "Positivo"),
+            (DevelopmentDefaults.DemoPatientJulianaId, "Juliana Paes de Barros", "(81) 99234-5678", "juliana.barros@canamed.local", new DateOnly(1978, 11, 30), "456.789.012-34", "O", "Negativo"),
+            (DevelopmentDefaults.DemoPatientFernandaId, "Fernanda Lima Queiroz", "(81) 99345-6789", "fernanda.queiroz@canamed.local", new DateOnly(1985, 8, 5), "567.890.123-45", "AB", "Positivo"),
         };
 
         var healthPlanExists = await dbContext.HealthPlans
@@ -418,7 +419,9 @@ public static class DevelopmentDataSeeder
                     p.Email,
                     p.BirthDate,
                     p.Cpf,
-                    targetHealthPlanId));
+                    targetHealthPlanId,
+                    p.BloodType,
+                    p.RhFactor));
             }
         }
         await dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
@@ -715,6 +718,99 @@ public static class DevelopmentDataSeeder
                 PreventiveScreeningRecord.Create(clinicId, DevelopmentDefaults.DemoPatientMarianaId, rec1.Id, "usg_transvaginal", new DateOnly(2025, 11, 15), "Útero e ovários com ecotextura e dimensões anatômicas preservadas", "Exame normal", new DateOnly(2026, 11, 15), now),
                 PreventiveScreeningRecord.Create(clinicId, DevelopmentDefaults.DemoPatientCamilaId, null, "mamografia", new DateOnly(2025, 8, 20), "Ausência de nódulos espiculados, microcalcificações pleomórficas", "BI-RADS 2 (Achados Benignos)", new DateOnly(2027, 8, 20), now));
 
+
+            // Consultas Estruturadas de Pré-Natal (Mariana - Gestante de Demonstração / SPEC-0035 / RN-007)
+            if (!await dbContext.PrenatalVisitRecords.AnyAsync(cancellationToken).ConfigureAwait(false))
+            {
+                var todayDate = DateOnly.FromDateTime(now.DateTime);
+                dbContext.PrenatalVisitRecords.AddRange(
+                    PrenatalVisitRecord.Create(
+                        clinicId,
+                        DevelopmentDefaults.DemoPatientMarianaId,
+                        rec1.Id,
+                        todayDate.AddDays(-112),
+                        12,
+                        0,
+                        62.0,
+                        "110/70",
+                        12.0,
+                        154,
+                        false,
+                        "Ausente",
+                        "-",
+                        "1ª consulta de pré-natal. Gestante assintomática, USG 1º tri com TN 1.2mm e ducto venoso normal. Prescrito sulfato ferroso e ácido fólico.",
+                        now.AddDays(-112),
+                        bmi: 23.3),
+                    PrenatalVisitRecord.Create(
+                        clinicId,
+                        DevelopmentDefaults.DemoPatientMarianaId,
+                        rec1.Id,
+                        todayDate.AddDays(-84),
+                        16,
+                        2,
+                        63.8,
+                        "115/75",
+                        16.0,
+                        148,
+                        true,
+                        "Ausente",
+                        "-",
+                        "Retorno 2º trimestre. Sorologias normais (Coombs indireto negativo, tipagem A+). Nega queixas álgicas.",
+                        now.AddDays(-84),
+                        bmi: 24.0),
+                    PrenatalVisitRecord.Create(
+                        clinicId,
+                        DevelopmentDefaults.DemoPatientMarianaId,
+                        rec1.Id,
+                        todayDate.AddDays(-56),
+                        20,
+                        4,
+                        65.5,
+                        "118/76",
+                        20.0,
+                        144,
+                        true,
+                        "Ausente",
+                        "Pélvica",
+                        "USG Morfológica de 2º trimestre normal sem malformações. Aplicada vacina dTpa. Vitalidade fetal preservada.",
+                        now.AddDays(-56),
+                        bmi: 24.6),
+                    PrenatalVisitRecord.Create(
+                        clinicId,
+                        DevelopmentDefaults.DemoPatientMarianaId,
+                        rec1.Id,
+                        todayDate.AddDays(-28),
+                        24,
+                        1,
+                        67.2,
+                        "120/78",
+                        24.0,
+                        140,
+                        true,
+                        "Tornozelos (+/4+)",
+                        "Cefálica",
+                        "TOTG 75g normal (glicemia jejum 82 mg/dL, 1h 120 mg/dL, 2h 108 mg/dL). Orientada hidratação e repouso de MMII.",
+                        now.AddDays(-28),
+                        bmi: 25.3),
+                    PrenatalVisitRecord.Create(
+                        clinicId,
+                        DevelopmentDefaults.DemoPatientMarianaId,
+                        rec1.Id,
+                        todayDate,
+                        28,
+                        0,
+                        69.0,
+                        "120/80",
+                        28.0,
+                        142,
+                        true,
+                        "Ausente",
+                        "Cefálica",
+                        "Início do 3º trimestre. Movimentos fetais ativos. Programada vacina de VSR (Abrysvo) entre 32 e 36 semanas.",
+                        now,
+                        bmi: 25.9)
+                );
+            }
             // Documentos Clínicos Emitidos (Mariana)
             var docPrescricao = MedicalDocument.CreateDraft(
                 clinicId,

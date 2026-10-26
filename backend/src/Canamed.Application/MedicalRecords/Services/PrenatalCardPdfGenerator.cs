@@ -6,8 +6,9 @@ using System.Text;
 namespace Canamed.Application.MedicalRecords.Services;
 
 /// <summary>
-/// Gerador de Cartão da Gestante em formato PDF segundo as diretrizes da FEBRASGO / Ministério da Saúde (RN-007).
-/// Suporta paginação multifolha para históricos longos e coluna de Apresentação Fetal.
+/// Gerador de Cartão da Gestante em formato PDF segundo as diretrizes da FEBRASGO / Ministério da Saúde / SBIm (RN-007).
+/// Suporta paginação multifolha para históricos longos, coluna de IMC, Apresentação Fetal
+/// e Página Exclusiva Dedicada de Carteira de Imunização da Gestante na paleta oficial de roxos Cana Med Mulher.
 /// </summary>
 public static class PrenatalCardPdfGenerator
 {
@@ -22,10 +23,12 @@ public static class PrenatalCardPdfGenerator
         ArgumentNullException.ThrowIfNull(patient);
         visits ??= [];
 
-        int pageCount = visits.Count == 0 ? 1 : (int)Math.Ceiling(visits.Count / (double)VisitsPerPage);
+        int consultationPages = visits.Count == 0 ? 1 : (int)Math.Ceiling(visits.Count / (double)VisitsPerPage);
+        int totalPages = consultationPages + 1; // Acrescenta a Página Exclusiva de Vacinas da Gestante
         var pageStreams = new List<byte[]>();
 
-        for (int pageIndex = 0; pageIndex < pageCount; pageIndex++)
+        // 1. Páginas de Consultas Pré-Natais
+        for (int pageIndex = 0; pageIndex < consultationPages; pageIndex++)
         {
             var pageVisits = visits.Skip(pageIndex * VisitsPerPage).Take(VisitsPerPage).ToList();
             var sb = new StringBuilder();
@@ -34,26 +37,26 @@ public static class PrenatalCardPdfGenerator
 
             if (pageIndex == 0)
             {
-                // Cabeçalho Principal (Página 1)
+                // Cabeçalho Principal (Página 1) - Cores Oficiais Cana Med Mulher (#6F217B e #852A91)
                 sb.Append("/F2 16 Tf\n");
-                sb.Append("0.000 0.373 0.416 rg\n"); // #005F6A (petróleo Cana Med)
+                sb.Append("0.435 0.129 0.482 rg\n"); // #6F217B (Roxo Escuro Institucional)
                 sb.Append("(").Append(EscapePdf(SanitizeText(clinicName))).Append(") Tj\n");
 
                 sb.Append("0 -18 Td\n");
                 sb.Append("/F2 12 Tf\n");
-                sb.Append("0.000 0.502 0.502 rg\n"); // #008080 (teal Cana Med)
+                sb.Append("0.522 0.165 0.569 rg\n"); // #852A91 (Roxo Principal)
                 sb.Append("(CARTAO DA GESTANTE - ACOMPANHAMENTO PRE-NATAL) Tj\n");
 
                 // Linha divisória
                 sb.Append("0 -12 Td\n");
                 sb.Append("/F1 8 Tf\n");
-                sb.Append("0.7 0.7 0.7 rg\n");
+                sb.Append("0.75 0.75 0.75 rg\n");
                 sb.Append("_________________________________________________________________________________ Tj\n");
 
                 // Dados da Paciente e Identificação Obstétrica
                 sb.Append("0 -20 Td\n");
                 sb.Append("/F2 10 Tf\n");
-                sb.Append("0.125 0.149 0.192 rg\n"); // #202631 (texto escuro)
+                sb.Append("0.125 0.149 0.192 rg\n");
                 sb.Append("(DADOS DA GESTANTE) Tj\n");
 
                 sb.Append("0 -14 Td\n");
@@ -76,7 +79,7 @@ public static class PrenatalCardPdfGenerator
                 // Linha divisória da Tabela
                 sb.Append("0 -14 Td\n");
                 sb.Append("/F1 8 Tf\n");
-                sb.Append("0.7 0.7 0.7 rg\n");
+                sb.Append("0.75 0.75 0.75 rg\n");
                 sb.Append("_________________________________________________________________________________ Tj\n");
 
                 // Cabeçalho da Tabela
@@ -89,38 +92,38 @@ public static class PrenatalCardPdfGenerator
             {
                 // Cabeçalho Compacto (Páginas Subsequentes)
                 sb.Append("/F2 14 Tf\n");
-                sb.Append("0.000 0.373 0.416 rg\n"); // #005F6A
+                sb.Append("0.435 0.129 0.482 rg\n"); // #6F217B
                 sb.Append("(").Append(EscapePdf(SanitizeText(clinicName))).Append(") Tj\n");
 
                 sb.Append("0 -16 Td\n");
                 sb.Append("/F2 11 Tf\n");
-                sb.Append("0.000 0.502 0.502 rg\n"); // #008080
+                sb.Append("0.522 0.165 0.569 rg\n"); // #852A91
                 sb.Append("(CARTAO DA GESTANTE - ACOMPANHAMENTO PRE-NATAL (CONTINUACAO)) Tj\n");
 
                 sb.Append("0 -12 Td\n");
                 sb.Append("/F1 8 Tf\n");
-                sb.Append("0.7 0.7 0.7 rg\n");
+                sb.Append("0.75 0.75 0.75 rg\n");
                 sb.Append("_________________________________________________________________________________ Tj\n");
 
                 sb.Append("0 -16 Td\n");
                 sb.Append("/F2 9 Tf\n");
                 sb.Append("0.125 0.149 0.192 rg\n");
                 sb.Append("(Paciente: ").Append(EscapePdf(SanitizeText(patient.Name)))
-                  .Append("   |   Folha ").Append(pageIndex + 1).Append(" de ").Append(pageCount).Append(") Tj\n");
+                  .Append("   |   Folha ").Append(pageIndex + 1).Append(" de ").Append(totalPages).Append(") Tj\n");
 
                 sb.Append("0 -14 Td\n");
                 sb.Append("/F1 8 Tf\n");
-                sb.Append("0.7 0.7 0.7 rg\n");
+                sb.Append("0.75 0.75 0.75 rg\n");
                 sb.Append("_________________________________________________________________________________ Tj\n");
 
                 sb.Append("0 -16 Td\n");
             }
 
-            // Cabeçalho das Colunas
+            // Cabeçalho das Colunas com IMC e Apresentação Fetal
             sb.Append("0 -16 Td\n");
             sb.Append("/F2 8 Tf\n");
             sb.Append("0.3 0.3 0.3 rg\n");
-            sb.Append("(Data       IG (sem/d)   Peso (kg)   PA (mmHg)   AU (cm)   BCF (bpm)   Apres. Fetal   Mov. Fetal   Edema) Tj\n");
+            sb.Append("(Data       IG (sem/d)   Peso(kg)  IMC    PA(mmHg)  AU(cm)  BCF(bpm)  Apres. Fetal  Mov. Fetal  Edema) Tj\n");
 
             sb.Append("0 -8 Td\n");
             sb.Append("/F1 7 Tf\n");
@@ -142,6 +145,7 @@ public static class PrenatalCardPdfGenerator
                     var dt = visit.VisitDate.ToString("dd/MM/yyyy");
                     var ig = $"{visit.GestationalAgeWeeks}s {visit.GestationalAgeDays}d";
                     var peso = visit.WeightKg.ToString("F1", CultureInfo.InvariantCulture);
+                    var imc = visit.Bmi?.ToString("F1", CultureInfo.InvariantCulture) ?? "-";
                     var pa = visit.BloodPressure;
                     var au = visit.UterineHeightCm?.ToString("F0", CultureInfo.InvariantCulture) ?? "-";
                     var bcf = visit.FetalHeartRateBpm?.ToString() ?? "-";
@@ -149,12 +153,22 @@ public static class PrenatalCardPdfGenerator
                     var mf = visit.FetalMovementPresent == true ? "Presente" : (visit.FetalMovementPresent == false ? "Ausente" : "-");
                     var edema = visit.EdemaClassification ?? "Ausente";
 
-                    var line = $"{dt,-10}  {ig,-11}  {peso,-9}  {pa,-10}  {au,-7}  {bcf,-9}  {apres,-13}  {mf,-10}  {edema}";
+                    var line = $"{dt,-10}  {ig,-11}  {peso,-8}  {imc,-5}  {pa,-9}  {au,-6}  {bcf,-8}  {apres,-12}  {mf,-10}  {edema}";
 
                     sb.Append("0 -13 Td\n");
                     sb.Append("/F1 8 Tf\n");
                     sb.Append("0.2 0.2 0.2 rg\n");
                     sb.Append("(").Append(EscapePdf(line)).Append(") Tj\n");
+
+                    if (!string.IsNullOrWhiteSpace(visit.ClinicalNotes))
+                    {
+                        var notesSnippet = Truncate(visit.ClinicalNotes, 80);
+                        sb.Append("0 -10 Td\n");
+                        sb.Append("/F1 7 Tf\n");
+                        sb.Append("0.45 0.45 0.45 rg\n");
+                        sb.Append("(  Notas/Conduta: ").Append(EscapePdf(SanitizeText(notesSnippet))).Append(") Tj\n");
+                        sb.Append("0 -2 Td\n");
+                    }
                 }
             }
 
@@ -165,26 +179,158 @@ public static class PrenatalCardPdfGenerator
             sb.Append("(Documento gerado eletronicamente em conformidade com as diretrizes do Ministerio da Saude e FEBRASGO.) Tj\n");
             sb.Append("0 -11 Td\n");
             sb.Append("(Cana Med Mulher - Plataforma de Gestao Clinica e Saude da Mulher | Lei 13.787/2018 e CFM | Pagina ")
-              .Append(pageIndex + 1).Append(" de ").Append(pageCount).Append(") Tj\n");
+              .Append(pageIndex + 1).Append(" de ").Append(totalPages).Append(") Tj\n");
 
             sb.Append("ET");
-
             pageStreams.Add(Encoding.Latin1.GetBytes(sb.ToString().Replace("\r\n", "\n")));
         }
 
-        int font1Id = 2 * pageCount + 3;
-        int font2Id = 2 * pageCount + 4;
-        int totalObjects = 2 * pageCount + 4;
+        // 2. Página Exclusiva Dedicada: CARTEIRA DE IMUNIZACAO DA GESTANTE (FEBRASGO / SBIm / MS)
+        {
+            var sbVacinas = new StringBuilder();
+            sbVacinas.Append("BT\n");
+            sbVacinas.Append("50 800 Td\n");
+
+            // Cabeçalho da Seção de Vacinas
+            sbVacinas.Append("/F2 16 Tf\n");
+            sbVacinas.Append("0.435 0.129 0.482 rg\n"); // #6F217B
+            sbVacinas.Append("(").Append(EscapePdf(SanitizeText(clinicName))).Append(") Tj\n");
+
+            sbVacinas.Append("0 -18 Td\n");
+            sbVacinas.Append("/F2 12 Tf\n");
+            sbVacinas.Append("0.522 0.165 0.569 rg\n"); // #852A91
+            sbVacinas.Append("(CARTEIRA DE IMUNIZACAO DA GESTANTE - FEBRASGO / SBIm / MS) Tj\n");
+
+            sbVacinas.Append("0 -12 Td\n");
+            sbVacinas.Append("/F1 8 Tf\n");
+            sbVacinas.Append("0.75 0.75 0.75 rg\n");
+            sbVacinas.Append("_________________________________________________________________________________ Tj\n");
+
+            sbVacinas.Append("0 -18 Td\n");
+            sbVacinas.Append("/F2 9.5 Tf\n");
+            sbVacinas.Append("0.125 0.149 0.192 rg\n");
+            sbVacinas.Append("(Paciente: ").Append(EscapePdf(SanitizeText(patient.Name)))
+                     .Append("   |   Tipagem Sanguinea: ").Append(EscapePdf(patient.BloodType ?? "Nao inf."))
+                     .Append(" Rh ").Append(EscapePdf(patient.RhFactor ?? "Nao inf."))
+                     .Append("   |   Folha ").Append(totalPages).Append(" de ").Append(totalPages).Append(") Tj\n");
+
+            sbVacinas.Append("0 -14 Td\n");
+            sbVacinas.Append("/F1 8 Tf\n");
+            sbVacinas.Append("0.75 0.75 0.75 rg\n");
+            sbVacinas.Append("_________________________________________________________________________________ Tj\n");
+
+            // Bloco 1: Vacinas Recomendadas
+            sbVacinas.Append("0 -20 Td\n");
+            sbVacinas.Append("/F2 11 Tf\n");
+            sbVacinas.Append("0.435 0.129 0.482 rg\n");
+            sbVacinas.Append("(1. CALENDARIO DE VACINACAO RECOMENDADO NO PRE-NATAL) Tj\n");
+
+            // Vacina 1: dTpa
+            sbVacinas.Append("0 -16 Td\n");
+            sbVacinas.Append("/F2 9 Tf\n");
+            sbVacinas.Append("0.125 0.149 0.192 rg\n");
+            sbVacinas.Append("( [ ] dTpa (Difteria, Tetano e Coqueluche acelular)) Tj\n");
+            sbVacinas.Append("0 -11 Td\n");
+            sbVacinas.Append("/F1 8 Tf\n");
+            sbVacinas.Append("0.35 0.35 0.35 rg\n");
+            sbVacinas.Append("(     Janela: A partir da 20a semana a cada gestacao - Prevencao de coqueluche grave neonatal.) Tj\n");
+
+            // Vacina 2: Influenza
+            sbVacinas.Append("0 -15 Td\n");
+            sbVacinas.Append("/F2 9 Tf\n");
+            sbVacinas.Append("0.125 0.149 0.192 rg\n");
+            sbVacinas.Append("( [ ] Influenza (Gripe - Vacina Inativada Tri ou Tetravalente)) Tj\n");
+            sbVacinas.Append("0 -11 Td\n");
+            sbVacinas.Append("/F1 8 Tf\n");
+            sbVacinas.Append("0.35 0.35 0.35 rg\n");
+            sbVacinas.Append("(     Janela: Dose anual em qualquer idade gestacional - Reducao de internacoes por SARG.) Tj\n");
+
+            // Vacina 3: Hepatite B
+            sbVacinas.Append("0 -15 Td\n");
+            sbVacinas.Append("/F2 9 Tf\n");
+            sbVacinas.Append("0.125 0.149 0.192 rg\n");
+            sbVacinas.Append("( [ ] Hepatite B (Recombinante)) Tj\n");
+            sbVacinas.Append("0 -11 Td\n");
+            sbVacinas.Append("/F1 8 Tf\n");
+            sbVacinas.Append("0.35 0.35 0.35 rg\n");
+            sbVacinas.Append("(     Janela: 3 doses (0, 1 e 6 meses) se esquema previo incompleto ou sorologia negativa.) Tj\n");
+
+            // Vacina 4: COVID-19
+            sbVacinas.Append("0 -15 Td\n");
+            sbVacinas.Append("/F2 9 Tf\n");
+            sbVacinas.Append("0.125 0.149 0.192 rg\n");
+            sbVacinas.Append("( [ ] COVID-19 (Variante Atualizada / XBB / JN.1)) Tj\n");
+            sbVacinas.Append("0 -11 Td\n");
+            sbVacinas.Append("/F1 8 Tf\n");
+            sbVacinas.Append("0.35 0.35 0.35 rg\n");
+            sbVacinas.Append("(     Janela: Conforme informe tecnico PNI/MS para grupo prioritario materno.) Tj\n");
+
+            // Vacina 5: VSR (Abrysvo)
+            sbVacinas.Append("0 -15 Td\n");
+            sbVacinas.Append("/F2 9 Tf\n");
+            sbVacinas.Append("0.125 0.149 0.192 rg\n");
+            sbVacinas.Append("( [ ] Virus Sincicial Respiratorio (VSR / Abrysvo)) Tj\n");
+            sbVacinas.Append("0 -11 Td\n");
+            sbVacinas.Append("/F1 8 Tf\n");
+            sbVacinas.Append("0.35 0.35 0.35 rg\n");
+            sbVacinas.Append("(     Janela: Dose unica entre 32 e 36 semanas - Protecao contra bronquiolite no lactente.) Tj\n");
+
+            // Vacina 6: Anti-D
+            sbVacinas.Append("0 -15 Td\n");
+            sbVacinas.Append("/F2 9 Tf\n");
+            sbVacinas.Append("0.125 0.149 0.192 rg\n");
+            sbVacinas.Append("( [ ] Imunoglobulina Anti-D (Profilaxia Rh)) Tj\n");
+            sbVacinas.Append("0 -11 Td\n");
+            sbVacinas.Append("/F1 8 Tf\n");
+            sbVacinas.Append("0.35 0.35 0.35 rg\n");
+            sbVacinas.Append("(     Janela: 28a semana se mae Rh negativo e Coombs Indireto negativo - Prevencao de DHRN.) Tj\n");
+
+            // Bloco 2: Contraindicações
+            sbVacinas.Append("0 -20 Td\n");
+            sbVacinas.Append("/F2 11 Tf\n");
+            sbVacinas.Append("0.847 0.235 0.569 rg\n"); // #D83C91 (Magenta Alerta)
+            sbVacinas.Append("(2. CONTRAINDICACOES FORMAIS NA GESTACAO (VIRUS VIVOS ATENUADOS)) Tj\n");
+
+            sbVacinas.Append("0 -15 Td\n");
+            sbVacinas.Append("/F1 8.5 Tf\n");
+            sbVacinas.Append("0.2 0.2 0.2 rg\n");
+            sbVacinas.Append("( [X] Triplice Viral (Sarampo, Caxumba, Rubeola) - Contraindicada durante a gravidez.) Tj\n");
+
+            sbVacinas.Append("0 -13 Td\n");
+            sbVacinas.Append("( [X] HPV (Papilomavirus Humano) - Suspender esquema e retomar apos o parto.) Tj\n");
+
+            sbVacinas.Append("0 -13 Td\n");
+            sbVacinas.Append("( [X] Varicela (Catapora) - Contraindicada; rastrear previamente com sorologia IgG.) Tj\n");
+
+            sbVacinas.Append("0 -13 Td\n");
+            sbVacinas.Append("( [X] Febre Amarela - Contraindicada em rotina; liberada somente sob alto risco epidemiologico.) Tj\n");
+
+            // Rodapé da Página de Vacinas
+            sbVacinas.Append("0 -36 Td\n");
+            sbVacinas.Append("/F1 8 Tf\n");
+            sbVacinas.Append("0.4 0.4 0.4 rg\n");
+            sbVacinas.Append("(Carteira de Imunizacao emitida em estrita conformidade com a FEBRASGO, SBIm e PNI/MS.) Tj\n");
+            sbVacinas.Append("0 -11 Td\n");
+            sbVacinas.Append("(Cana Med Mulher - Plataforma de Gestao Clinica e Saude da Mulher | Lei 13.787/2018 e CFM | Pagina ")
+                     .Append(totalPages).Append(" de ").Append(totalPages).Append(") Tj\n");
+
+            sbVacinas.Append("ET");
+            pageStreams.Add(Encoding.Latin1.GetBytes(sbVacinas.ToString().Replace("\r\n", "\n")));
+        }
+
+        int font1Id = 2 * totalPages + 3;
+        int font2Id = 2 * totalPages + 4;
+        int totalObjects = 2 * totalPages + 4;
 
         var header = Encoding.Latin1.GetBytes("%PDF-1.4\n");
         var obj1 = Encoding.Latin1.GetBytes("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n");
 
-        var kidsStr = string.Join(" ", Enumerable.Range(1, pageCount).Select(p => $"{2 * p + 1} 0 R"));
-        var obj2 = Encoding.Latin1.GetBytes($"2 0 obj\n<< /Type /Pages /Kids [{kidsStr}] /Count {pageCount} >>\nendobj\n");
+        var kidsStr = string.Join(" ", Enumerable.Range(1, totalPages).Select(p => $"{2 * p + 1} 0 R"));
+        var obj2 = Encoding.Latin1.GetBytes($"2 0 obj\n<< /Type /Pages /Kids [{kidsStr}] /Count {totalPages} >>\nendobj\n");
 
         var pageObjects = new List<(byte[] pageObj, byte[] contentHead, byte[] streamBytes, byte[] contentFoot)>();
 
-        for (int p = 1; p <= pageCount; p++)
+        for (int p = 1; p <= totalPages; p++)
         {
             int pageObjId = 2 * p + 1;
             int contentObjId = 2 * p + 2;
@@ -209,7 +355,7 @@ public static class PrenatalCardPdfGenerator
         offsets[2] = currentOffset;
         currentOffset += obj2.Length;
 
-        for (int p = 1; p <= pageCount; p++)
+        for (int p = 1; p <= totalPages; p++)
         {
             int pageObjId = 2 * p + 1;
             int contentObjId = 2 * p + 2;
@@ -266,6 +412,12 @@ public static class PrenatalCardPdfGenerator
     {
         if (string.IsNullOrEmpty(input)) return string.Empty;
         return input.Replace("\\", "\\\\").Replace("(", "\\(").Replace(")", "\\)");
+    }
+
+    private static string Truncate(string input, int maxLength)
+    {
+        if (string.IsNullOrEmpty(input) || input.Length <= maxLength) return input;
+        return input[..maxLength] + "...";
     }
 
     private static string SanitizeText(string input)

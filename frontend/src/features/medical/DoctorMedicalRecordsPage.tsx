@@ -6,6 +6,7 @@ import {
   getGynecologicalProfile,
   getPatientScreenings,
   listPatientPrenatalVisits,
+  addPrenatalVisit,
   type MedicalRecordResponse,
   type GynecologicalProfileDto,
   type PreventiveScreeningDto,
@@ -20,7 +21,7 @@ import { GynecologicalProfileCard } from './GynecologicalProfileCard';
 import { PreventiveScreeningList } from './PreventiveScreeningList';
 import { GynecologicalExamSection } from './GynecologicalExamSection';
 import { PatientExamAttachmentsSection } from './PatientExamAttachmentsSection';
-import { PrenatalCardSection } from './PrenatalCardSection';
+import { PrenatalCardSection, type PrenatalVisitItem } from './PrenatalCardSection';
 import { DocumentModal } from './DocumentModal';
 import { useToast } from '../layout/Toast';
 import { DOCTOR_PATHS } from '../../navigation/routes';
@@ -55,6 +56,34 @@ export function DoctorMedicalRecordsPage() {
 
   // Aba ativa na ficha do paciente: 'records' | 'gynProfile' | 'screenings' | 'prenatal' | 'documents' | 'attachments'
   const [activeTab, setActiveTab] = useState<'records' | 'gynProfile' | 'screenings' | 'prenatal' | 'documents' | 'attachments'>('records');
+
+  const handleAddPrenatalVisit = async (visit: Omit<PrenatalVisitItem, 'id'>) => {
+    const targetRecordId = records[0]?.id;
+    if (!targetRecordId) {
+      addToast('É necessário ter ao menos um atendimento/prontuário registrado para lançar a consulta pré-natal.', 'info');
+      return;
+    }
+    try {
+      const created = await addPrenatalVisit(targetRecordId, {
+        visitDate: visit.visitDate,
+        gestationalAgeWeeks: visit.gestationalAgeWeeks,
+        gestationalAgeDays: visit.gestationalAgeDays,
+        weightKg: visit.weightKg,
+        bmi: visit.bmi ?? undefined,
+        bloodPressure: visit.bloodPressure,
+        uterineHeightCm: visit.uterineHeightCm ?? undefined,
+        fetalHeartRateBpm: visit.fetalHeartRateBpm ?? undefined,
+        fetalMovementPresent: visit.fetalMovementPresent ?? undefined,
+        edemaClassification: visit.edemaClassification ?? undefined,
+        fetalPresentation: visit.fetalPresentation ?? undefined,
+        clinicalNotes: visit.clinicalNotes ?? undefined,
+      });
+      setPrenatalVisits((prev) => [created, ...prev]);
+      addToast('Consulta pré-natal registrada com sucesso!', 'success');
+    } catch (err: unknown) {
+      addToast(err instanceof Error ? err.message : 'Falha ao registrar consulta pré-natal.', 'error');
+    }
+  };
 
   // Carrega catálogo de pacientes
   useEffect(() => {
@@ -503,6 +532,12 @@ export function DoctorMedicalRecordsPage() {
               patientId={patientId}
               patientName={selectedPatient?.name || 'Paciente'}
               visits={prenatalVisits}
+              heightCm={(selectedPatient as any)?.heightCm}
+              dum={(gynProfile as any)?.lastMenstrualPeriod || undefined}
+              bloodType={(selectedPatient as any)?.bloodType}
+              rhFactor={(selectedPatient as any)?.rhFactor}
+              gynProfile={gynProfile}
+              onAddVisit={handleAddPrenatalVisit}
             />
           ) : activeTab === 'records' ? (
             /* Histórico de Atendimentos SOAP e Exames Ginecológicos */

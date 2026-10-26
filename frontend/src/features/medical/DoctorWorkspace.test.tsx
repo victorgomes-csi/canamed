@@ -323,7 +323,7 @@ describe('DoctorWorkspace Component', () => {
       expect(screen.getByText(/Juliana Rh Negativo/i)).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/Gestante Rh Negativo/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Gestante Rh Negativo/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/Checar Coombs Indireto \/ Profilaxia Anti-D/i)).toBeInTheDocument();
   });
 

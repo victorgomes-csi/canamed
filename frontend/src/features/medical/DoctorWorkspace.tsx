@@ -144,6 +144,7 @@ export function DoctorWorkspace() {
       gestationalAgeWeeks: visit.gestationalAgeWeeks,
       gestationalAgeDays: visit.gestationalAgeDays,
       weightKg: visit.weightKg,
+      bmi: visit.bmi ?? undefined,
       bloodPressure: visit.bloodPressure,
       uterineHeightCm: visit.uterineHeightCm ?? undefined,
       fetalHeartRateBpm: visit.fetalHeartRateBpm ?? undefined,
@@ -1132,6 +1133,11 @@ export function DoctorWorkspace() {
                       initialGestationalAgeDays={gestationalAge?.days}
                       onAddVisit={handleAddPrenatalVisit}
                       loading={loadingPrenatal}
+                      dum={dum || (gynProfile as any)?.lastMenstrualPeriod || undefined}
+                      bloodType={active?.patientBloodType ?? undefined}
+                      rhFactor={active?.patientRhFactor ?? undefined}
+                      gynProfile={gynProfile}
+                      heightCm={active?.triage?.heightCm ?? undefined}
                     />
                     <PreventiveScreeningList
                       patientId={state?.activeConsultation?.patientId || ''}

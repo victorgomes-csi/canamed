@@ -54,11 +54,42 @@ describe('ObstetricCharts Components (Atalah & Altura Uterina)', () => {
     expect(screen.getByText(/Obesidade/i)).toBeInTheDocument();
   });
 
+  it('calcula IMC automaticamente na Curva de Atalah a partir do peso e da estatura materna quando bmi estiver ausente', () => {
+    const visitsWithoutBmi = [
+      {
+        gestationalAgeWeeks: 16,
+        weightKg: 65.0,
+        bmi: null,
+      },
+    ];
+
+    render(<AtalahWeightGainChart visits={visitsWithoutBmi} heightCm={165} />);
+
+    // IMC esperado: 65 / (1.65^2) = 23.9
+    expect(screen.getByText(/16s: IMC 23.9/i)).toBeInTheDocument();
+  });
+
+  it('exibe mensagem orientadora na Curva de Atalah quando não há registros com peso ou IMC', () => {
+    render(<AtalahWeightGainChart visits={[]} />);
+
+    expect(
+      screen.getByText(/Nenhum registro com peso\/IMC disponível/i)
+    ).toBeInTheDocument();
+  });
+
   it('renderiza o gráfico da Curva de Altura Uterina com percentis P10 e P90', () => {
     render(<UterineHeightChart visits={mockVisits} />);
 
     expect(screen.getByText(/Curva de Altura Uterina \(P10 a P90 - FEBRASGO\)/i)).toBeInTheDocument();
     expect(screen.getByText(/Percentil 10/i)).toBeInTheDocument();
     expect(screen.getByText(/Percentil 90/i)).toBeInTheDocument();
+  });
+
+  it('exibe aviso explicativo na Curva de Altura Uterina quando não há medidas de AU', () => {
+    render(<UterineHeightChart visits={[]} />);
+
+    expect(
+      screen.getByText(/A aferição da altura uterina inicia-se habitualmente a partir da 12ª/i)
+    ).toBeInTheDocument();
   });
 });

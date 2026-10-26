@@ -4,6 +4,7 @@ export interface PrescriptionsAndOrientationsSectionProps {
   generalOrientationNotes: string;
   onGeneralOrientationNotesChange: (val: string) => void;
   disabled?: boolean;
+  onEmitPrescription?: (type: 'receita_simples' | 'receita_controle_especial') => void;
 }
 
 export const COMMON_PRESCRIPTION_TEMPLATES = [
@@ -53,6 +54,7 @@ export function PrescriptionsAndOrientationsSection({
   generalOrientationNotes,
   onGeneralOrientationNotesChange,
   disabled = false,
+  onEmitPrescription,
 }: PrescriptionsAndOrientationsSectionProps) {
   const appendText = (current: string, updater: (val: string) => void, snippet: string) => {
     if (disabled) return;
@@ -118,6 +120,28 @@ export function PrescriptionsAndOrientationsSection({
             onChange={(e) => onPrescriptionNotesChange(e.target.value)}
             style={{ width: '100%', fontSize: '0.875rem', lineHeight: 1.5, flex: 1 }}
           />
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="button button--secondary button--small"
+              onClick={() => onEmitPrescription?.('receita_simples')}
+              disabled={disabled || !prescriptionNotes.trim()}
+              title="Emitir receita simples preenchida com as anotações acima"
+              style={{ fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+            >
+              📄 Emitir Receita Médica
+            </button>
+            <button
+              type="button"
+              className="button button--secondary button--small"
+              onClick={() => onEmitPrescription?.('receita_controle_especial')}
+              disabled={disabled || !prescriptionNotes.trim()}
+              title="Emitir receita de controle especial em 2 vias (Portaria 344/98)"
+              style={{ fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+            >
+              📑 Receita Especial (2 Vias)
+            </button>
+          </div>
         </div>
 
         {/* Orientações Gerais & Estilo de Vida */}

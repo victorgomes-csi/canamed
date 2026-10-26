@@ -24,7 +24,9 @@ public sealed record ActiveConsultationDto(
     string? HealthPlanName,
     TriageRecordResponse? Triage,
     MedicalRecordResponse? MedicalRecord,
-    DateTimeOffset? StartedAt);
+    DateTimeOffset? StartedAt,
+    string? PatientBloodType = null,
+    string? PatientRhFactor = null);
 
 public sealed record DoctorWaitingItemDto(
     Guid QueueEntryId,

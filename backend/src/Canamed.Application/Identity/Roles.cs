@@ -19,6 +19,18 @@ public static class Roles
     public const string Professional = "profissional";
 
     /// <summary>Papéis válidos.</summary>
+    /// <summary>Permissões clínicas assistenciais reservadas exclusivamente a médicos com CRM ativo (RN-006 / CFM 1.821).</summary>
+    public static readonly IReadOnlySet<string> ClinicalPermissions = new HashSet<string>(StringComparer.Ordinal)
+    {
+        Permissions.RecordsRead,
+        Permissions.RecordsCreate,
+        Permissions.RecordsUpdate,
+        Permissions.RecordsFinalize,
+        Permissions.RecordsAddendum,
+        Permissions.DocumentsSign,
+        Permissions.WorkspaceAccess,
+    };
+
     public static IReadOnlyList<string> All { get; } = [Admin, Manager, Receptionist, Professional];
 
     /// <summary>Indica se o papel é conhecido.</summary>
@@ -29,7 +41,7 @@ public static class Roles
     public static IReadOnlySet<string> PermissionsFor(string? role) =>
         role switch
         {
-            Admin => new HashSet<string>(Permissions.All, StringComparer.Ordinal),
+            Admin => new HashSet<string>(Permissions.All.Where(p => !ClinicalPermissions.Contains(p)), StringComparer.Ordinal),
             Manager => new HashSet<string>(StringComparer.Ordinal)
             {
                 Permissions.AgendaRead,

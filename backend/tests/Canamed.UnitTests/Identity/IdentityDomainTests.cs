@@ -193,14 +193,25 @@ public sealed class IdentityDomainTests
     }
 
     [Fact]
-    public void Roles_Admin_DevePossuirTodasAsPermissoes()
+    public void Roles_Admin_NaoDevePossuirPermissoesClinicasAutomaticas_RN_006()
     {
         var adminPerms = Roles.PermissionsFor(Roles.Admin);
-        Assert.Equal(Permissions.All.Count, adminPerms.Count);
-        foreach (var perm in Permissions.All)
+        Assert.Equal(Permissions.All.Count - Roles.ClinicalPermissions.Count, adminPerms.Count);
+
+        // Não deve possuir nenhuma permissão clínica
+        foreach (var clinicalPerm in Roles.ClinicalPermissions)
         {
-            Assert.Contains(perm, adminPerms);
+            Assert.DoesNotContain(clinicalPerm, adminPerms);
         }
+
+        // Deve possuir todas as outras permissões (gestão, auditoria, faturamento, etc.)
+        foreach (var nonClinicalPerm in Permissions.All.Where(p => !Roles.ClinicalPermissions.Contains(p)))
+        {
+            Assert.Contains(nonClinicalPerm, adminPerms);
+        }
+        Assert.Contains(Permissions.PrivacyManage, adminPerms);
+        Assert.Contains(Permissions.FinancialAdmin, adminPerms);
+        Assert.Contains(Permissions.ClinicManage, adminPerms);
     }
 
     [Fact]

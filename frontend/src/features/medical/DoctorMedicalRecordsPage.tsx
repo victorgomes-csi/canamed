@@ -680,15 +680,20 @@ export function DoctorMedicalRecordsPage() {
                           </span>
                           <GynecologicalExamSection
                             exam={{
-                              breastsIsNormal: record.gynecologicalData.breastsIsNormal,
+                              breastsStatus: (record.gynecologicalData.breastsStatus as any) ?? (record.gynecologicalData.breastsIsNormal === true ? 'Normal' : record.gynecologicalData.breastsIsNormal === false ? 'Abnormal' : 'NotEvaluated'),
+                              breastsIsNormal: record.gynecologicalData.breastsIsNormal ?? undefined,
                               breastsFindings: record.gynecologicalData.breastsFindings || '',
-                              abdomenIsNormal: record.gynecologicalData.abdomenIsNormal,
+                              abdomenStatus: (record.gynecologicalData.abdomenStatus as any) ?? (record.gynecologicalData.abdomenIsNormal === true ? 'Normal' : record.gynecologicalData.abdomenIsNormal === false ? 'Abnormal' : 'NotEvaluated'),
+                              abdomenIsNormal: record.gynecologicalData.abdomenIsNormal ?? undefined,
                               abdomenFindings: record.gynecologicalData.abdomenFindings || '',
-                              externalGenitaliaIsNormal: record.gynecologicalData.externalGenitaliaIsNormal,
+                              externalGenitaliaStatus: (record.gynecologicalData.externalGenitaliaStatus as any) ?? (record.gynecologicalData.externalGenitaliaIsNormal === true ? 'Normal' : record.gynecologicalData.externalGenitaliaIsNormal === false ? 'Abnormal' : 'NotEvaluated'),
+                              externalGenitaliaIsNormal: record.gynecologicalData.externalGenitaliaIsNormal ?? undefined,
                               externalGenitaliaFindings: record.gynecologicalData.externalGenitaliaFindings || '',
-                              speculumExamIsNormal: record.gynecologicalData.speculumExamIsNormal,
+                              speculumExamStatus: (record.gynecologicalData.speculumExamStatus as any) ?? (record.gynecologicalData.speculumExamIsNormal === true ? 'Normal' : record.gynecologicalData.speculumExamIsNormal === false ? 'Abnormal' : 'NotEvaluated'),
+                              speculumExamIsNormal: record.gynecologicalData.speculumExamIsNormal ?? undefined,
                               speculumExamFindings: record.gynecologicalData.speculumExamFindings || '',
-                              bimanualPalpationIsNormal: record.gynecologicalData.bimanualPalpationIsNormal,
+                              bimanualPalpationStatus: (record.gynecologicalData.bimanualPalpationStatus as any) ?? (record.gynecologicalData.bimanualPalpationIsNormal === true ? 'Normal' : record.gynecologicalData.bimanualPalpationIsNormal === false ? 'Abnormal' : 'NotEvaluated'),
+                              bimanualPalpationIsNormal: record.gynecologicalData.bimanualPalpationIsNormal ?? undefined,
                               bimanualPalpationFindings: record.gynecologicalData.bimanualPalpationFindings || '',
                             }}
                             onChange={() => {}}

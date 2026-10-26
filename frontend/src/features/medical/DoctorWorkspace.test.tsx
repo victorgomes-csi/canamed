@@ -291,4 +291,100 @@ describe('DoctorWorkspace Component', () => {
 
     vi.useRealTimers();
   });
+  it('renderiza alerta de gestante Rh negativo quando a consulta ativa contiver patientRhFactor Negativo', async () => {
+    mocks.apiGet.mockResolvedValueOnce({
+      doctorId: 'doc-1',
+      doctorName: 'Dr. Roberto Canamed',
+      clinicId: 'clinic-1',
+      activeConsultation: {
+        queueEntryId: 'queue-99',
+        patientId: 'patient-99',
+        patientName: 'Juliana Rh Negativo',
+        patientBirthDate: '1992-08-20',
+        patientBloodType: 'O',
+        patientRhFactor: 'Negativo',
+        allergies: null,
+        chronicConditions: null,
+        healthPlanName: 'Particular',
+        triage: null,
+        medicalRecord: null,
+        startedAt: new Date().toISOString(),
+      },
+      waitingQueue: [],
+    });
+
+    render(
+      <MemoryRouter>
+        <DoctorWorkspace />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Juliana Rh Negativo/i)).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/Gestante Rh Negativo/i)).toBeInTheDocument();
+    expect(screen.getByText(/Checar Coombs Indireto \/ Profilaxia Anti-D/i)).toBeInTheDocument();
+  });
+
+  it('abre DocumentModal com medicamentos preenchidos a partir de prescricoes anotadas no consultorio', async () => {
+    mocks.apiGet.mockResolvedValue({
+      doctorId: 'doc-1',
+      doctorName: 'Dr. Roberto Canamed',
+      clinicId: 'clinic-1',
+      activeConsultation: {
+        queueEntryId: 'queue-101',
+        patientId: 'patient-101',
+        patientName: 'Camila Prescricao Teste',
+        patientBirthDate: '1995-05-15',
+        patientBloodType: 'A',
+        patientRhFactor: 'Positivo',
+        allergies: null,
+        chronicConditions: null,
+        healthPlanName: 'Unimed',
+        triage: null,
+        medicalRecord: {
+          id: 'record-101',
+          clinicId: 'clinic-1',
+          patientId: 'patient-101',
+          doctorId: 'doc-1',
+          doctorName: 'Dr. Roberto Canamed',
+          status: 'draft',
+          subjective: '',
+          objective: '',
+          assessment: '',
+          plan: '',
+          createdAt: '2026-10-26T10:00:00Z',
+          finalizedAt: null,
+          addenda: [],
+        },
+        startedAt: new Date().toISOString(),
+      },
+      waitingQueue: [],
+    });
+
+    render(
+      <MemoryRouter>
+        <DoctorWorkspace />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Camila Prescricao Teste/i)).toBeInTheDocument();
+    });
+
+    // Digita uma prescrição no editor
+    const prescTextarea = screen.getByLabelText(/Prescrição Medicamentosa/i);
+    fireEvent.change(prescTextarea, {
+      target: { value: '1. Desogestrel 75mcg — Tomar 1 comprimido ao dia' },
+    });
+
+    // Clica no botão de emitir receita médica
+    const emitBtn = screen.getByRole('button', { name: /Emitir Receita Médica/i });
+    fireEvent.click(emitBtn);
+
+    // O DocumentModal deve abrir com o medicamento pré-carregado
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Desogestrel 75mcg')).toBeInTheDocument();
+  });
 });

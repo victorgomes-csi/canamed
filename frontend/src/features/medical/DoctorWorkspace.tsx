@@ -22,6 +22,7 @@ import { GynecologicalProceduresSection } from './GynecologicalProceduresSection
 import { SoapEvolutionSection } from './SoapEvolutionSection';
 import { PrescriptionsAndOrientationsSection } from './PrescriptionsAndOrientationsSection';
 import { DocumentModal } from './DocumentModal';
+import type { MedicalDocumentType } from './medicalDocumentsApi';
 import { PatientHistoryModal } from './PatientHistoryModal';
 import { PatientExamAttachmentsSection } from './PatientExamAttachmentsSection';
 import { ClinicalAlertsBar } from './ClinicalAlertsBar';
@@ -167,15 +168,20 @@ export function DoctorWorkspace() {
           hma: d.hma || d.subjective || null,
           isSexuallyActive: d.isSexuallyActive,
           dyspareunia: d.dyspareunia || null,
-          breastsIsNormal: d.exam.breastsIsNormal,
+          breastsIsNormal: d.exam.breastsIsNormal ?? null,
+          breastsStatus: d.exam.breastsStatus ?? null,
           breastsFindings: d.exam.breastsFindings || null,
-          abdomenIsNormal: d.exam.abdomenIsNormal,
+          abdomenIsNormal: d.exam.abdomenIsNormal ?? null,
+          abdomenStatus: d.exam.abdomenStatus ?? null,
           abdomenFindings: d.exam.abdomenFindings || null,
-          externalGenitaliaIsNormal: d.exam.externalGenitaliaIsNormal,
+          externalGenitaliaIsNormal: d.exam.externalGenitaliaIsNormal ?? null,
+          externalGenitaliaStatus: d.exam.externalGenitaliaStatus ?? null,
           externalGenitaliaFindings: d.exam.externalGenitaliaFindings || null,
-          speculumExamIsNormal: d.exam.speculumExamIsNormal,
+          speculumExamIsNormal: d.exam.speculumExamIsNormal ?? null,
+          speculumExamStatus: d.exam.speculumExamStatus ?? null,
           speculumExamFindings: d.exam.speculumExamFindings || null,
-          bimanualPalpationIsNormal: d.exam.bimanualPalpationIsNormal,
+          bimanualPalpationIsNormal: d.exam.bimanualPalpationIsNormal ?? null,
+          bimanualPalpationStatus: d.exam.bimanualPalpationStatus ?? null,
           bimanualPalpationFindings: d.exam.bimanualPalpationFindings || null,
           procedurePerformed: d.procedurePerformed || null,
           procedureBatch: d.procedureBatch || null,
@@ -215,6 +221,7 @@ export function DoctorWorkspace() {
 
   // Modais
   const [docModalOpen, setDocModalOpen] = useState(false);
+  const [docModalType, setDocModalType] = useState<MedicalDocumentType>('receita_simples');
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [attachmentsModalOpen, setAttachmentsModalOpen] = useState(false);
 
@@ -374,15 +381,20 @@ export function DoctorWorkspace() {
           hma: hma || subjective || null,
           isSexuallyActive,
           dyspareunia: dyspareunia || null,
-          breastsIsNormal: exam.breastsIsNormal,
+          breastsIsNormal: exam.breastsIsNormal ?? null,
+          breastsStatus: exam.breastsStatus ?? null,
           breastsFindings: exam.breastsFindings || null,
-          abdomenIsNormal: exam.abdomenIsNormal,
+          abdomenIsNormal: exam.abdomenIsNormal ?? null,
+          abdomenStatus: exam.abdomenStatus ?? null,
           abdomenFindings: exam.abdomenFindings || null,
-          externalGenitaliaIsNormal: exam.externalGenitaliaIsNormal,
+          externalGenitaliaIsNormal: exam.externalGenitaliaIsNormal ?? null,
+          externalGenitaliaStatus: exam.externalGenitaliaStatus ?? null,
           externalGenitaliaFindings: exam.externalGenitaliaFindings || null,
-          speculumExamIsNormal: exam.speculumExamIsNormal,
+          speculumExamIsNormal: exam.speculumExamIsNormal ?? null,
+          speculumExamStatus: exam.speculumExamStatus ?? null,
           speculumExamFindings: exam.speculumExamFindings || null,
-          bimanualPalpationIsNormal: exam.bimanualPalpationIsNormal,
+          bimanualPalpationIsNormal: exam.bimanualPalpationIsNormal ?? null,
+          bimanualPalpationStatus: exam.bimanualPalpationStatus ?? null,
           bimanualPalpationFindings: exam.bimanualPalpationFindings || null,
           procedurePerformed: procedurePerformed || null,
           procedureBatch: procedureBatch || null,
@@ -512,15 +524,20 @@ export function DoctorWorkspace() {
           hma: hma || finalSubjective || null,
           isSexuallyActive,
           dyspareunia: dyspareunia || null,
-          breastsIsNormal: exam.breastsIsNormal,
+          breastsIsNormal: exam.breastsIsNormal ?? null,
+          breastsStatus: exam.breastsStatus ?? null,
           breastsFindings: exam.breastsFindings || null,
-          abdomenIsNormal: exam.abdomenIsNormal,
+          abdomenIsNormal: exam.abdomenIsNormal ?? null,
+          abdomenStatus: exam.abdomenStatus ?? null,
           abdomenFindings: exam.abdomenFindings || null,
-          externalGenitaliaIsNormal: exam.externalGenitaliaIsNormal,
+          externalGenitaliaIsNormal: exam.externalGenitaliaIsNormal ?? null,
+          externalGenitaliaStatus: exam.externalGenitaliaStatus ?? null,
           externalGenitaliaFindings: exam.externalGenitaliaFindings || null,
-          speculumExamIsNormal: exam.speculumExamIsNormal,
+          speculumExamIsNormal: exam.speculumExamIsNormal ?? null,
+          speculumExamStatus: exam.speculumExamStatus ?? null,
           speculumExamFindings: exam.speculumExamFindings || null,
-          bimanualPalpationIsNormal: exam.bimanualPalpationIsNormal,
+          bimanualPalpationIsNormal: exam.bimanualPalpationIsNormal ?? null,
+          bimanualPalpationStatus: exam.bimanualPalpationStatus ?? null,
           bimanualPalpationFindings: exam.bimanualPalpationFindings || null,
           procedurePerformed: procedurePerformed || null,
           procedureBatch: procedureBatch || null,
@@ -784,7 +801,10 @@ export function DoctorWorkspace() {
                   <button
                     type="button"
                     className="button button--primary button--small"
-                    onClick={() => setDocModalOpen(true)}
+                    onClick={() => {
+                    setDocModalType('receita_simples');
+                    setDocModalOpen(true);
+                  }}
                   >
                     📄 + Receita / Documento
                   </button>
@@ -795,8 +815,8 @@ export function DoctorWorkspace() {
               <ClinicalAlertsBar
                 bloodPressure={active.triage?.bloodPressure}
                 fastingBloodGlucose={active.triage?.glucose}
-                rhFactor={gynProfile ? (gynProfile as unknown as { rhFactor?: string }).rhFactor : undefined}
-                bloodType={gynProfile ? (gynProfile as unknown as { bloodType?: string }).bloodType : undefined}
+                rhFactor={active.patientRhFactor}
+                bloodType={active.patientBloodType}
               />
 
               {/* Alerta de Alergias Persistente (SPEC-0012 RN-004) */}
@@ -966,6 +986,10 @@ export function DoctorWorkspace() {
                   onPrescriptionNotesChange={setPrescriptionNotes}
                   generalOrientationNotes={generalOrientationNotes}
                   onGeneralOrientationNotesChange={setGeneralOrientationNotes}
+                  onEmitPrescription={(type) => {
+                    setDocModalType(type);
+                    setDocModalOpen(true);
+                  }}
                 />
               </div>
 
@@ -1136,6 +1160,9 @@ export function DoctorWorkspace() {
             patientId={active.patientId}
             patientName={active.patientName}
             medicalRecordId={active.medicalRecord?.id}
+            initialDocType={docModalType}
+            initialMedications={prescriptionNotes}
+            initialGeneralInstructions={generalOrientationNotes}
             onClose={() => setDocModalOpen(false)}
           />
 

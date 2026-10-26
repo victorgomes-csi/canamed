@@ -24,6 +24,11 @@ public sealed class GynecologicalConsultationDataConfiguration : IEntityTypeConf
             .HasColumnType("text")
             .HasConversion(encryptedConverter);
 
+        builder.Property(d => d.BreastsStatus).HasMaxLength(20);
+        builder.Property(d => d.AbdomenStatus).HasMaxLength(20);
+        builder.Property(d => d.ExternalGenitaliaStatus).HasMaxLength(20);
+        builder.Property(d => d.SpeculumExamStatus).HasMaxLength(20);
+        builder.Property(d => d.BimanualPalpationStatus).HasMaxLength(20);
         builder.Property(d => d.BreastsFindings).HasMaxLength(1000);
         builder.Property(d => d.AbdomenFindings).HasMaxLength(1000);
         builder.Property(d => d.ExternalGenitaliaFindings).HasMaxLength(1000);

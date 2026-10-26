@@ -8,6 +8,8 @@ export interface ActiveConsultationDto {
   patientId: string;
   patientName: string;
   patientBirthDate?: string;
+  patientBloodType?: string | null;
+  patientRhFactor?: string | null;
   allergies?: string;
   chronicConditions?: string;
   healthPlanName?: string;

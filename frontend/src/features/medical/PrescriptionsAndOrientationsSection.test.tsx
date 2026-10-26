@@ -36,4 +36,25 @@ describe('PrescriptionsAndOrientationsSection', () => {
       expect.stringContaining('Desogestrel 75mcg')
     );
   });
+
+  it('dispara onEmitPrescription com tipo correto ao clicar nos botões de emissão', () => {
+    const handleEmit = vi.fn();
+    render(
+      <PrescriptionsAndOrientationsSection
+        prescriptionNotes="1. Fluconazol 150mg"
+        onPrescriptionNotesChange={vi.fn()}
+        generalOrientationNotes=""
+        onGeneralOrientationNotesChange={vi.fn()}
+        onEmitPrescription={handleEmit}
+      />
+    );
+
+    const btnReceitaSimples = screen.getByRole('button', { name: /Emitir Receita Médica/i });
+    fireEvent.click(btnReceitaSimples);
+    expect(handleEmit).toHaveBeenCalledWith('receita_simples');
+
+    const btnReceitaEspecial = screen.getByRole('button', { name: /Receita Especial \(2 Vias\)/i });
+    fireEvent.click(btnReceitaEspecial);
+    expect(handleEmit).toHaveBeenCalledWith('receita_controle_especial');
+  });
 });

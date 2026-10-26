@@ -82,7 +82,9 @@ public sealed class DoctorWorkspaceService(
                     HealthPlanName: null,
                     Triage: null,
                     MedicalRecord: recordDto,
-                    StartedAt: targetDraft.CreatedAt);
+                    StartedAt: targetDraft.CreatedAt,
+                    PatientBloodType: patient?.BloodType,
+                    PatientRhFactor: patient?.RhFactor);
             }
         }
         else if (requestedPatientId is { } reqPatId && reqPatId != Guid.Empty)
@@ -127,7 +129,9 @@ public sealed class DoctorWorkspaceService(
                     HealthPlanName: null,
                     Triage: triageDto,
                     MedicalRecord: recordDto,
-                    StartedAt: activeEntry?.StartedAt ?? targetDraft?.CreatedAt);
+                    StartedAt: activeEntry?.StartedAt ?? targetDraft?.CreatedAt,
+                    PatientBloodType: patient?.BloodType,
+                    PatientRhFactor: patient?.RhFactor);
             }
         }
 
@@ -206,7 +210,9 @@ public sealed class DoctorWorkspaceService(
                     HealthPlanName: null,
                     Triage: triageDto,
                     MedicalRecord: recordDto,
-                    StartedAt: activeEntry.StartedAt);
+                    StartedAt: activeEntry.StartedAt,
+                    PatientBloodType: patient?.BloodType,
+                    PatientRhFactor: patient?.RhFactor);
             }
         }
 

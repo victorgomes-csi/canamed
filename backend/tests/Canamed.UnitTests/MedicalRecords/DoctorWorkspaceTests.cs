@@ -65,4 +65,25 @@ public sealed class DoctorWorkspaceTests
         Assert.Equal("primeira_vez", response.UpcomingAppointments[0].ConsultationCategory);
         Assert.Equal("retorno", response.UpcomingAppointments[1].ConsultationCategory);
     }
+
+    [Fact]
+    public void ActiveConsultationDto_IncluiTipoSanguineoEFatorRhDoPaciente()
+    {
+        var active = new ActiveConsultationDto(
+            QueueEntryId: Guid.NewGuid(),
+            PatientId: Guid.NewGuid(),
+            PatientName: "Maria Clara",
+            PatientBirthDate: new DateOnly(1995, 3, 10),
+            Allergies: null,
+            ChronicConditions: null,
+            HealthPlanName: null,
+            Triage: null,
+            MedicalRecord: null,
+            StartedAt: DateTimeOffset.UtcNow,
+            PatientBloodType: "O",
+            PatientRhFactor: "Negativo");
+
+        Assert.Equal("O", active.PatientBloodType);
+        Assert.Equal("Negativo", active.PatientRhFactor);
+    }
 }

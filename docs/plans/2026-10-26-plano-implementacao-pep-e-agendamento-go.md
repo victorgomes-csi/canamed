@@ -177,15 +177,15 @@ Este plano decompõe a implementação integral da **SPEC-0035**, resolvendo tod
   - `frontend/src/features/layout/Sidebar.tsx`
 - **Regras da SPEC cobertas:** RN-008.
 - **Passos TDD / Verificação Estética:**
-  - [ ] 1. **RED / Auditoria:** Executar busca regex em `frontend/src/` procurando por `#852A91`, `#6F217B`, `#D83C91`, `#B77AD8`, `#F7ECF8` e registrar todos os arquivos com ocorrências.
-  - [ ] 2. **GREEN:** Substituir tokens e classes em `theme.css`:
+  - [x] 1. **RED / Auditoria:** Executar busca regex em `frontend/src/` procurando por `#852A91`, `#6F217B`, `#D83C91`, `#B77AD8`, `#F7ECF8` e registrar todos os arquivos com ocorrências.
+  - [x] 2. **GREEN:** Substituir tokens e classes em `theme.css`:
     - `--brand-primary`: de `#852A91` para `#008080` (Teal)
     - `--brand-hover`: de `#6F217B` para `#006666`
     - `--brand-magenta` / `--brand-dark`: de `#D83C91` para `#005F6A` (Azul Petróleo)
     - `--brand-lilac` / `--brand-accent`: para `#66CDAA` (Verde Menta)
     - `--brand-soft`: de `#f7ecf8` para `#E6F3F3`
-  - [ ] 3. **GREEN:** Atualizar estilos inline e classes em `AgendaRecepcaoPanel.tsx` e `Sidebar.tsx`.
-  - [ ] 4. **REFACTOR:** Reexecutar busca regex e confirmar zero ocorrências de cores legadas roxas/magentas.
+  - [x] 3. **GREEN:** Atualizar estilos inline e classes em `AgendaRecepcaoPanel.tsx` e `Sidebar.tsx`.
+  - [x] 4. **REFACTOR:** Reexecutar busca regex e confirmar zero ocorrências de cores legadas roxas/magentas.
 - **Comandos de verificação:**
   - Regex check: `npm --prefix frontend test -- features/agenda/AgendaRecepcaoPanel.test.tsx --run`
   - Build check: `npm --prefix frontend run build`
@@ -200,15 +200,15 @@ Este plano decompõe a implementação integral da **SPEC-0035**, resolvendo tod
   - `frontend/src/features/medical/DoctorWorkspace.test.tsx`
 - **Regras da SPEC cobertas:** RN-009, RN-010.
 - **Passos TDD:**
-  - [ ] 1. **RED:** Criar testes em `DoctorWorkspace.test.tsx` para:
+  - [x] 1. **RED:** Criar testes em `DoctorWorkspace.test.tsx` para:
     - Renderização do dock de navegação rápida com 5 âncoras/seções.
     - Preservação e leitura de `appointmentId` via URL search params.
     - Inserção de atalhos de queixa sem sobrescrever anotações prévias digitadas no campo SOAP `[S]`.
-  - [ ] 2. **GREEN:** Implementar o Dock de Navegação com sticky positioning no topo do workspace, exibindo ícones e badges dinâmicos de status de preenchimento.
-  - [ ] 3. **GREEN:** Conectar `useSearchParams` do React Router para manter `?appointmentId=` na barra de endereços e recarregar a consulta correspondente se a página for atualizada.
-  - [ ] 4. **GREEN:** Refatorar a função de sincronização QP/HMA ➔ SOAP `[S]` para usar concatenação contextual ou reconciliação com separador delimitado, impedindo perda de anotações livres.
-  - [ ] 5. **GREEN:** Implementar sticky footer inferior consolidando status de autosave ("Gravado às 14:32", "Salvando...") e botões de ação clínica.
-  - [ ] 6. **REFACTOR:** Otimizar transições visuais e responsividade em telas de alta densidade (1080p e tablets).
+  - [x] 2. **GREEN:** Implementar o Dock de Navegação com sticky positioning no topo do workspace, exibindo ícones e badges dinâmicos de status de preenchimento.
+  - [x] 3. **GREEN:** Conectar `useSearchParams` do React Router para manter `?appointmentId=` na barra de endereços e recarregar a consulta correspondente se a página for atualizada.
+  - [x] 4. **GREEN:** Refatorar a função de sincronização QP/HMA ➔ SOAP `[S]` para usar concatenação contextual ou reconciliação com separador delimitado, impedindo perda de anotações livres.
+  - [x] 5. **GREEN:** Implementar sticky footer inferior consolidando status de autosave ("Gravado às 14:32", "Salvando...") e botões de ação clínica.
+  - [x] 6. **REFACTOR:** Otimizar transições visuais e responsividade em telas de alta densidade (1080p e tablets).
 - **Comando de verificação:**
   `npm --prefix frontend test -- features/medical/DoctorWorkspace.test.tsx --run`
 - **Critério de conclusão:** Navegação rápida fluida entre seções; zero perda de dados em refresh do navegador; mesclagem inteligente de anamnese com SOAP.
@@ -223,10 +223,10 @@ Este plano decompõe a implementação integral da **SPEC-0035**, resolvendo tod
   - `frontend/src/features/medical/DoctorMedicalRecordsPage.test.tsx`
 - **Regras da SPEC cobertas:** RN-005, RN-008.
 - **Passos TDD:**
-  - [ ] 1. **RED:** Criar teste em `DoctorMedicalRecordsPage.test.tsx` verificando existência do botão "Modo Privacidade" e adição da classe `.privacy-blur` aos blocos de histórico sensível.
-  - [ ] 2. **GREEN:** Integrar estado `isPrivacyMode` e botão toggle com ícone de óculos escuros / olho barrado nos cabeçalhos de ambas as telas.
-  - [ ] 3. **GREEN:** Adicionar classes utilitárias no CSS (`filter: blur(8px); transition: filter 0.2s ease;`) aplicadas aos campos de queixa íntima, exame físico, histórico sexual e diagnósticos prévios.
-  - [ ] 4. **REFACTOR:** Permitir revelação pontual ao focar ou clicar no elemento com confirmação visual.
+  - [x] 1. **RED:** Criar teste em `DoctorMedicalRecordsPage.test.tsx` verificando existência do botão "Modo Privacidade" e adição da classe `.privacy-blur` aos blocos de histórico sensível.
+  - [x] 2. **GREEN:** Integrar estado `isPrivacyMode` e botão toggle com ícone de óculos escuros / olho barrado nos cabeçalhos de ambas as telas.
+  - [x] 3. **GREEN:** Adicionar classes utilitárias no CSS (`filter: blur(8px); transition: filter 0.2s ease;`) aplicadas aos campos de queixa íntima, exame físico, histórico sexual e diagnósticos prévios.
+  - [x] 4. **REFACTOR:** Permitir revelação pontual ao focar ou clicar no elemento com confirmação visual.
 - **Comando de verificação:**
   `npm --prefix frontend test -- features/medical/DoctorMedicalRecordsPage.test.tsx --run`
 - **Critério de conclusão:** Modo privacidade ativo e alternável em 1 clique em todas as superfícies de prontuário do médico.

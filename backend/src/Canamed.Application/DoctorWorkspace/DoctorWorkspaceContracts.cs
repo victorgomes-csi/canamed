@@ -26,7 +26,8 @@ public sealed record ActiveConsultationDto(
     MedicalRecordResponse? MedicalRecord,
     DateTimeOffset? StartedAt,
     string? PatientBloodType = null,
-    string? PatientRhFactor = null);
+    string? PatientRhFactor = null,
+    Guid? AppointmentId = null);
 
 public sealed record DoctorWaitingItemDto(
     Guid QueueEntryId,

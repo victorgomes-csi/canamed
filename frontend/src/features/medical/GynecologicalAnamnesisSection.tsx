@@ -28,6 +28,8 @@ interface Props {
 
   onApplyObstetricValues?: (val: { effectiveGaWeeks: number; effectiveGaDays: number; effectiveEdd: string }) => void;
   disabled?: boolean;
+  privacyMode?: boolean;
+  onPrivacyModeToggle?: () => void;
 }
 
 export function GynecologicalAnamnesisSection({
@@ -49,8 +51,12 @@ export function GynecologicalAnamnesisSection({
   onProfileUpdated,
   onApplyObstetricValues,
   disabled = false,
+  privacyMode: privacyModeProp,
+  onPrivacyModeToggle,
 }: Props) {
-  const [privacyMode, setPrivacyMode] = useState(false);
+  const [localPrivacyMode, setLocalPrivacyMode] = useState(false);
+  const privacyMode = privacyModeProp !== undefined ? privacyModeProp : localPrivacyMode;
+  const handleTogglePrivacy = onPrivacyModeToggle || (() => setLocalPrivacyMode((prev) => !prev));
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   return (
@@ -96,7 +102,7 @@ export function GynecologicalAnamnesisSection({
           <button
             type="button"
             className="button button--ghost button--small"
-            onClick={() => setPrivacyMode(!privacyMode)}
+            onClick={handleTogglePrivacy}
             style={{
               fontSize: '0.8rem',
               display: 'inline-flex',

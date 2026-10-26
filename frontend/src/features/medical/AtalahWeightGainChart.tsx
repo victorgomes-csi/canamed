@@ -130,7 +130,7 @@ export function AtalahWeightGainChart({ visits }: Props) {
         {validPoints.length > 1 && (
           <polyline
             fill="none"
-            stroke="#852A91"
+            stroke="#008080"
             strokeWidth="2.5"
             points={validPoints.map((p) => `${scaleX(p.gestationalAgeWeeks!)},${scaleY(p.effectiveBmi!)}`).join(' ')}
           />
@@ -142,7 +142,7 @@ export function AtalahWeightGainChart({ visits }: Props) {
               cx={scaleX(p.gestationalAgeWeeks!)}
               cy={scaleY(p.effectiveBmi!)}
               r={4.5}
-              fill="#852A91"
+              fill="#008080"
               stroke="#FFFFFF"
               strokeWidth="1.5"
             >

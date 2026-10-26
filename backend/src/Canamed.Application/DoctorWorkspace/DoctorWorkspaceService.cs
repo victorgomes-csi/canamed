@@ -25,6 +25,7 @@ public sealed class DoctorWorkspaceService(
     public async Task<DoctorWorkspaceStateResponse> GetWorkspaceStateAsync(
         Guid? requestedRecordId = null,
         Guid? requestedPatientId = null,
+        Guid? requestedAppointmentId = null,
         CancellationToken cancellationToken = default)
     {
         var actor = actorAccessor.RequireActor();
@@ -132,6 +133,62 @@ public sealed class DoctorWorkspaceService(
                     StartedAt: activeEntry?.StartedAt ?? targetDraft?.CreatedAt,
                     PatientBloodType: patient?.BloodType,
                     PatientRhFactor: patient?.RhFactor);
+            }
+        }
+        else if (requestedAppointmentId is { } reqApptId && reqApptId != Guid.Empty)
+        {
+            activeEntry = await queueRepository.FindOpenByAppointmentAsync(actor.ClinicId, reqApptId, cancellationToken);
+            Guid? patId = activeEntry?.PatientId;
+            MedicalRecord? targetDraft = null;
+
+            if (patId.HasValue)
+            {
+                var history = await medicalRecordRepository.GetHistoryByPatientIdAsync(patId.Value, actor.ClinicId, cancellationToken);
+                targetDraft = history.FirstOrDefault(r => r.AppointmentId == reqApptId || r.Status == MedicalRecordStatus.EmAndamento);
+            }
+
+            if (targetDraft is not null || activeEntry is not null)
+            {
+                var resolvedPatId = patId ?? targetDraft?.PatientId ?? Guid.Empty;
+                var patient = resolvedPatId != Guid.Empty
+                    ? await catalogRepository.FindPatientAsync(resolvedPatId, actor.ClinicId, cancellationToken)
+                    : null;
+
+                MedicalRecordResponse? recordDto = null;
+                if (targetDraft is not null)
+                {
+                    recordDto = await medicalRecordService.GetByIdAsync(targetDraft.Id, cancellationToken);
+                }
+
+                TriageRecordResponse? triageDto = null;
+                if (activeEntry is not null)
+                {
+                    var triage = await triageRepository.GetByQueueEntryIdAsync(activeEntry.Id, actor.ClinicId, cancellationToken);
+                    if (triage is not null)
+                    {
+                        triageDto = new TriageRecordResponse(
+                            triage.Id, triage.QueueEntryId, triage.PatientId, triage.ClinicId,
+                            triage.RiskClassification, triage.BloodPressure, triage.HeartRate,
+                            triage.Temperature, triage.OxygenSaturation, triage.Glucose,
+                            triage.WeightKg, triage.HeightCm, triage.CalculatedBmi,
+                            triage.ChiefComplaint, triage.Allergies, triage.RecordedAt, triage.OperatorName);
+                    }
+                }
+
+                activeConsultation = new ActiveConsultationDto(
+                    QueueEntryId: activeEntry?.Id ?? Guid.Empty,
+                    PatientId: resolvedPatId,
+                    PatientName: patient?.Name ?? "Paciente",
+                    PatientBirthDate: patient?.BirthDate,
+                    Allergies: triageDto?.Allergies,
+                    ChronicConditions: null,
+                    HealthPlanName: null,
+                    Triage: triageDto,
+                    MedicalRecord: recordDto,
+                    StartedAt: activeEntry?.StartedAt ?? targetDraft?.CreatedAt,
+                    PatientBloodType: patient?.BloodType,
+                    PatientRhFactor: patient?.RhFactor,
+                    AppointmentId: reqApptId);
             }
         }
 
@@ -299,7 +356,7 @@ public sealed class DoctorWorkspaceService(
         }
         else
         {
-            var state = await GetWorkspaceStateAsync(null, null, cancellationToken);
+            var state = await GetWorkspaceStateAsync(null, null, cancellationToken: cancellationToken);
             var next = state.WaitingQueue.FirstOrDefault();
             if (next is null)
             {
@@ -484,7 +541,7 @@ public sealed class DoctorWorkspaceService(
 
         var pendingDrafts = await medicalRecordRepository.CountPendingDraftsAsync(actor.ClinicId, targetDoctorId, cancellationToken);
 
-        var workspaceState = await GetWorkspaceStateAsync(null, null, cancellationToken);
+        var workspaceState = await GetWorkspaceStateAsync(null, null, cancellationToken: cancellationToken);
 
         var upcoming = new List<DoctorDashboardAppointmentDto>();
         foreach (var appt in appointments.OrderBy(a => a.StartsAt))

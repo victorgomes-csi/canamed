@@ -42,6 +42,7 @@ export function DoctorMedicalRecordsPage() {
   const [screenings, setScreenings] = useState<PreventiveScreeningDto[]>([]);
   const [prenatalVisits, setPrenatalVisits] = useState<PrenatalVisitDto[]>([]);
   const [loadingRecords, setLoadingRecords] = useState(false);
+  const [isPrivacyMode, setIsPrivacyMode] = useState(false);
 
   // Estado para novo adendo
   const [selectedRecordForAddendum, setSelectedRecordForAddendum] = useState<string | null>(null);
@@ -401,6 +402,22 @@ export function DoctorMedicalRecordsPage() {
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
               <button
                 type="button"
+                className={`button button--small ${isPrivacyMode ? 'button--warning' : 'button--secondary'}`}
+                onClick={() => setIsPrivacyMode(!isPrivacyMode)}
+                aria-pressed={isPrivacyMode}
+                title="Modo Privacidade (Oculta temporariamente dados íntimos na tela)"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  fontWeight: 600,
+                  borderRadius: 'var(--radius-full, 999px)',
+                }}
+              >
+                <span>{isPrivacyMode ? '🕶️ Modo Privacidade Ativo' : '🕶️ Modo Privacidade'}</span>
+              </button>
+              <button
+                type="button"
                 className="button button--primary button--small"
                 onClick={() => setDocModalOpen(true)}
               >
@@ -549,7 +566,7 @@ export function DoctorMedicalRecordsPage() {
                 <p className="form__hint">Novos registros são gerados ao iniciar o atendimento no Consultório Virtual.</p>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div data-testid="sensitive-clinical-records" className={isPrivacyMode ? 'privacy-blur' : ''} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 {records.map((record) => (
                   <article
                     key={record.id}

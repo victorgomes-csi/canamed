@@ -84,7 +84,7 @@ export function CervicalClockMap({
       case 'mosaico': return '#C05621';     // Laranja escuro
       case 'vaso_atipico': return '#C33D49';// Vermelho alerta
       case 'biopsia': return '#9B2C2C';     // Vinho biópsia
-      default: return 'var(--brand-primary, #852A91)';
+      default: return 'var(--brand-primary, #008080)';
     }
   };
 
@@ -170,7 +170,7 @@ export function CervicalClockMap({
           if (isSelected) {
             fillColor = getFindingColor(currentFinding);
           } else if (isHovered && !readOnly) {
-            fillColor = '#F7ECF8';
+            fillColor = '#E6F3F3';
           }
 
           return (
@@ -207,7 +207,7 @@ export function CervicalClockMap({
               x={pos.x}
               y={pos.y}
               textAnchor="middle"
-              fill={isSelected ? '#852A91' : '#718096'}
+              fill={isSelected ? '#008080' : '#718096'}
               fontSize="10"
               fontWeight={isSelected ? 'bold' : 'normal'}
             >

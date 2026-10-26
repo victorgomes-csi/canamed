@@ -387,4 +387,214 @@ describe('DoctorWorkspace Component', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Desogestrel 75mcg')).toBeInTheDocument();
   });
+
+  it('renderiza dock sticky de navegação rápida com badges de status de preenchimento e sticky footer com autosave (Task 8)', async () => {
+    mocks.apiGet.mockResolvedValue({
+      doctorId: 'doc-1',
+      doctorName: 'Dr. Roberto Canamed',
+      clinicId: 'clinic-1',
+      activeConsultation: {
+        queueEntryId: 'queue-dock',
+        patientId: 'patient-dock',
+        patientName: 'Camila Dock Teste',
+        medicalRecord: {
+          id: 'rec-dock',
+          clinicId: 'clinic-1',
+          patientId: 'patient-dock',
+          doctorId: 'doc-1',
+          doctorName: 'Dr. Roberto Canamed',
+          status: 'draft',
+          subjective: '',
+          objective: '',
+          assessment: '',
+          plan: '',
+          createdAt: '2026-10-26T10:00:00Z',
+          finalizedAt: null,
+          addenda: [],
+        },
+        startedAt: new Date().toISOString(),
+      },
+      waitingQueue: [],
+    });
+
+    render(
+      <MemoryRouter>
+        <DoctorWorkspace />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Camila Dock Teste/i)).toBeInTheDocument();
+    });
+
+    // Dock sticky com as 5 âncoras e badges
+    const dock = screen.getByTestId('consultation-dock');
+    expect(dock).toBeInTheDocument();
+    expect(dock).toHaveClass('consultation-dock--sticky');
+
+    // 5 âncoras
+    expect(screen.getByRole('link', { name: /Anamnese & Ciclo/i })).toHaveAttribute('href', '#sec-gyn-anamnesis');
+    expect(screen.getByRole('link', { name: /Exame Físico/i })).toHaveAttribute('href', '#sec-exam');
+    expect(screen.getByRole('link', { name: /Procedimentos/i })).toHaveAttribute('href', '#sec-proc');
+    expect(screen.getByRole('link', { name: /SOAP & Diagnósticos/i })).toHaveAttribute('href', '#sec-soap');
+    expect(screen.getByRole('link', { name: /Prescrições & Orientações/i })).toHaveAttribute('href', '#sec-presc');
+
+    // Sticky footer
+    const stickyFooter = screen.getByTestId('consultation-sticky-footer');
+    expect(stickyFooter).toBeInTheDocument();
+    expect(stickyFooter).toHaveClass('consultation-footer--sticky');
+  });
+
+  it('preserva anotações livres em SOAP [S] ao sincronizar com Queixa Principal e HMA de forma não destrutiva (Task 8)', async () => {
+    mocks.apiGet.mockResolvedValue({
+      doctorId: 'doc-1',
+      doctorName: 'Dr. Roberto Canamed',
+      clinicId: 'clinic-1',
+      activeConsultation: {
+        queueEntryId: 'queue-sync',
+        patientId: 'patient-sync',
+        patientName: 'Roberta Sync Teste',
+        medicalRecord: {
+          id: 'rec-sync',
+          clinicId: 'clinic-1',
+          patientId: 'patient-sync',
+          doctorId: 'doc-1',
+          doctorName: 'Dr. Roberto Canamed',
+          status: 'draft',
+          subjective: '',
+          objective: '',
+          assessment: '',
+          plan: '',
+          createdAt: '2026-10-26T10:00:00Z',
+          finalizedAt: null,
+          addenda: [],
+        },
+        startedAt: new Date().toISOString(),
+      },
+      waitingQueue: [],
+    });
+
+    render(
+      <MemoryRouter>
+        <DoctorWorkspace />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Roberta Sync Teste/i)).toBeInTheDocument();
+    });
+
+    const subjectiveInput = screen.getByPlaceholderText(/Relato dos sintomas pelo paciente/i) as HTMLTextAreaElement;
+    // Médica digita texto livre no SOAP [S]
+    fireEvent.change(subjectiveInput, {
+      target: { value: 'Anotação livre personalizada digitada pela médica no consultório.' },
+    });
+
+    // Agora digita na Queixa Principal
+    const chiefComplaintInput = screen.getByLabelText(/Queixa Principal/i);
+    fireEvent.change(chiefComplaintInput, {
+      target: { value: 'Dismenorreia moderada' },
+    });
+
+    // O campo subjective NÃO deve ter apagado a anotação livre da médica!
+    expect(subjectiveInput.value).toContain('Dismenorreia moderada');
+    expect(subjectiveInput.value).toContain('Anotação livre personalizada digitada pela médica no consultório.');
+  });
+
+  it('persiste e restaura consulta via appointmentId na URL query (Task 8)', async () => {
+    mocks.apiGet.mockResolvedValue({
+      doctorId: 'doc-1',
+      doctorName: 'Dr. Roberto Canamed',
+      clinicId: 'clinic-1',
+      activeConsultation: {
+        queueEntryId: '00000000-0000-0000-0000-000000000099',
+        appointmentId: '00000000-0000-0000-0000-000000000099',
+        patientId: 'patient-persist',
+        patientName: 'Luciana F5 Teste',
+        medicalRecord: {
+          id: 'rec-f5',
+          clinicId: 'clinic-1',
+          patientId: 'patient-persist',
+          doctorId: 'doc-1',
+          doctorName: 'Dr. Roberto Canamed',
+          status: 'draft',
+          subjective: '',
+          objective: '',
+          assessment: '',
+          plan: '',
+          createdAt: '2026-10-26T10:00:00Z',
+          finalizedAt: null,
+          addenda: [],
+        },
+        startedAt: new Date().toISOString(),
+      },
+      waitingQueue: [],
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/medico/consultorio?appointmentId=00000000-0000-0000-0000-000000000099']}>
+        <DoctorWorkspace />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Luciana F5 Teste/i)).toBeInTheDocument();
+    });
+
+    // Deve ter chamado getDoctorWorkspaceState com o appointmentId passado
+    expect(mocks.apiGet).toHaveBeenCalledWith(
+      expect.stringContaining('appointmentId=00000000-0000-0000-0000-000000000099')
+    );
+  });
+
+  it('permite alternar Modo Privacidade no consultório aplicando blur em seções íntimas (Task 9)', async () => {
+    mocks.apiGet.mockResolvedValue({
+      doctorId: 'doc-1',
+      doctorName: 'Dr. Roberto Canamed',
+      clinicId: 'clinic-1',
+      activeConsultation: {
+        queueEntryId: 'queue-priv',
+        patientId: 'patient-priv',
+        patientName: 'Patrícia Privacidade',
+        medicalRecord: {
+          id: 'rec-priv',
+          clinicId: 'clinic-1',
+          patientId: 'patient-priv',
+          doctorId: 'doc-1',
+          doctorName: 'Dr. Roberto Canamed',
+          status: 'draft',
+          subjective: 'Relato confidencial',
+          objective: '',
+          assessment: '',
+          plan: '',
+          createdAt: '2026-10-26T10:00:00Z',
+          finalizedAt: null,
+          addenda: [],
+        },
+        startedAt: new Date().toISOString(),
+      },
+      waitingQueue: [],
+    });
+
+    render(
+      <MemoryRouter>
+        <DoctorWorkspace />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Patrícia Privacidade/i)).toBeInTheDocument();
+    });
+
+    const privacyBtn = screen.getByRole('button', { name: /🕶️ Modo Privacidade/i });
+    expect(privacyBtn).toBeInTheDocument();
+    expect(privacyBtn).toHaveAttribute('aria-pressed', 'false');
+
+    fireEvent.click(privacyBtn);
+    expect(privacyBtn).toHaveAttribute('aria-pressed', 'true');
+
+    // Verifica que o container de dados íntimos tem a classe privacy-blur
+    const sensitiveArea = screen.getByTestId('consultation-sensitive-area');
+    expect(sensitiveArea).toHaveClass('privacy-blur');
+  });
 });

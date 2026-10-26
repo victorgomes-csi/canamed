@@ -16,6 +16,7 @@ export interface ActiveConsultationDto {
   triage?: TriageRecordResponse;
   medicalRecord?: MedicalRecordResponse;
   startedAt?: string;
+  appointmentId?: string;
 }
 
 export interface DoctorWaitingItemDto {
@@ -76,10 +77,11 @@ export interface DoctorDashboardSummaryResponse {
   upcomingAppointments: DoctorDashboardAppointmentDto[];
 }
 
-export async function getDoctorWorkspaceState(params?: { recordId?: string; patientId?: string }): Promise<DoctorWorkspaceStateResponse> {
+export async function getDoctorWorkspaceState(params?: { recordId?: string; patientId?: string; appointmentId?: string }): Promise<DoctorWorkspaceStateResponse> {
   const query = new URLSearchParams();
   if (params?.recordId) query.set('recordId', params.recordId);
   if (params?.patientId) query.set('patientId', params.patientId);
+  if (params?.appointmentId) query.set('appointmentId', params.appointmentId);
   const qs = query.toString();
   return apiGet<DoctorWorkspaceStateResponse>(`/doctor-workspace/state${qs ? `?${qs}` : ''}`);
 }

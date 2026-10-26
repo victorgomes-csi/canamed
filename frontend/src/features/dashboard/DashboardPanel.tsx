@@ -355,7 +355,7 @@ export function DashboardPanel({ onNavigate }: DashboardPanelProps) {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-              <Activity size={18} style={{ color: 'var(--brand-primary, #852a91)' }} />
+              <Activity size={18} style={{ color: 'var(--brand-primary, #008080)' }} />
               <h2
                 id="pulse-heading"
                 style={{
@@ -455,7 +455,7 @@ export function DashboardPanel({ onNavigate }: DashboardPanelProps) {
                 <span
                   style={{
                     fontSize: '0.78rem',
-                    color: 'var(--brand-primary, #852a91)',
+                    color: 'var(--brand-primary, #008080)',
                     fontWeight: 600,
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -500,7 +500,7 @@ export function DashboardPanel({ onNavigate }: DashboardPanelProps) {
                   style={{
                     fontSize: '0.85rem',
                     fontWeight: 600,
-                    color: 'var(--brand-primary, #852a91)',
+                    color: 'var(--brand-primary, #008080)',
                     padding: 0,
                   }}
                 >
@@ -711,7 +711,7 @@ export function DashboardPanel({ onNavigate }: DashboardPanelProps) {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <TrendingUp size={20} style={{ color: 'var(--brand-primary, #852a91)' }} />
+            <TrendingUp size={20} style={{ color: 'var(--brand-primary, #008080)' }} />
             <h2
               id="period-heading"
               style={{

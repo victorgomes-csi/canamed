@@ -30,12 +30,39 @@ import { useAutoSave } from './useAutoSave';
 import { useToast } from '../layout/Toast';
 import { DOCTOR_PATHS } from '../../navigation/routes';
 
+
+function reconcileSubjective(
+  currentSubjective: string,
+  newQp: string,
+  newHma: string,
+  prevQp: string,
+  prevHma: string
+): string {
+  let freeText = currentSubjective;
+  if (prevQp) {
+    freeText = freeText.replace(`Queixa Principal: ${prevQp}`, '').trim();
+  }
+  if (prevHma) {
+    freeText = freeText.replace(`HMA: ${prevHma}`, '').trim();
+  }
+  freeText = freeText.replace(/^[\r\n]+|[\r\n]+$/g, '').trim();
+
+  const blocks: string[] = [];
+  if (newQp) blocks.push(`Queixa Principal: ${newQp}`);
+  if (newHma) blocks.push(`HMA: ${newHma}`);
+  if (freeText) blocks.push(freeText);
+
+  return blocks.join('\n\n');
+}
+
 export function DoctorWorkspace() {
   const { addToast } = useToast();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const paramRecordId = searchParams.get('recordId') || undefined;
   const paramPatientId = searchParams.get('patientId') || undefined;
+  const paramAppointmentId = searchParams.get('appointmentId') || undefined;
+  const [isPrivacyMode, setIsPrivacyMode] = useState(false);
 
   const navState = location.state as {
     activeConsultation?: ActiveConsultationDto;
@@ -88,15 +115,15 @@ export function DoctorWorkspace() {
   const [hma, setHma] = useState('');
 
   const handleChiefComplaintChange = (val: string) => {
+    const nextSubjective = reconcileSubjective(subjective, val, hma, chiefComplaint, hma);
     setChiefComplaint(val);
-    const narrative = [val ? `Queixa Principal: ${val}` : '', hma ? `HMA: ${hma}` : ''].filter(Boolean).join('\n\n');
-    setSubjective(narrative);
+    setSubjective(nextSubjective);
   };
 
   const handleHmaChange = (val: string) => {
+    const nextSubjective = reconcileSubjective(subjective, chiefComplaint, val, chiefComplaint, hma);
     setHma(val);
-    const narrative = [chiefComplaint ? `Queixa Principal: ${chiefComplaint}` : '', val ? `HMA: ${val}` : ''].filter(Boolean).join('\n\n');
-    setSubjective(narrative);
+    setSubjective(nextSubjective);
   };
   const [dum, setDum] = useState('');
   const [isDumUncertain, setIsDumUncertain] = useState(false);
@@ -225,11 +252,27 @@ export function DoctorWorkspace() {
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [attachmentsModalOpen, setAttachmentsModalOpen] = useState(false);
 
+  // Persistência do appointmentId na URL query para suporte a recarregamento F5 (SPEC-0035 / RN-010)
+  useEffect(() => {
+    const activeApptId = state?.activeConsultation?.appointmentId || state?.activeConsultation?.queueEntryId;
+    if (activeApptId && searchParams.get('appointmentId') !== activeApptId) {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.set('appointmentId', activeApptId);
+          return next;
+        },
+        { replace: true }
+      );
+    }
+  }, [state?.activeConsultation, searchParams, setSearchParams]);
+
   const loadWorkspace = useCallback(async (forceReload = false) => {
     try {
       const data = await getDoctorWorkspaceState({
         recordId: paramRecordId,
         patientId: paramPatientId,
+        appointmentId: paramAppointmentId,
       });
       if (!data.activeConsultation && initialActive && !hasFinishedCurrent) {
         data.activeConsultation = initialActive;
@@ -793,6 +836,22 @@ export function DoctorWorkspace() {
                   </button>
                   <button
                     type="button"
+                    className={`button button--small ${isPrivacyMode ? 'button--warning' : 'button--secondary'}`}
+                    onClick={() => setIsPrivacyMode(!isPrivacyMode)}
+                    aria-pressed={isPrivacyMode}
+                    title="Modo Privacidade (Oculta temporariamente queixas íntimas e exame físico da visão direta de acompanhantes)"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      fontWeight: 600,
+                      borderRadius: 'var(--radius-full, 999px)',
+                    }}
+                  >
+                    <span>{isPrivacyMode ? '🕶️ Modo Privacidade Ativo' : '🕶️ Modo Privacidade'}</span>
+                  </button>
+                  <button
+                    type="button"
                     className="button button--secondary button--small"
                     onClick={() => setHistoryModalOpen(true)}
                   >
@@ -894,79 +953,109 @@ export function DoctorWorkspace() {
                 </div>
               )}
 
-              {/* Sub-Navegação Rápida do Prontuário */}
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '0.5rem',
-                  marginBottom: '1.25rem',
-                  paddingBottom: '0.5rem',
-                  borderBottom: '1px solid var(--color-neutral-border)',
-                  overflowX: 'auto',
-                }}
-              >
-                <a href="#sec-gyn-anamnesis" className="button button--ghost button--small" style={{ fontSize: '0.8rem' }}>
-                  🌸 Anamnese & Ciclo
-                </a>
-                <a href="#sec-exam" className="button button--ghost button--small" style={{ fontSize: '0.8rem' }}>
-                  🩺 Exame Físico Ginecológico
-                </a>
-                <a href="#sec-proc" className="button button--ghost button--small" style={{ fontSize: '0.8rem' }}>
-                  💉 Procedimentos (DIU/Biópsia)
-                </a>
-                <a href="#sec-soap" className="button button--ghost button--small" style={{ fontSize: '0.8rem' }}>
-                  📝 SOAP & Diagnósticos
-                </a>
-                <a href="#sec-presc" className="button button--ghost button--small" style={{ fontSize: '0.8rem' }}>
-                  💊 Prescrições & Orientações
-                </a>
-              </div>
+              {/* Dock Sticky de Navegação Rápida com Badges Dinâmicos (Task 8 / RN-009) */}
+              {(() => {
+                const isAnamnesisFilled = Boolean(chiefComplaint.trim() || hma.trim() || dum.trim() || isMenopausal || isSexuallyActive !== null || gynProfile);
+                const isExamFilled = Boolean(!exam.breastsIsNormal || exam.breastsFindings || !exam.abdomenIsNormal || exam.abdomenFindings || !exam.externalGenitaliaIsNormal || exam.externalGenitaliaFindings || !exam.speculumExamIsNormal || exam.speculumExamFindings || !exam.bimanualPalpationIsNormal || exam.bimanualPalpationFindings);
+                const isProcFilled = Boolean(procedurePerformed.trim() || procedureBatch.trim() || procedureNotes.trim());
+                const isSoapFilled = Boolean(subjective.trim() || objective.trim() || assessment.trim() || plan.trim());
+                const isPrescFilled = Boolean(prescriptionNotes.trim() || generalOrientationNotes.trim());
 
-              {/* Central de Anamnese Ginecológica Integrada */}
-              <GynecologicalAnamnesisSection
-                chiefComplaint={chiefComplaint}
-                onChiefComplaintChange={handleChiefComplaintChange}
-                hma={hma}
-                onHmaChange={handleHmaChange}
-                dum={dum}
-                onDumChange={setDum}
-                isDumUncertain={isDumUncertain}
-                onIsDumUncertainChange={setIsDumUncertain}
-                isMenopausal={isMenopausal}
-                onIsMenopausalChange={setIsMenopausal}
-                isSexuallyActive={isSexuallyActive}
-                onIsSexuallyActiveChange={setIsSexuallyActive}
-                dyspareunia={dyspareunia}
-                onDyspareuniaChange={setDyspareunia}
-                profile={gynProfile}
-                onProfileUpdated={setGynProfile}
-                onApplyObstetricValues={(val) => {
-                  addToast(
-                    `Reconciliação aplicada: ${val.effectiveGaWeeks}s ${val.effectiveGaDays}d (DPP: ${new Date(val.effectiveEdd + 'T00:00:00').toLocaleDateString('pt-BR')})`,
-                    'success'
-                  );
-                }}
-              />
+                return (
+                  <nav
+                    data-testid="consultation-dock"
+                    className="consultation-dock--sticky"
+                    aria-label="Atalhos de Seções do Consultório"
+                    style={{
+                      display: 'flex',
+                      gap: '0.6rem',
+                      overflowX: 'auto',
+                      borderRadius: 'var(--radius-md, 8px)',
+                    }}
+                  >
+                    <a href="#sec-gyn-anamnesis" className="button button--ghost button--small" style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <span>🌸 Anamnese & Ciclo</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isAnamnesisFilled ? '#059669' : '#94A3B8' }}>
+                        {isAnamnesisFilled ? '✓' : '○'}
+                      </span>
+                    </a>
+                    <a href="#sec-exam" className="button button--ghost button--small" style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <span>🩺 Exame Físico Ginecológico</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isExamFilled ? '#059669' : '#94A3B8' }}>
+                        {isExamFilled ? '✓' : '○'}
+                      </span>
+                    </a>
+                    <a href="#sec-proc" className="button button--ghost button--small" style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <span>💉 Procedimentos (DIU/Biópsia)</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isProcFilled ? '#059669' : '#94A3B8' }}>
+                        {isProcFilled ? '✓' : '○'}
+                      </span>
+                    </a>
+                    <a href="#sec-soap" className="button button--ghost button--small" style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <span>📝 SOAP & Diagnósticos</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isSoapFilled ? '#059669' : '#94A3B8' }}>
+                        {isSoapFilled ? '✓' : '○'}
+                      </span>
+                    </a>
+                    <a href="#sec-presc" className="button button--ghost button--small" style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <span>💊 Prescrições & Orientações</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isPrescFilled ? '#059669' : '#94A3B8' }}>
+                        {isPrescFilled ? '✓' : '○'}
+                      </span>
+                    </a>
+                  </nav>
+                );
+              })()}
 
-              {/* Bloco 2: Exame Físico Ginecológico Segmentado */}
-              <div id="sec-exam" style={{ marginBottom: '1.25rem' }}>
-                <GynecologicalExamSection exam={exam} onChange={setExam} />
-              </div>
-
-              {/* Bloco 3: Procedimentos Ginecológicos Ambulatoriais */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <GynecologicalProceduresSection
-                  procedurePerformed={procedurePerformed}
-                  onProcedurePerformedChange={setProcedurePerformed}
-                  procedureBatch={procedureBatch}
-                  onProcedureBatchChange={setProcedureBatch}
-                  procedureNotes={procedureNotes}
-                  onProcedureNotesChange={setProcedureNotes}
+              <div data-testid="consultation-sensitive-area" className={isPrivacyMode ? 'privacy-blur' : ''}>
+                {/* Central de Anamnese Ginecológica Integrada */}
+                <GynecologicalAnamnesisSection
+                  chiefComplaint={chiefComplaint}
+                  onChiefComplaintChange={handleChiefComplaintChange}
+                  hma={hma}
+                  onHmaChange={handleHmaChange}
+                  dum={dum}
+                  onDumChange={setDum}
+                  isDumUncertain={isDumUncertain}
+                  onIsDumUncertainChange={setIsDumUncertain}
+                  isMenopausal={isMenopausal}
+                  onIsMenopausalChange={setIsMenopausal}
+                  isSexuallyActive={isSexuallyActive}
+                  onIsSexuallyActiveChange={setIsSexuallyActive}
+                  dyspareunia={dyspareunia}
+                  onDyspareuniaChange={setDyspareunia}
+                  privacyMode={isPrivacyMode}
+                  onPrivacyModeToggle={() => setIsPrivacyMode(!isPrivacyMode)}
+                  profile={gynProfile}
+                  onProfileUpdated={setGynProfile}
+                  onApplyObstetricValues={(val) => {
+                    addToast(
+                      `Reconciliação aplicada: ${val.effectiveGaWeeks}s ${val.effectiveGaDays}d (DPP: ${new Date(val.effectiveEdd + 'T00:00:00').toLocaleDateString('pt-BR')})`,
+                      'success'
+                    );
+                  }}
                 />
+
+                {/* Bloco 2: Exame Físico Ginecológico Segmentado */}
+                <div id="sec-exam" style={{ marginBottom: '1.25rem' }}>
+                  <GynecologicalExamSection exam={exam} onChange={setExam} />
+                </div>
+
+                {/* Bloco 3: Procedimentos Ginecológicos Ambulatoriais */}
+                <div id="sec-proc" style={{ marginBottom: '1.25rem' }}>
+                  <GynecologicalProceduresSection
+                    procedurePerformed={procedurePerformed}
+                    onProcedurePerformedChange={setProcedurePerformed}
+                    procedureBatch={procedureBatch}
+                    onProcedureBatchChange={setProcedureBatch}
+                    procedureNotes={procedureNotes}
+                    onProcedureNotesChange={setProcedureNotes}
+                  />
+                </div>
               </div>
 
               {/* Bloco 4: Editor SOAP Tradicional & Diagnósticos */}
-              <div style={{ marginBottom: '1.25rem' }}>
+              <div id="sec-soap" style={{ marginBottom: '1.25rem' }}>
                 <SoapEvolutionSection
                   subjective={subjective}
                   onSubjectiveChange={setSubjective}
@@ -980,7 +1069,7 @@ export function DoctorWorkspace() {
               </div>
 
               {/* Bloco 5: Prescrições Segregadas vs Orientações Gerais */}
-              <div style={{ marginBottom: '1.5rem' }}>
+              <div id="sec-presc" style={{ marginBottom: '1.5rem' }}>
                 <PrescriptionsAndOrientationsSection
                   prescriptionNotes={prescriptionNotes}
                   onPrescriptionNotesChange={setPrescriptionNotes}
@@ -993,14 +1082,14 @@ export function DoctorWorkspace() {
                 />
               </div>
 
-              {/* Barra de Ações do Atendimento */}
+              {/* Sticky Footer Consolidando Autosave e Ações (Task 8 / RN-009) */}
               <div
+                data-testid="consultation-sticky-footer"
+                className="consultation-footer--sticky"
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  borderTop: '1px solid var(--color-neutral-border)',
-                  paddingTop: '1.25rem',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>

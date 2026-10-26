@@ -141,7 +141,7 @@ export function DoctorApp() {
                     marginBottom: '0.2rem',
                   }}
                 >
-                  <span style={{ color: 'var(--brand-primary, #852A91)', fontWeight: 600 }}>Área Médica</span>
+                  <span style={{ color: 'var(--brand-primary, #008080)', fontWeight: 600 }}>Área Médica</span>
                   <span style={{ fontSize: '0.7rem' }}>›</span>
                   <span>Consultório Virtual</span>
                 </div>

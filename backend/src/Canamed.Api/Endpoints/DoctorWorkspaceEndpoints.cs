@@ -56,9 +56,10 @@ public static class DoctorWorkspaceEndpoints
         DoctorWorkspaceService service,
         [FromQuery] Guid? recordId,
         [FromQuery] Guid? patientId,
+        [FromQuery] Guid? appointmentId,
         CancellationToken cancellationToken)
     {
-        var result = await service.GetWorkspaceStateAsync(recordId, patientId, cancellationToken).ConfigureAwait(false);
+        var result = await service.GetWorkspaceStateAsync(recordId, patientId, appointmentId, cancellationToken).ConfigureAwait(false);
         return Results.Ok(result);
     }
 

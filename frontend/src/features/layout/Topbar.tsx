@@ -80,7 +80,7 @@ export function Topbar({ session, view, onToggleMobile, onSignOut, onOpenSearch,
               marginBottom: '0.2rem',
             }}
           >
-            <span style={{ color: 'var(--brand-primary, #852A91)', fontWeight: 600 }}>Administração</span>
+            <span style={{ color: 'var(--brand-primary, #008080)', fontWeight: 600 }}>Administração</span>
             <span style={{ fontSize: '0.7rem' }}>›</span>
             <span>{currentView.breadcrumb}</span>
           </div>
@@ -99,7 +99,7 @@ export function Topbar({ session, view, onToggleMobile, onSignOut, onOpenSearch,
                 cursor: 'pointer',
                 background: 'var(--base-surface, #FFFFFF)',
                 border: '1px solid var(--base-border, #E2E6EC)',
-                color: 'var(--brand-primary, #852A91)',
+                color: 'var(--brand-primary, #008080)',
                 fontWeight: 600,
                 padding: '0.3rem 0.65rem',
                 borderRadius: '8px',
@@ -125,8 +125,8 @@ export function Topbar({ session, view, onToggleMobile, onSignOut, onOpenSearch,
               marginLeft: '0.75rem',
               fontSize: '0.78rem',
               fontWeight: 600,
-              color: 'var(--brand-primary, #852A91)',
-              background: 'var(--brand-soft, #F7ECF8)',
+              color: 'var(--brand-primary, #008080)',
+              background: 'var(--brand-soft, #E6F3F3)',
               border: '1px solid rgba(183, 122, 216, 0.3)',
               borderRadius: '999px',
               padding: '0.2rem 0.65rem',
@@ -192,7 +192,7 @@ export function Topbar({ session, view, onToggleMobile, onSignOut, onOpenSearch,
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = 'var(--base-muted, #F1F3F6)';
-            e.currentTarget.style.color = 'var(--brand-primary, #852A91)';
+            e.currentTarget.style.color = 'var(--brand-primary, #008080)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = 'transparent';

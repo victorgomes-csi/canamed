@@ -53,6 +53,8 @@ export interface StartConsultationRequest {
 export interface FinishConsultationRequest {
   medicalRecordId: string;
   queueEntryId: string;
+  plannedReturnDays?: number | null;
+  returnReason?: string | null;
 }
 
 export interface DoctorDashboardAppointmentDto {

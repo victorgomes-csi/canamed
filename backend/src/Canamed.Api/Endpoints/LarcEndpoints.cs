@@ -1,3 +1,4 @@
+using Canamed.Api.Authorization;
 using Canamed.Application.Identity;
 using Canamed.Application.MedicalRecords;
 using Canamed.Application.MedicalRecords.Services;

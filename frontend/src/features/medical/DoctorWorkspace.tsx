@@ -35,6 +35,7 @@ import { ClinicalAlertsBar } from './ClinicalAlertsBar';
 import { useAutoSave } from './useAutoSave';
 import { useToast } from '../layout/Toast';
 import { DOCTOR_PATHS } from '../../navigation/routes';
+import { ConsultationFinishSummaryModal } from './components/ConsultationFinishSummaryModal';
 
 
 function reconcileSubjective(
@@ -113,6 +114,15 @@ export function DoctorWorkspace() {
   const [finishing, setFinishing] = useState(false);
   const [hasFinishedCurrent, setHasFinishedCurrent] = useState(false);
   const [showFinishConfirmModal, setShowFinishConfirmModal] = useState(false);
+  const [showFinishSummaryModal, setShowFinishSummaryModal] = useState(false);
+  const [selectedReturnDays, setSelectedReturnDays] = useState<number>(15);
+  const [finishedSummaryData, setFinishedSummaryData] = useState<{
+    patientName: string;
+    diagnoses: Array<{ code: string; description: string; category?: string }>;
+    prescriptionsCount: number;
+    plannedReturnDays: number;
+  } | null>(null);
+
   const loadedRecordIdRef = useRef<string | null>(null);
 
   // Prenatal & Preventive Screening State (SPEC-0035 / RN-002, RN-012)
@@ -684,46 +694,26 @@ export function DoctorWorkspace() {
         ? state.activeConsultation.queueEntryId
         : '00000000-0000-0000-0000-000000000000';
 
-      // 3. Finaliza prontuário e fila
+      // 3. Finaliza prontuário e fila com Retorno Programado CFM 1.958/2010 (RN-015)
       await doctorFinishConsultation({
         medicalRecordId: recordId,
         queueEntryId: safeQueueId,
+        plannedReturnDays: selectedReturnDays,
       });
+
+      const summary = {
+        patientName: state.activeConsultation.patientName,
+        diagnoses: assessment.trim()
+          ? [{ code: 'N86', description: assessment.trim().slice(0, 60), category: 'confirmed' }]
+          : [],
+        prescriptionsCount: prescriptionNotes.trim() ? prescriptionNotes.trim().split('\n').filter(Boolean).length : 0,
+        plannedReturnDays: selectedReturnDays,
+      };
+      setFinishedSummaryData(summary);
 
       addToast('Atendimento finalizado com sucesso!', 'success');
       setShowFinishConfirmModal(false);
-      setHasFinishedCurrent(true);
-
-      // Limpa parâmetros de busca da URL para não recarregar consulta finalizada
-      setSearchParams({});
-      if (typeof window !== 'undefined' && window.history?.replaceState) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-
-      // Limpa os estados locais do formulário
-      setSubjective('');
-      setObjective('');
-      setAssessment('');
-      setPlan('');
-      setChiefComplaint('');
-      setHma('');
-      setDum('');
-      setIsDumUncertain(false);
-      setIsMenopausal(false);
-      setIsSexuallyActive(null);
-      setDyspareunia('ausente');
-      setProcedurePerformed('');
-      setProcedureBatch('');
-      setProcedureNotes('');
-      setPrescriptionNotes('');
-      setGeneralOrientationNotes('');
-      setDraftStatus('');
-      loadedRecordIdRef.current = null;
-
-      // Desativa a consulta ativa no estado local imediatamente
-      setState((prev) => (prev ? { ...prev, activeConsultation: undefined } : null));
-
-      await loadWorkspace();
+      setShowFinishSummaryModal(true);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Falha ao finalizar atendimento.';
       addToast(msg, 'error');
@@ -1336,6 +1326,34 @@ export function DoctorWorkspace() {
               ? O prontuário se tornará imutável conforme as diretrizes do CFM e da Lei nº 13.787/2018. Qualquer retificação futura deverá ser realizada exclusivamente via adendo clínico justificado.
             </p>
 
+            
+            {/* Seletor de Prazo de Retorno CFM 1.958/2010 */}
+            <div style={{ marginBottom: '1.25rem', textAlign: 'left' }}>
+              <label htmlFor="finish-return-days" style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-primary-dark, #005F6A)', marginBottom: '0.35rem' }}>
+                Prazo Sugerido para Retorno (CFM nº 1.958/2010):
+              </label>
+              <select
+                id="finish-return-days"
+                value={selectedReturnDays}
+                onChange={(e) => setSelectedReturnDays(Number(e.target.value))}
+                style={{
+                  width: '100%',
+                  padding: '0.55rem 0.75rem',
+                  borderRadius: '8px',
+                  border: '1px solid #CBD5E1',
+                  fontSize: '0.85rem',
+                  background: '#FFFFFF',
+                  color: '#1E293B',
+                }}
+              >
+                <option value={15}>15 dias — Reavaliação de Exames Complementares (Isento de novos honorários)</option>
+                <option value={30}>30 a 45 dias — Controle Pós-Inserção de DIU / Procedimento</option>
+                <option value={28}>4 semanas (28 dias) — Consulta de Pré-Natal</option>
+                <option value={365}>1 ano (365 dias) — Rotina Ginecológica Preventiva Anual</option>
+                <option value={0}>Sem retorno programado</option>
+              </select>
+            </div>
+
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
               <button
                 type="button"
@@ -1358,6 +1376,48 @@ export function DoctorWorkspace() {
           </div>
         </div>
       )}
+
+      
+      {/* Modal de Resumo de Alta & Fechamento da Consulta (Task 16 / RN-015) */}
+      <ConsultationFinishSummaryModal
+        isOpen={showFinishSummaryModal}
+        patientName={finishedSummaryData?.patientName || state?.activeConsultation?.patientName || 'Paciente'}
+        diagnoses={finishedSummaryData?.diagnoses}
+        prescriptionsCount={finishedSummaryData?.prescriptionsCount}
+        plannedReturnDays={finishedSummaryData?.plannedReturnDays ?? selectedReturnDays}
+        onConfirmClose={() => {
+          setShowFinishSummaryModal(false);
+          setHasFinishedCurrent(true);
+          setSearchParams({});
+          if (typeof window !== 'undefined' && window.history?.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+          setSubjective('');
+          setObjective('');
+          setAssessment('');
+          setPlan('');
+          setChiefComplaint('');
+          setHma('');
+          setDum('');
+          setIsDumUncertain(false);
+          setIsMenopausal(false);
+          setIsSexuallyActive(null);
+          setDyspareunia('ausente');
+          setProcedurePerformed('');
+          setProcedureBatch('');
+          setProcedureNotes('');
+          setPrescriptionNotes('');
+          setGeneralOrientationNotes('');
+          setDraftStatus('');
+          loadedRecordIdRef.current = null;
+          setState((prev) => (prev ? { ...prev, activeConsultation: undefined } : null));
+          loadWorkspace();
+        }}
+        onClose={() => {
+          setShowFinishSummaryModal(false);
+          loadWorkspace();
+        }}
+      />
 
       {/* Modais de Documentos, Histórico e Exames Anteriores */}
       {active && (

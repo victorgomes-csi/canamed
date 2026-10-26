@@ -641,4 +641,68 @@ describe('DoctorWorkspace Component', () => {
       expect(screen.getByText(/Rastreamento Preventivo/i)).toBeInTheDocument();
     });
   });
+  it('apresenta seletor de retorno programado CFM 1.958 e abre ConsultationFinishSummaryModal ao finalizar consulta', async () => {
+    mocks.apiGet.mockResolvedValue({
+      doctorId: 'doc-1',
+      doctorName: 'Dr. Roberto Canamed',
+      clinicId: 'clinic-1',
+      activeConsultation: {
+        queueEntryId: '00000000-0000-0000-0000-000000000001',
+        patientId: 'patient-5',
+        patientName: 'Maria Francisca da Silva',
+        patientBirthDate: '1985-04-12',
+        allergies: 'Nenhuma',
+        chronicConditions: 'Nenhuma',
+        healthPlanName: 'Particular',
+        medicalRecord: {
+          id: 'rec-1',
+          clinicId: 'clinic-1',
+          patientId: 'patient-5',
+          doctorId: 'doc-1',
+          status: 'draft',
+          subjective: 'Queixa de rotina',
+          objective: '',
+          assessment: 'Avaliação clínica satisfatória',
+          plan: 'Orientações gerais',
+          createdAt: '2026-10-02T10:05:00Z',
+          finalizedAt: null,
+          addenda: [],
+        },
+      },
+      waitingQueue: [],
+    });
+    mocks.apiPut.mockResolvedValue({});
+    mocks.apiPost.mockResolvedValue({});
+
+    render(
+      <MemoryRouter>
+        <DoctorWorkspace />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Finalizar Atendimento/i })).toBeInTheDocument();
+    });
+
+    // Clica no botão de finalizar atendimento
+    fireEvent.click(screen.getByRole('button', { name: /Finalizar Atendimento/i }));
+
+    // Modal de confirmação abre com o seletor de retorno CFM 1.958/2010
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Prazo Sugerido para Retorno/i)).toBeInTheDocument();
+      expect(screen.getByText(/CFM nº 1\.958\/2010/i)).toBeInTheDocument();
+    });
+
+    // Confirma a finalização
+    const confirmBtn = screen.getByRole('button', { name: /Sim, Finalizar Prontuário/i });
+    fireEvent.click(confirmBtn);
+
+    // Deve abrir o modal de resumo de alta
+    await waitFor(() => {
+      expect(screen.getByText(/Resumo de Alta & Fechamento/i)).toBeInTheDocument();
+      expect(screen.getByText(/Retorno programado em 15 dias/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Concluir e Liberar Consultório/i })).toBeInTheDocument();
+    });
+  });
+
 });

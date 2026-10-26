@@ -86,4 +86,53 @@ public sealed class DoctorWorkspaceTests
         Assert.Equal("O", active.PatientBloodType);
         Assert.Equal("Negativo", active.PatientRhFactor);
     }
+    [Fact]
+    public void FinishConsultationRequest_SuportaPrazoDeRetornoProgramadoCFM1958()
+    {
+        var recordId = Guid.NewGuid();
+        var queueId = Guid.NewGuid();
+
+        var request = new FinishConsultationRequest(
+            MedicalRecordId: recordId,
+            QueueEntryId: queueId,
+            PlannedReturnDays: 15,
+            ReturnReason: "Avaliação de laudo citopatológico oncótico");
+
+        Assert.Equal(recordId, request.MedicalRecordId);
+        Assert.Equal(queueId, request.QueueEntryId);
+        Assert.Equal(15, request.PlannedReturnDays);
+        Assert.Equal("Avaliação de laudo citopatológico oncótico", request.ReturnReason);
+    }
+
+    [Theory]
+    [InlineData(10, 0, "1º Trimestre")]
+    [InlineData(26, 3, "2º Trimestre")]
+    [InlineData(36, 0, "3º Trimestre")]
+    public void ObstetricProtocolsService_ClassificaTrimestreCorretamente(int weeks, int days, string expectedTrimester)
+    {
+        var service = new Canamed.Application.MedicalRecords.Services.ObstetricProtocolsService();
+        var protocol = service.GetProtocolForGestationalAge(weeks, days);
+
+        Assert.Equal(expectedTrimester, protocol.Trimester);
+    }
+
+    [Fact]
+    public void ObstetricProtocolsService_RecomendaTOTGEm24a28SemanasEDTpaApos20Semanas()
+    {
+        var service = new Canamed.Application.MedicalRecords.Services.ObstetricProtocolsService();
+        var protocol = service.GetProtocolForGestationalAge(26, 0);
+
+        Assert.Contains(protocol.RecommendedExams, e => e.Contains("TOTG"));
+        Assert.Contains(protocol.RecommendedVaccines, v => v.Contains("dTpa"));
+    }
+
+    [Fact]
+    public void ObstetricProtocolsService_RecomendaSwabStrepBEm35a37Semanas()
+    {
+        var service = new Canamed.Application.MedicalRecords.Services.ObstetricProtocolsService();
+        var protocol = service.GetProtocolForGestationalAge(36, 0);
+
+        Assert.Contains(protocol.RecommendedExams, e => e.Contains("Streptococcus") || e.Contains("Strep B"));
+    }
+
 }

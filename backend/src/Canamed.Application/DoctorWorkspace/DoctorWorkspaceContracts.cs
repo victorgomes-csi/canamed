@@ -12,7 +12,9 @@ public sealed record StartConsultationRequest(
 
 public sealed record FinishConsultationRequest(
     Guid MedicalRecordId,
-    Guid QueueEntryId);
+    Guid QueueEntryId,
+    int? PlannedReturnDays = null,
+    string? ReturnReason = null);
 
 public sealed record ActiveConsultationDto(
     Guid QueueEntryId,

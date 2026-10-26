@@ -25,6 +25,7 @@ export interface DocumentModalProps {
   initialDocType?: MedicalDocumentType;
   initialMedications?: Array<{ medication: string; concentration?: string; route?: string; instructions?: string; quantity?: string }> | string;
   initialGeneralInstructions?: string;
+  initialDiagnoses?: Array<{ code: string; description?: string; category?: string }> | string;
   onClose: () => void;
   onDocumentIssued?: (doc: MedicalDocumentResponse) => void;
 }
@@ -87,6 +88,7 @@ export function DocumentModal({
   initialDocType,
   initialMedications,
   initialGeneralInstructions,
+  initialDiagnoses,
   onClose,
   onDocumentIssued,
 }: DocumentModalProps) {
@@ -108,8 +110,26 @@ export function DocumentModal({
       if (initialMedications !== undefined) {
         setMedications(parseInitialMedications(initialMedications));
       }
+      if (initialDiagnoses !== undefined) {
+        let list: Array<{ code: string; category?: string }> = [];
+        if (typeof initialDiagnoses === 'string') {
+          try {
+            list = JSON.parse(initialDiagnoses);
+          } catch {
+            list = [];
+          }
+        } else if (Array.isArray(initialDiagnoses)) {
+          list = initialDiagnoses;
+        }
+        // RN-011: Documentos públicos (atestados/declarações) filtram automaticamente hipóteses diagnósticas não confirmadas
+        const confirmedOnly = list.filter((d) => d.category === 'confirmed');
+        if (confirmedOnly.length > 0) {
+          setCidCode(confirmedOnly.map((d) => d.code).join(', '));
+          setConsentCid(true);
+        }
+      }
     }
-  }, [isOpen, initialDocType, initialGeneralInstructions, initialMedications]);
+  }, [isOpen, initialDocType, initialGeneralInstructions, initialMedications, initialDiagnoses]);
 
   // Atestado
   const [leaveDays, setLeaveDays] = useState(1);

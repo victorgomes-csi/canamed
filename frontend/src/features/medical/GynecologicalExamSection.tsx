@@ -14,6 +14,7 @@ export interface GynecologicalExamState {
   speculumExamFindings: string;
   bimanualPalpationStatus?: PhysicalExamStatus;
   bimanualPalpationFindings: string;
+  cervicalClockFindingsJson?: string;
   // Retrocompatibilidade
   breastsIsNormal?: boolean;
   abdomenIsNormal?: boolean;
@@ -217,6 +218,7 @@ export function GynecologicalExamSection({ exam, onChange, readOnly }: Props) {
   const externalGenitaliaStatus = resolveStatus(exam.externalGenitaliaStatus, exam.externalGenitaliaIsNormal);
   const speculumExamStatus = resolveStatus(exam.speculumExamStatus, exam.speculumExamIsNormal);
   const bimanualPalpationStatus = resolveStatus(exam.bimanualPalpationStatus, exam.bimanualPalpationIsNormal);
+  const isCervicalMapExpanded = showCervicalMap || speculumExamStatus === 'Abnormal';
 
   const handleCervicalHoursChange = (hours: number[]) => {
     setCervicalHours(hours);
@@ -317,11 +319,11 @@ export function GynecologicalExamSection({ exam, onChange, readOnly }: Props) {
           type="button"
           className="button button--ghost button--small"
           style={{ fontSize: '0.8rem', color: 'var(--color-primary-dark, #005F6A)', fontWeight: 600 }}
-          onClick={() => setShowCervicalMap(!showCervicalMap)}
+          onClick={() => setShowCervicalMap(!isCervicalMapExpanded)}
         >
-          {showCervicalMap ? '▲ Ocultar Mapa Cervical 12h' : '🎯 Abrir Mapa Cervical 12h (Odontograma Colposcópico)'}
+          {isCervicalMapExpanded ? '▲ Ocultar Mapa Cervical 12h' : '🎯 Abrir Mapa Cervical 12h (Odontograma Colposcópico)'}
         </button>
-        {showCervicalMap && (
+        {isCervicalMapExpanded && (
           <div style={{ marginTop: '0.5rem', maxWidth: '420px' }}>
             <CervicalClockMap
               selectedHours={cervicalHours}
@@ -329,6 +331,12 @@ export function GynecologicalExamSection({ exam, onChange, readOnly }: Props) {
               readOnly={readOnly}
               onChange={handleCervicalHoursChange}
               onZtChange={handleZtChange}
+              onFindingsChange={(findings) => {
+                onChange({
+                  ...exam,
+                  cervicalClockFindingsJson: JSON.stringify(findings),
+                });
+              }}
             />
           </div>
         )}

@@ -126,4 +126,23 @@ describe('DocumentModal', () => {
     expect(printedHtml).toContain('Identificação do Fornecedor');
     expect(printedHtml).toContain('page-break-after: always');
   });
+
+  it('filtra hipóteses diagnósticas e preenche apenas diagnósticos confirmados no atestado médico (RN-011)', () => {
+    const diagnoses = JSON.stringify([
+      { code: 'N86', description: 'Erosão e ectrópio do colo do útero', category: 'confirmed' },
+      { code: 'N72', description: 'Suspeita de cervicite', category: 'hypothesis' },
+    ]);
+
+    render(
+      <DocumentModal
+        {...defaultProps}
+        initialDocType="atestado_medico"
+        initialDiagnoses={diagnoses}
+      />
+    );
+
+    const cidInput = screen.getByLabelText(/Código CID-10/i) as HTMLInputElement;
+    expect(cidInput.value).toBe('N86');
+    expect(cidInput.value).not.toContain('N72');
+  });
 });

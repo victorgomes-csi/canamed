@@ -43,6 +43,8 @@ public sealed class GynecologicalConsultationDataConfiguration : IEntityTypeConf
             .HasColumnType("text")
             .HasConversion(encryptedConverter);
         builder.Property(d => d.GeneralOrientationNotes).HasMaxLength(2000);
+        builder.Property(d => d.CervicalClockFindingsJson).HasMaxLength(4000);
+        builder.Property(d => d.PreferredGestationalReference).HasConversion<string>().HasMaxLength(50);
 
         builder.HasIndex(d => d.MedicalRecordId).IsUnique();
     }

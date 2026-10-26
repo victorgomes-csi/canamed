@@ -1,3 +1,6 @@
+import { useState, useMemo } from 'react';
+import { createLarcRecord, type LarcPlacementDto } from './larcApi';
+
 export interface GynecologicalProceduresSectionProps {
   procedurePerformed: string;
   onProcedurePerformedChange: (val: string) => void;
@@ -5,18 +8,38 @@ export interface GynecologicalProceduresSectionProps {
   onProcedureBatchChange: (val: string) => void;
   procedureNotes: string;
   onProcedureNotesChange: (val: string) => void;
+  patientId?: string;
+  medicalRecordId?: string;
+  onLarcCreated?: (record: LarcPlacementDto) => void;
   disabled?: boolean;
 }
 
 export const COMMON_GYNECOLOGICAL_PROCEDURES = [
   { id: 'diu_cobre', label: 'Inserção de DIU de Cobre', category: 'larc' },
   { id: 'diu_hormonal', label: 'Inserção de DIU Hormonal (Mirena/Kyleena)', category: 'larc' },
+  { id: 'implanon', label: 'Inserção de Implante (Implanon)', category: 'larc' },
   { id: 'retirada_diu', label: 'Retirada de DIU', category: 'larc' },
   { id: 'biopsia_colo', label: 'Biópsia de Colo Uterino', category: 'biopsia' },
   { id: 'biopsia_endometrio', label: 'Biópsia de Endométrio (Pipelle)', category: 'biopsia' },
   { id: 'cauterizacao', label: 'Cauterização Química de Colo', category: 'ambulatorial' },
   { id: 'citopatologico', label: 'Coleta de Citopatológico', category: 'preventivo' },
 ];
+
+function getLarcValidityYears(type: string): number {
+  switch (type.toLowerCase()) {
+    case 'implanon':
+      return 3;
+    case 'diu_prata':
+    case 'kyleena':
+      return 5;
+    case 'mirena':
+      return 8;
+    case 'diu_cobre':
+      return 10;
+    default:
+      return 5;
+  }
+}
 
 export function GynecologicalProceduresSection({
   procedurePerformed,
@@ -25,14 +48,64 @@ export function GynecologicalProceduresSection({
   onProcedureBatchChange,
   procedureNotes,
   onProcedureNotesChange,
+  patientId,
+  medicalRecordId,
+  onLarcCreated,
   disabled = false,
 }: GynecologicalProceduresSectionProps) {
-  const isLarc = procedurePerformed.toLowerCase().includes('diu');
+  const isLarc =
+    procedurePerformed.toLowerCase().includes('diu') ||
+    procedurePerformed.toLowerCase().includes('implante') ||
+    procedurePerformed.toLowerCase().includes('implanon');
+
+  const [larcDeviceType, setLarcDeviceType] = useState('mirena');
+  const [hysterometryCm, setHysterometryCm] = useState('7.5');
+  const [insertionDate, setInsertionDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [isSavingLarc, setIsSavingLarc] = useState(false);
+  const [larcSuccess, setLarcSuccess] = useState<string | null>(null);
+
+  const larcDates = useMemo(() => {
+    const base = insertionDate ? new Date(insertionDate) : new Date();
+    const years = getLarcValidityYears(larcDeviceType);
+    const exp = new Date(base);
+    exp.setFullYear(exp.getFullYear() + years);
+
+    const usg = new Date(base);
+    usg.setDate(usg.getDate() + 30);
+
+    return {
+      expirationDate: exp.toISOString().split('T')[0],
+      controlUsgDate: usg.toISOString().split('T')[0],
+      validityYears: years,
+    };
+  }, [larcDeviceType, insertionDate]);
 
   const insertSnippetIntoNotes = (snippet: string) => {
     if (disabled) return;
     const prefix = procedureNotes && !procedureNotes.endsWith('\n') && !procedureNotes.endsWith(' ') ? ' ' : '';
     onProcedureNotesChange(`${procedureNotes}${prefix}${snippet}`);
+  };
+
+  const handleRegisterLarc = async () => {
+    if (!patientId || disabled) return;
+    try {
+      setIsSavingLarc(true);
+      setLarcSuccess(null);
+      const res = await createLarcRecord(patientId, {
+        medicalRecordId,
+        deviceType: larcDeviceType,
+        batchNumber: procedureBatch || 'LOTE-PADRAO',
+        insertionDate,
+        hysterometryCm: parseFloat(hysterometryCm) || 7.5,
+        procedureNotes,
+      });
+      setLarcSuccess(`LARC registrado com sucesso! Validade até ${res.expirationDate} e USG de controle em ${res.controlUltrasoundDate}.`);
+      if (onLarcCreated) onLarcCreated(res);
+    } catch {
+      setLarcSuccess('Erro ao registrar LARC na API. Tente novamente.');
+    } finally {
+      setIsSavingLarc(false);
+    }
   };
 
   return (
@@ -69,6 +142,7 @@ export function GynecologicalProceduresSection({
               onProcedurePerformedChange('');
               onProcedureBatchChange('');
               onProcedureNotesChange('');
+              setLarcSuccess(null);
             }}
             style={{ fontSize: '0.75rem', color: '#DC2626' }}
             disabled={disabled}
@@ -163,6 +237,136 @@ export function GynecologicalProceduresSection({
           />
         </div>
       </div>
+
+      {/* Bloco Estruturado Especializado de LARC (DIU / Implante) */}
+      {isLarc && (
+        <div
+          style={{
+            background: '#F0FDF4',
+            border: '1px solid #86EFAC',
+            borderRadius: '8px',
+            padding: '0.9rem',
+            marginBottom: '0.85rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.65rem' }}>
+            <span style={{ fontSize: '1.1rem' }}>🌀</span>
+            <strong style={{ fontSize: '0.9rem', color: '#166534' }}>
+              Rastreabilidade e Controle de Dispositivo LARC (RN-013)
+            </strong>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
+            <div>
+              <label htmlFor="larc-device-type" className="form__label" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+                Dispositivo LARC
+              </label>
+              <select
+                id="larc-device-type"
+                className="form__select"
+                value={larcDeviceType}
+                disabled={disabled}
+                onChange={(e) => setLarcDeviceType(e.target.value)}
+                style={{ width: '100%', fontSize: '0.825rem' }}
+              >
+                <option value="mirena">DIU Hormonal Mirena (8 anos)</option>
+                <option value="kyleena">DIU Hormonal Kyleena (5 anos)</option>
+                <option value="diu_cobre">DIU de Cobre TCu 380A (10 anos)</option>
+                <option value="diu_prata">DIU de Cobre com Prata (5 anos)</option>
+                <option value="implanon">Implante Subdérmico Implanon (3 anos)</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="larc-hysterometry" className="form__label" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+                Histerometria (cm)
+              </label>
+              <input
+                id="larc-hysterometry"
+                type="number"
+                step="0.1"
+                min="5"
+                max="12"
+                className="form__input"
+                value={hysterometryCm}
+                disabled={disabled}
+                onChange={(e) => setHysterometryCm(e.target.value)}
+                style={{ width: '100%', fontSize: '0.825rem' }}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="larc-insertion-date" className="form__label" style={{ fontSize: '0.8rem', fontWeight: 600 }}>
+                Data da Inserção
+              </label>
+              <input
+                id="larc-insertion-date"
+                type="date"
+                className="form__input"
+                value={insertionDate}
+                disabled={disabled}
+                onChange={(e) => setInsertionDate(e.target.value)}
+                style={{ width: '100%', fontSize: '0.825rem' }}
+              />
+            </div>
+          </div>
+
+          {/* Badges de Validade e USG de Controle */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.65rem' }}>
+            <span
+              style={{
+                fontSize: '0.75rem',
+                padding: '0.25rem 0.6rem',
+                borderRadius: '6px',
+                background: '#DCFCE7',
+                border: '1px solid #22C55E',
+                color: '#15803D',
+              }}
+            >
+              📅 Validade Calculada: <strong>{larcDates.expirationDate}</strong> ({larcDates.validityYears} anos)
+            </span>
+            <span
+              style={{
+                fontSize: '0.75rem',
+                padding: '0.25rem 0.6rem',
+                borderRadius: '6px',
+                background: '#FEF3C7',
+                border: '1px solid #F59E0B',
+                color: '#B45309',
+              }}
+            >
+              🔍 USG de Controle: <strong>{larcDates.controlUsgDate}</strong> (30 dias pós-inserção)
+            </span>
+          </div>
+
+          {patientId && (
+            <div style={{ marginTop: '0.5rem' }}>
+              <button
+                type="button"
+                disabled={disabled || isSavingLarc}
+                onClick={handleRegisterLarc}
+                style={{
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  padding: '0.35rem 0.8rem',
+                  borderRadius: '6px',
+                  border: 'none',
+                  background: 'var(--color-brand-primary, #008080)',
+                  color: '#ffffff',
+                  cursor: disabled || isSavingLarc ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {isSavingLarc ? 'Registrando LARC...' : '💾 Salvar Registro de LARC'}
+              </button>
+              {larcSuccess && (
+                <span style={{ marginLeft: '0.6rem', fontSize: '0.78rem', color: '#166534', fontWeight: 600 }}>
+                  {larcSuccess}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Detalhamento Clínico e Snippets Especializados */}
       {procedurePerformed && (

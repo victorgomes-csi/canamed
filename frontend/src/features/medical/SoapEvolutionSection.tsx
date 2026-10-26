@@ -1,3 +1,11 @@
+import { useState, useMemo } from 'react';
+
+export interface DiagnosisItem {
+  code: string;
+  description: string;
+  category: 'hypothesis' | 'confirmed';
+}
+
 export interface SoapEvolutionSectionProps {
   subjective: string;
   onSubjectiveChange: (val: string) => void;
@@ -7,6 +15,8 @@ export interface SoapEvolutionSectionProps {
   onAssessmentChange: (val: string) => void;
   plan: string;
   onPlanChange: (val: string) => void;
+  diagnosesJson?: string;
+  onDiagnosesJsonChange?: (val: string) => void;
   disabled?: boolean;
 }
 
@@ -45,12 +55,62 @@ export function SoapEvolutionSection({
   onAssessmentChange,
   plan,
   onPlanChange,
+  diagnosesJson = '[]',
+  onDiagnosesJsonChange,
   disabled = false,
 }: SoapEvolutionSectionProps) {
+  const [selectedCategory, setSelectedCategory] = useState<'hypothesis' | 'confirmed'>('hypothesis');
+  const [customCode, setCustomCode] = useState('');
+  const [customDesc, setCustomDesc] = useState('');
+
+  const parsedDiagnoses: DiagnosisItem[] = useMemo(() => {
+    try {
+      if (!diagnosesJson || !diagnosesJson.trim()) return [];
+      const parsed = JSON.parse(diagnosesJson);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }, [diagnosesJson]);
+
   const appendText = (current: string, updater: (val: string) => void, snippet: string) => {
     if (disabled) return;
     const prefix = current && !current.endsWith('\n') && !current.endsWith(' ') ? '\n' : '';
     updater(`${current}${prefix}${snippet}`);
+  };
+
+  const handleAddDiagnosis = (code: string, description: string, category: 'hypothesis' | 'confirmed', fullText?: string) => {
+    if (disabled) return;
+    const normalizedCode = code.trim().toUpperCase();
+    const normalizedDesc = description.trim();
+    if (!normalizedCode || !normalizedDesc) return;
+
+    if (onDiagnosesJsonChange) {
+      const exists = parsedDiagnoses.some(
+        (d) => d.code.toUpperCase() === normalizedCode && d.category === category
+      );
+      if (!exists) {
+        const nextList: DiagnosisItem[] = [
+          ...parsedDiagnoses,
+          { code: normalizedCode, description: normalizedDesc, category },
+        ];
+        onDiagnosesJsonChange(JSON.stringify(nextList));
+      }
+    }
+
+    const categoryLabel = category === 'confirmed' ? 'Confirmado' : 'Hipótese';
+    const textToAppend = fullText ? `${fullText} [${categoryLabel}]` : `${normalizedCode} - ${normalizedDesc} [${categoryLabel}]`;
+    appendText(assessment, onAssessmentChange, textToAppend);
+  };
+
+  const handleRemoveDiagnosis = (indexToRemove: number) => {
+    if (disabled || !onDiagnosesJsonChange) return;
+    const nextList = parsedDiagnoses.filter((_, idx) => idx !== indexToRemove);
+    onDiagnosesJsonChange(JSON.stringify(nextList));
+  };
+
+  const handleChipClick = (diag: (typeof COMMON_DIAGNOSTIC_HYPOTHESES)[0]) => {
+    handleAddDiagnosis(diag.code, diag.label, selectedCategory, diag.text);
   };
 
   return (
@@ -73,7 +133,7 @@ export function SoapEvolutionSection({
             Evolução Clínica Estruturada (SOAP) & Diagnósticos
           </h3>
           <span style={{ fontSize: '0.8rem', color: 'var(--color-neutral-muted, #64748B)' }}>
-            Registro formal do atendimento conforme o padrão SOAP (CFM / S-RES) com atalhos de diagnóstico
+            Registro formal do atendimento conforme o padrão SOAP (CFM / S-RES) com segregação de Hipóteses e Diagnósticos Confirmados
           </span>
         </div>
       </div>
@@ -134,25 +194,60 @@ export function SoapEvolutionSection({
         />
       </div>
 
-      {/* [A] Avaliação — Hipóteses Diagnósticas & CID-10 */}
+      {/* [A] Avaliação — Hipóteses Diagnósticas vs Diagnósticos Confirmados (RN-011) */}
       <div className="form__group" style={{ marginBottom: '1.15rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <label htmlFor="soap-a" className="form__label" style={{ fontWeight: 700, color: 'var(--color-primary-dark, #005F6A)', margin: 0 }}>
-            [A] Avaliação — Hipóteses Diagnósticas & CID-10
+            [A] Avaliação — Hipóteses Diagnósticas & Diagnósticos Confirmados (CID-10)
           </label>
-          <span style={{ fontSize: '0.75rem', color: 'var(--color-neutral-muted, #64748B)' }}>
-            Clique para inserir hipótese diagnóstica estruturada:
-          </span>
+          {/* Seletor de Categoria do Diagnóstico */}
+          <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748B' }}>Classificar como:</span>
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => setSelectedCategory('hypothesis')}
+              style={{
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                padding: '0.25rem 0.6rem',
+                borderRadius: '6px',
+                border: selectedCategory === 'hypothesis' ? '2px solid #D97706' : '1px solid #CBD5E1',
+                background: selectedCategory === 'hypothesis' ? '#FEF3C7' : '#F8FAFC',
+                color: selectedCategory === 'hypothesis' ? '#92400E' : '#475569',
+                cursor: 'pointer',
+              }}
+            >
+              🟡 Hipótese Preliminar
+            </button>
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => setSelectedCategory('confirmed')}
+              style={{
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                padding: '0.25rem 0.6rem',
+                borderRadius: '6px',
+                border: selectedCategory === 'confirmed' ? '2px solid #008080' : '1px solid #CBD5E1',
+                background: selectedCategory === 'confirmed' ? '#D1FAE5' : '#F8FAFC',
+                color: selectedCategory === 'confirmed' ? '#065F46' : '#475569',
+                cursor: 'pointer',
+              }}
+            >
+              🟢 Diagnóstico Confirmado
+            </button>
+          </div>
         </div>
 
         {/* Chips de CIDs e Hipóteses Clínicas Frequentes */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.5rem' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.6rem' }}>
           {COMMON_DIAGNOSTIC_HYPOTHESES.map((diag) => (
             <button
               key={diag.id}
               type="button"
               disabled={disabled}
-              onClick={() => appendText(assessment, onAssessmentChange, diag.text)}
+              onClick={() => handleChipClick(diag)}
               className="complaint-chip"
               style={{
                 fontSize: '0.75rem',
@@ -164,13 +259,124 @@ export function SoapEvolutionSection({
                 color: 'var(--color-primary-dark, #005F6A)',
                 cursor: disabled ? 'not-allowed' : 'pointer',
               }}
-              title={diag.text}
+              title={`Inserir como ${selectedCategory === 'confirmed' ? 'Confirmado' : 'Hipótese'}: ${diag.text}`}
             >
               <strong style={{ color: 'var(--color-brand-primary, #008080)', marginRight: '0.25rem' }}>{diag.code}</strong>
               <span>{diag.label}</span>
             </button>
           ))}
         </div>
+
+        {/* Formulário rápido para CID customizado */}
+        <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+          <input
+            type="text"
+            placeholder="CID (ex: N86)"
+            value={customCode}
+            disabled={disabled}
+            onChange={(e) => setCustomCode(e.target.value)}
+            style={{ width: '100px', fontSize: '0.8rem', padding: '0.25rem 0.5rem', borderRadius: '4px', border: '1px solid #CBD5E1' }}
+          />
+          <input
+            type="text"
+            placeholder="Descrição clínica do diagnóstico..."
+            value={customDesc}
+            disabled={disabled}
+            onChange={(e) => setCustomDesc(e.target.value)}
+            style={{ flex: 1, minWidth: '180px', fontSize: '0.8rem', padding: '0.25rem 0.5rem', borderRadius: '4px', border: '1px solid #CBD5E1' }}
+          />
+          <button
+            type="button"
+            disabled={disabled || !customCode.trim() || !customDesc.trim()}
+            onClick={() => {
+              handleAddDiagnosis(customCode, customDesc, selectedCategory);
+              setCustomCode('');
+              setCustomDesc('');
+            }}
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              padding: '0.25rem 0.7rem',
+              borderRadius: '4px',
+              border: 'none',
+              background: 'var(--color-brand-primary, #008080)',
+              color: '#ffffff',
+              cursor: disabled ? 'not-allowed' : 'pointer',
+            }}
+          >
+            + Adicionar
+          </button>
+        </div>
+
+        {/* Lista de Diagnósticos Estruturados com badges âmbar/verde */}
+        {parsedDiagnoses.length > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '0.4rem',
+              marginBottom: '0.6rem',
+              padding: '0.5rem',
+              background: '#F8FAFC',
+              borderRadius: '6px',
+              border: '1px solid #E2E8F0',
+            }}
+          >
+            {parsedDiagnoses.map((diag, index) => {
+              const isConfirmed = diag.category === 'confirmed';
+              return (
+                <div
+                  key={`${diag.code}-${index}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    fontSize: '0.75rem',
+                    padding: '0.2rem 0.55rem',
+                    borderRadius: '6px',
+                    border: isConfirmed ? '1px solid #10B981' : '1px solid #F59E0B',
+                    background: isConfirmed ? '#ECFDF5' : '#FFFBEB',
+                    color: isConfirmed ? '#065F46' : '#92400E',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontWeight: 700,
+                      fontSize: '0.7rem',
+                      padding: '0.1rem 0.35rem',
+                      borderRadius: '4px',
+                      background: isConfirmed ? '#D1FAE5' : '#FEF3C7',
+                      color: isConfirmed ? '#065F46' : '#92400E',
+                    }}
+                  >
+                    {isConfirmed ? 'Diagnóstico Confirmado' : 'Hipótese Preliminar'}
+                  </span>
+                  <strong>{diag.code}</strong>
+                  <span>{diag.description}</span>
+                  {!disabled && onDiagnosesJsonChange && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveDiagnosis(index)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: isConfirmed ? '#065F46' : '#92400E',
+                        cursor: 'pointer',
+                        fontWeight: 700,
+                        marginLeft: '0.2rem',
+                        fontSize: '0.85rem',
+                        lineHeight: 1,
+                      }}
+                      title="Remover diagnóstico"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <textarea
           id="soap-a"

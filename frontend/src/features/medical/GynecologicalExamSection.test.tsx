@@ -64,4 +64,17 @@ describe('GynecologicalExamSection Component (Tri-State)', () => {
     expect(screen.getByPlaceholderText(/Descreva aspecto do colo/i)).toBeInTheDocument();
     expect(screen.getByText(/Detalhamento obrigatório/i)).toBeInTheDocument();
   });
+
+  it('ao marcar Exame Especular como Alterado, auto-expande a seção do Mapa Cervical 12h', () => {
+    const alteredExam: GynecologicalExamState = {
+      ...initialExam,
+      speculumExamStatus: 'Abnormal',
+      speculumExamFindings: 'Ectopia',
+    };
+
+    render(<GynecologicalExamSection exam={alteredExam} onChange={vi.fn()} />);
+
+    expect(screen.getByRole('button', { name: /Ocultar Mapa Cervical 12h/i })).toBeInTheDocument();
+    expect(screen.getByTestId('cervical-hour-12')).toBeInTheDocument();
+  });
 });

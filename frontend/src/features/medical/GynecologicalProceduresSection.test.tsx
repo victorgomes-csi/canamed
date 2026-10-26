@@ -61,4 +61,22 @@ describe('GynecologicalProceduresSection', () => {
       expect.stringContaining('Fios visíveis cortados a 2.5 cm')
     );
   });
+
+  it('ao selecionar procedimento LARC, renderiza campos estruturados de lote, histerometria e cálculo de validade', () => {
+    render(
+      <GynecologicalProceduresSection
+        procedurePerformed="Inserção de DIU Hormonal (Mirena/Kyleena)"
+        onProcedurePerformedChange={vi.fn()}
+        procedureBatch="LOTE-84920"
+        onProcedureBatchChange={vi.fn()}
+        procedureNotes="Inserção estéril"
+        onProcedureNotesChange={vi.fn()}
+      />
+    );
+
+    expect(screen.getByLabelText(/Dispositivo LARC/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Histerometria \(cm\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Validade Calculada/i)).toBeInTheDocument();
+    expect(screen.getByText(/USG de Controle/i)).toBeInTheDocument();
+  });
 });

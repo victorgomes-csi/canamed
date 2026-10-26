@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Download, Plus, Baby, Calendar, Activity } from 'lucide-react';
 import { useToast } from '../layout/Toast';
 import { AtalahWeightGainChart } from './AtalahWeightGainChart';
@@ -26,6 +26,8 @@ export interface PrenatalCardSectionProps {
   visits: PrenatalVisitItem[];
   onAddVisit?: (visit: Omit<PrenatalVisitItem, 'id'>) => Promise<void>;
   loading?: boolean;
+  initialGestationalAgeWeeks?: number;
+  initialGestationalAgeDays?: number;
 }
 
 export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
@@ -34,6 +36,8 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
   visits,
   onAddVisit,
   loading = false,
+  initialGestationalAgeWeeks,
+  initialGestationalAgeDays,
 }) => {
   const { addToast } = useToast();
   const [downloading, setDownloading] = useState(false);
@@ -42,8 +46,21 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
 
   // Form states
   const [visitDate, setVisitDate] = useState(new Date().toISOString().slice(0, 10));
-  const [weeks, setWeeks] = useState('12');
-  const [days, setDays] = useState('0');
+  const [weeks, setWeeks] = useState(
+    initialGestationalAgeWeeks !== undefined ? String(initialGestationalAgeWeeks) : '12'
+  );
+  const [days, setDays] = useState(
+    initialGestationalAgeDays !== undefined ? String(initialGestationalAgeDays) : '0'
+  );
+
+  useEffect(() => {
+    if (initialGestationalAgeWeeks !== undefined) {
+      setWeeks(String(initialGestationalAgeWeeks));
+    }
+    if (initialGestationalAgeDays !== undefined) {
+      setDays(String(initialGestationalAgeDays));
+    }
+  }, [initialGestationalAgeWeeks, initialGestationalAgeDays]);
   const [weight, setWeight] = useState('');
   const [bp, setBp] = useState('');
   const [uterineHeight, setUterineHeight] = useState('');
@@ -269,8 +286,9 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-semibold text-neutral-700 mb-1">IG Semanas *</label>
+                  <label htmlFor="prenatal-weeks" className="block font-semibold text-neutral-700 mb-1">IG Semanas *</label>
                   <input
+                    id="prenatal-weeks"
                     type="number"
                     min="0"
                     max="44"
@@ -281,8 +299,9 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-neutral-700 mb-1">IG Dias</label>
+                  <label htmlFor="prenatal-days" className="block font-semibold text-neutral-700 mb-1">IG Dias</label>
                   <input
+                    id="prenatal-days"
                     type="number"
                     min="0"
                     max="6"

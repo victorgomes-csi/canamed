@@ -67,4 +67,26 @@ describe('PrenatalCardSection Component (SPEC-0035 / RN-007)', () => {
 
     expect(screen.getByText(/Registrar Consulta de Pré-Natal/i)).toBeInTheDocument();
   });
+
+  it('preenche automaticamente IG semanas e dias a partir de props calculadas', () => {
+    render(
+      <PrenatalCardSection
+        patientId="pat-1"
+        patientName="Juliana Silveira"
+        visits={[]}
+        initialGestationalAgeWeeks={28}
+        initialGestationalAgeDays={4}
+        onAddVisit={vi.fn()}
+      />
+    );
+
+    const addBtn = screen.getByRole('button', { name: /\+ Nova Consulta/i });
+    fireEvent.click(addBtn);
+
+    const weeksInput = screen.getByLabelText(/IG Semanas \*/i);
+    const daysInput = screen.getByLabelText(/IG Dias/i);
+
+    expect(weeksInput).toHaveValue(28);
+    expect(daysInput).toHaveValue(4);
+  });
 });

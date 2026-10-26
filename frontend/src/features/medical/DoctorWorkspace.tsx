@@ -15,7 +15,13 @@ import {
   updateGynecologicalConsultationData,
   getGynecologicalProfile,
   type GynecologicalProfileDto,
+  listPatientPrenatalVisits,
+  addPrenatalVisit,
+  getPatientScreenings,
+  type PreventiveScreeningDto,
 } from './medicalRecordsApi';
+import { PrenatalCardSection, type PrenatalVisitItem } from './PrenatalCardSection';
+import { PreventiveScreeningList } from './PreventiveScreeningList';
 import { GynecologicalExamSection, type GynecologicalExamState } from './GynecologicalExamSection';
 import { GynecologicalAnamnesisSection } from './GynecologicalAnamnesisSection';
 import { GynecologicalProceduresSection } from './GynecologicalProceduresSection';
@@ -109,10 +115,52 @@ export function DoctorWorkspace() {
   const [showFinishConfirmModal, setShowFinishConfirmModal] = useState(false);
   const loadedRecordIdRef = useRef<string | null>(null);
 
+  // Prenatal & Preventive Screening State (SPEC-0035 / RN-002, RN-012)
+  const [gestationalAge, setGestationalAge] = useState<{ weeks: number; days: number } | null>(null);
+  const [prenatalVisits, setPrenatalVisits] = useState<PrenatalVisitItem[]>([]);
+  const [screenings, setScreenings] = useState<PreventiveScreeningDto[]>([]);
+  const [loadingPrenatal, setLoadingPrenatal] = useState(false);
+
   // Gynecological Specialized State
   const [gynProfile, setGynProfile] = useState<GynecologicalProfileDto | null>(null);
   const [chiefComplaint, setChiefComplaint] = useState('');
   const [hma, setHma] = useState('');
+
+  const handleAddPrenatalVisit = async (visit: Omit<PrenatalVisitItem, 'id'>) => {
+    const activeRec = state?.activeConsultation?.medicalRecord;
+    if (!activeRec?.id) return;
+    const created = await addPrenatalVisit(activeRec.id, {
+      visitDate: visit.visitDate,
+      gestationalAgeWeeks: visit.gestationalAgeWeeks,
+      gestationalAgeDays: visit.gestationalAgeDays,
+      weightKg: visit.weightKg,
+      bloodPressure: visit.bloodPressure,
+      uterineHeightCm: visit.uterineHeightCm ?? undefined,
+      fetalHeartRateBpm: visit.fetalHeartRateBpm ?? undefined,
+      fetalMovementPresent: visit.fetalMovementPresent ?? undefined,
+      edemaClassification: visit.edemaClassification ?? undefined,
+      fetalPresentation: visit.fetalPresentation ?? undefined,
+      clinicalNotes: visit.clinicalNotes ?? undefined,
+    });
+    setPrenatalVisits((prev) => [
+      {
+        id: created.id,
+        visitDate: created.visitDate,
+        gestationalAgeWeeks: created.gestationalAgeWeeks,
+        gestationalAgeDays: created.gestationalAgeDays,
+        weightKg: created.weightKg,
+        bmi: created.bmi,
+        bloodPressure: created.bloodPressure,
+        uterineHeightCm: created.uterineHeightCm,
+        fetalHeartRateBpm: created.fetalHeartRateBpm,
+        fetalMovementPresent: created.fetalMovementPresent,
+        edemaClassification: created.edemaClassification,
+        fetalPresentation: created.fetalPresentation,
+        clinicalNotes: created.clinicalNotes,
+      },
+      ...prev,
+    ]);
+  };
 
   const handleChiefComplaintChange = (val: string) => {
     const nextSubjective = reconcileSubjective(subjective, val, hma, chiefComplaint, hma);
@@ -147,6 +195,7 @@ export function DoctorWorkspace() {
   const [procedureNotes, setProcedureNotes] = useState('');
   const [prescriptionNotes, setPrescriptionNotes] = useState('');
   const [generalOrientationNotes, setGeneralOrientationNotes] = useState('');
+  const [diagnosesJson, setDiagnosesJson] = useState('[]');
 
   // Auto-Save Resiliente em Segundo Plano (SPEC-0035 / RN-009)
   const activeRecordId = state?.activeConsultation?.medicalRecord?.id;
@@ -168,10 +217,11 @@ export function DoctorWorkspace() {
     procedureNotes,
     prescriptionNotes,
     generalOrientationNotes,
+    diagnosesJson,
   }), [
     subjective, objective, assessment, plan, chiefComplaint, hma, dum, isDumUncertain, isMenopausal,
     isSexuallyActive, dyspareunia, exam, procedurePerformed, procedureBatch,
-    procedureNotes, prescriptionNotes, generalOrientationNotes,
+    procedureNotes, prescriptionNotes, generalOrientationNotes, diagnosesJson,
   ]);
 
   const { status: autoSaveStatus, lastSavedAt } = useAutoSave({
@@ -210,11 +260,13 @@ export function DoctorWorkspace() {
           bimanualPalpationIsNormal: d.exam.bimanualPalpationIsNormal ?? null,
           bimanualPalpationStatus: d.exam.bimanualPalpationStatus ?? null,
           bimanualPalpationFindings: d.exam.bimanualPalpationFindings || null,
+          cervicalClockFindingsJson: d.exam.cervicalClockFindingsJson || null,
           procedurePerformed: d.procedurePerformed || null,
           procedureBatch: d.procedureBatch || null,
           procedureNotes: d.procedureNotes || null,
           prescriptionNotes: d.prescriptionNotes || null,
           generalOrientationNotes: d.generalOrientationNotes || null,
+          diagnosesJson: d.diagnosesJson || null,
         }).catch(() => null),
       ]);
     },
@@ -322,12 +374,14 @@ export function DoctorWorkspace() {
                 speculumExamFindings: gyn.speculumExamFindings || '',
                 bimanualPalpationIsNormal: gyn.bimanualPalpationIsNormal ?? true,
                 bimanualPalpationFindings: gyn.bimanualPalpationFindings || '',
+                cervicalClockFindingsJson: gyn.cervicalClockFindingsJson || '',
               });
               setProcedurePerformed(gyn.procedurePerformed || '');
               setProcedureBatch(gyn.procedureBatch || '');
               setProcedureNotes(gyn.procedureNotes || '');
               setPrescriptionNotes(gyn.prescriptionNotes || '');
               setGeneralOrientationNotes(gyn.generalOrientationNotes || '');
+              if (gyn.diagnosesJson) setDiagnosesJson(gyn.diagnosesJson);
             }
           })
           .catch(() => {
@@ -342,6 +396,38 @@ export function DoctorWorkspace() {
             .catch(() => {
               // Fallback seguro
             });
+
+          setLoadingPrenatal(true);
+          listPatientPrenatalVisits(patId)
+            .then((list) => {
+              if (Array.isArray(list)) {
+                setPrenatalVisits(
+                  list.map((v) => ({
+                    id: v.id,
+                    visitDate: v.visitDate,
+                    gestationalAgeWeeks: v.gestationalAgeWeeks,
+                    gestationalAgeDays: v.gestationalAgeDays,
+                    weightKg: v.weightKg,
+                    bmi: v.bmi,
+                    bloodPressure: v.bloodPressure,
+                    uterineHeightCm: v.uterineHeightCm,
+                    fetalHeartRateBpm: v.fetalHeartRateBpm,
+                    fetalMovementPresent: v.fetalMovementPresent,
+                    edemaClassification: v.edemaClassification,
+                    fetalPresentation: v.fetalPresentation,
+                    clinicalNotes: v.clinicalNotes,
+                  }))
+                );
+              }
+            })
+            .catch(() => {})
+            .finally(() => setLoadingPrenatal(false));
+
+          getPatientScreenings(patId)
+            .then((sList) => {
+              if (Array.isArray(sList)) setScreenings(sList);
+            })
+            .catch(() => {});
         }
       }
     } catch (err: unknown) {
@@ -439,6 +525,8 @@ export function DoctorWorkspace() {
           bimanualPalpationIsNormal: exam.bimanualPalpationIsNormal ?? null,
           bimanualPalpationStatus: exam.bimanualPalpationStatus ?? null,
           bimanualPalpationFindings: exam.bimanualPalpationFindings || null,
+          cervicalClockFindingsJson: exam.cervicalClockFindingsJson || null,
+          diagnosesJson: diagnosesJson || null,
           procedurePerformed: procedurePerformed || null,
           procedureBatch: procedureBatch || null,
           procedureNotes: procedureNotes || null,
@@ -979,6 +1067,12 @@ export function DoctorWorkspace() {
                         {isAnamnesisFilled ? '✓' : '○'}
                       </span>
                     </a>
+                    <a href="#sec-prenatal-screening" className="button button--ghost button--small" style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <span>🤰 Pré-Natal & Rastreamento</span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: prenatalVisits.length > 0 || screenings.length > 0 ? '#059669' : '#94A3B8' }}>
+                        {prenatalVisits.length > 0 || screenings.length > 0 ? '✓' : '○'}
+                      </span>
+                    </a>
                     <a href="#sec-exam" className="button button--ghost button--small" style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                       <span>🩺 Exame Físico Ginecológico</span>
                       <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isExamFilled ? '#059669' : '#94A3B8' }}>
@@ -1029,12 +1123,34 @@ export function DoctorWorkspace() {
                   profile={gynProfile}
                   onProfileUpdated={setGynProfile}
                   onApplyObstetricValues={(val) => {
+                    setGestationalAge({ weeks: val.effectiveGaWeeks, days: val.effectiveGaDays });
                     addToast(
                       `Reconciliação aplicada: ${val.effectiveGaWeeks}s ${val.effectiveGaDays}d (DPP: ${new Date(val.effectiveEdd + 'T00:00:00').toLocaleDateString('pt-BR')})`,
                       'success'
                     );
                   }}
                 />
+
+                {/* Bloco: Acompanhamento Obstétrico / Pré-Natal e Rastreamento Preventivo */}
+                <div id="sec-prenatal-screening" style={{ marginBottom: '1.25rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    <PrenatalCardSection
+                      patientId={state?.activeConsultation?.patientId || ''}
+                      patientName={state?.activeConsultation?.patientName || 'Paciente'}
+                      visits={prenatalVisits}
+                      initialGestationalAgeWeeks={gestationalAge?.weeks}
+                      initialGestationalAgeDays={gestationalAge?.days}
+                      onAddVisit={handleAddPrenatalVisit}
+                      loading={loadingPrenatal}
+                    />
+                    <PreventiveScreeningList
+                      patientId={state?.activeConsultation?.patientId || ''}
+                      patientBirthDate={state?.activeConsultation?.patientBirthDate}
+                      screenings={screenings}
+                      onScreeningAdded={(newScr) => setScreenings((prev) => [newScr, ...prev])}
+                    />
+                  </div>
+                </div>
 
                 {/* Bloco 2: Exame Físico Ginecológico Segmentado */}
                 <div id="sec-exam" style={{ marginBottom: '1.25rem' }}>
@@ -1065,6 +1181,8 @@ export function DoctorWorkspace() {
                   onAssessmentChange={setAssessment}
                   plan={plan}
                   onPlanChange={setPlan}
+                  diagnosesJson={diagnosesJson}
+                  onDiagnosesJsonChange={setDiagnosesJson}
                 />
               </div>
 
@@ -1252,6 +1370,7 @@ export function DoctorWorkspace() {
             initialDocType={docModalType}
             initialMedications={prescriptionNotes}
             initialGeneralInstructions={generalOrientationNotes}
+            initialDiagnoses={diagnosesJson}
             onClose={() => setDocModalOpen(false)}
           />
 

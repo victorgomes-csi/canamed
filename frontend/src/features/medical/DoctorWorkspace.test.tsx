@@ -597,4 +597,48 @@ describe('DoctorWorkspace Component', () => {
     const sensitiveArea = screen.getByTestId('consultation-sensitive-area');
     expect(sensitiveArea).toHaveClass('privacy-blur');
   });
+
+  it('renderiza seções integradas de Pré-Natal e Rastreamento Preventivo no workspace', async () => {
+    mocks.apiGet.mockResolvedValue({
+      doctorId: 'doc-1',
+      doctorName: 'Dr. Roberto Canamed',
+      clinicId: 'clinic-1',
+      activeConsultation: {
+        queueEntryId: 'queue-10',
+        patientId: 'patient-5',
+        patientName: 'Maria Francisca da Silva',
+        patientBirthDate: '1985-04-12',
+        allergies: 'Nenhuma',
+        chronicConditions: 'Nenhuma',
+        healthPlanName: 'Particular',
+        medicalRecord: {
+          id: 'rec-1',
+          clinicId: 'clinic-1',
+          patientId: 'patient-5',
+          doctorId: 'doc-1',
+          status: 'draft',
+          subjective: '',
+          objective: '',
+          assessment: '',
+          plan: '',
+          createdAt: '2026-10-02T10:05:00Z',
+          finalizedAt: null,
+          addenda: [],
+        },
+      },
+      waitingQueue: [],
+    });
+
+    render(
+      <MemoryRouter>
+        <DoctorWorkspace />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Pré-Natal & Rastreamento/i)).toBeInTheDocument();
+      expect(screen.getByText(/Cartão da Gestante & Consultas de Pré-Natal/i)).toBeInTheDocument();
+      expect(screen.getByText(/Rastreamento Preventivo/i)).toBeInTheDocument();
+    });
+  });
 });

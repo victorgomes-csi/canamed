@@ -46,6 +46,7 @@ public sealed class GynecologicalConsultationData : Entity
     public string? DiagnosesJson { get; private set; }
     public string? PrescriptionNotes { get; private set; }
     public string? GeneralOrientationNotes { get; private set; }
+    public string? CervicalClockFindingsJson { get; private set; }
 
     // Dados de Ultrassom Precoce & Referência Obstétrica (RN-005, RN-006 da SPEC-0035 / Épico 2)
     public DateOnly? FirstUltrasoundDate { get; private set; }
@@ -110,7 +111,13 @@ public sealed class GynecologicalConsultationData : Entity
         string? diagnosesJson,
         string? prescriptionNotes,
         string? generalOrientationNotes,
-        DateTimeOffset now)
+        DateTimeOffset now,
+        string? cervicalClockFindingsJson = null,
+        DateOnly? firstUltrasoundDate = null,
+        int? firstUltrasoundWeeks = null,
+        int? firstUltrasoundDays = null,
+        double? firstUltrasoundCcnMm = null,
+        GestationalAgeReference? preferredGestationalReference = null)
     {
         var normBreasts = NormalizeStatus(breastsStatus);
         var normAbdomen = NormalizeStatus(abdomenStatus);
@@ -158,6 +165,16 @@ public sealed class GynecologicalConsultationData : Entity
         DiagnosesJson = diagnosesJson?.Trim();
         PrescriptionNotes = prescriptionNotes?.Trim();
         GeneralOrientationNotes = generalOrientationNotes?.Trim();
+        CervicalClockFindingsJson = cervicalClockFindingsJson?.Trim();
+
+        if (firstUltrasoundDate.HasValue || firstUltrasoundWeeks.HasValue || firstUltrasoundDays.HasValue || firstUltrasoundCcnMm.HasValue || preferredGestationalReference.HasValue)
+        {
+            FirstUltrasoundDate = firstUltrasoundDate;
+            FirstUltrasoundWeeks = firstUltrasoundWeeks;
+            FirstUltrasoundDays = firstUltrasoundDays;
+            FirstUltrasoundCcnMm = firstUltrasoundCcnMm;
+            PreferredGestationalReference = preferredGestationalReference;
+        }
 
         MarkUpdated(now);
     }

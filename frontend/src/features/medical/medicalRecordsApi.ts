@@ -133,6 +133,12 @@ export interface GynecologicalConsultationDataDto {
   diagnosesJson?: string | null;
   prescriptionNotes?: string | null;
   generalOrientationNotes?: string | null;
+  cervicalClockFindingsJson?: string | null;
+  firstUltrasoundDate?: string | null;
+  firstUltrasoundWeeks?: number | null;
+  firstUltrasoundDays?: number | null;
+  firstUltrasoundCcnMm?: number | null;
+  preferredGestationalReference?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -166,6 +172,12 @@ export interface UpdateGynecologicalConsultationRequest {
   diagnosesJson?: string | null;
   prescriptionNotes?: string | null;
   generalOrientationNotes?: string | null;
+  cervicalClockFindingsJson?: string | null;
+  firstUltrasoundDate?: string | null;
+  firstUltrasoundWeeks?: number | null;
+  firstUltrasoundDays?: number | null;
+  firstUltrasoundCcnMm?: number | null;
+  preferredGestationalReference?: string | null;
 }
 
 export interface MedicalRecordResponse {

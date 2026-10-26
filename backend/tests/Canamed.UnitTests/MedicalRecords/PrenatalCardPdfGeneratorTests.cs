@@ -54,4 +54,49 @@ public sealed class PrenatalCardPdfGeneratorTests
         Assert.Contains("110/70", pdfString);
         Assert.Contains("FEBRASGO", pdfString);
     }
+    [Fact]
+    public void Generate_ComMaisDe10Consultas_GeraColunaApresentacaoFetalEPaginacao()
+    {
+        var clinicId = Guid.NewGuid();
+        var patient = Patient.Create(
+            clinicId,
+            "Juliana Paes Gestante",
+            "81999997777",
+            DateTimeOffset.UtcNow,
+            birthDate: new DateOnly(1994, 2, 20),
+            bloodType: "A",
+            rhFactor: "Positivo");
+
+        var visits = new List<PrenatalVisitRecord>();
+        for (int i = 1; i <= 15; i++)
+        {
+            visits.Add(PrenatalVisitRecord.Create(
+                clinicId,
+                patient.Id,
+                Guid.NewGuid(),
+                new DateOnly(2026, 1, 1).AddDays(i * 14),
+                10 + (i * 2),
+                0,
+                60.0 + i,
+                "120/80",
+                10.0 + i,
+                140 + (i % 10),
+                true,
+                "Ausente",
+                i >= 12 ? "Cefalica" : "Pelvica",
+                $"Consulta {i} de rotina",
+                DateTimeOffset.UtcNow));
+        }
+
+        var pdfBytes = PrenatalCardPdfGenerator.Generate(patient, null, visits);
+        var pdfString = Encoding.Latin1.GetString(pdfBytes);
+
+        // Deve conter cabeçalho da coluna de Apresentação Fetal
+        Assert.Contains("Apres. Fetal", pdfString);
+        Assert.Contains("Cefalica", pdfString);
+        Assert.Contains("Pelvica", pdfString);
+
+        // Com 15 consultas, deve gerar paginação multifolha (/Count 2)
+        Assert.Contains("/Count 2", pdfString);
+    }
 }

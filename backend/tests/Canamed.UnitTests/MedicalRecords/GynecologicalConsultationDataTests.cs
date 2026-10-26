@@ -97,4 +97,86 @@ public sealed class GynecologicalConsultationDataTests
         Assert.Equal("Normal", data.AbdomenStatus);
         Assert.Null(data.AbdomenFindings);
     }
+    [Fact]
+    public void UpdateTriState_WithFirstUltrasoundAndCategorizedDiagnoses_PersistsAllDataCorrectly()
+    {
+        var data = GynecologicalConsultationData.Create(_recordId, _now);
+        var usgDate = new DateOnly(2026, 8, 10);
+        var diagnosesJson = "[{\"code\":\"N86\",\"description\":\"Erosão do colo\",\"category\":\"confirmed\"},{\"code\":\"N72\",\"description\":\"Suspeita de cervicite\",\"category\":\"hypothesis\"}]";
+
+        data.UpdateTriState(
+            dum: new DateOnly(2026, 7, 1),
+            isDumUncertain: false,
+            isMenopausal: false,
+            chiefComplaint: "Acompanhamento obstétrico inicial",
+            hma: "Gestante no 1º trimestre",
+            isSexuallyActive: true,
+            dyspareunia: "ausente",
+            breastsStatus: "Normal",
+            breastsFindings: null,
+            abdomenStatus: "Normal",
+            abdomenFindings: null,
+            externalGenitaliaStatus: "Normal",
+            externalGenitaliaFindings: null,
+            speculumExamStatus: "Normal",
+            speculumExamFindings: null,
+            bimanualPalpationStatus: "Normal",
+            bimanualPalpationFindings: null,
+            procedurePerformed: null,
+            procedureBatch: null,
+            procedureNotes: null,
+            diagnosesJson: diagnosesJson,
+            prescriptionNotes: "Ácido fólico 5mg/dia",
+            generalOrientationNotes: "Retorno com exames de 1º trimestre",
+            now: _now,
+            firstUltrasoundDate: usgDate,
+            firstUltrasoundWeeks: 8,
+            firstUltrasoundDays: 3,
+            firstUltrasoundCcnMm: 19.5,
+            preferredGestationalReference: GestationalAgeReference.FirstUltrasound);
+
+        Assert.Equal(usgDate, data.FirstUltrasoundDate);
+        Assert.Equal(8, data.FirstUltrasoundWeeks);
+        Assert.Equal(3, data.FirstUltrasoundDays);
+        Assert.Equal(19.5, data.FirstUltrasoundCcnMm);
+        Assert.Equal(GestationalAgeReference.FirstUltrasound, data.PreferredGestationalReference);
+        Assert.Equal(diagnosesJson, data.DiagnosesJson);
+    }
+    [Fact]
+    public void UpdateTriState_WithCervicalClockFindings_PersistsJsonCorrectly()
+    {
+        var data = GynecologicalConsultationData.Create(_recordId, _now);
+        var clockJson = "{\"hours\":[6],\"finding\":\"Epitélio acetobranco denso\",\"transformationZone\":\"ZT2\"}";
+
+        data.UpdateTriState(
+            dum: null,
+            isDumUncertain: false,
+            isMenopausal: false,
+            chiefComplaint: "Colposcopia",
+            hma: "Preventivo alterado prévio",
+            isSexuallyActive: true,
+            dyspareunia: "ausente",
+            breastsStatus: "Normal",
+            breastsFindings: null,
+            abdomenStatus: "Normal",
+            abdomenFindings: null,
+            externalGenitaliaStatus: "Normal",
+            externalGenitaliaFindings: null,
+            speculumExamStatus: "Abnormal",
+            speculumExamFindings: "Ectopia periorificial às 6h",
+            bimanualPalpationStatus: "Normal",
+            bimanualPalpationFindings: null,
+            procedurePerformed: "colposcopia",
+            procedureBatch: null,
+            procedureNotes: null,
+            diagnosesJson: null,
+            prescriptionNotes: null,
+            generalOrientationNotes: null,
+            now: _now,
+            cervicalClockFindingsJson: clockJson);
+
+        Assert.Equal("Abnormal", data.SpeculumExamStatus);
+        Assert.Equal("Ectopia periorificial às 6h", data.SpeculumExamFindings);
+        Assert.Equal(clockJson, data.CervicalClockFindingsJson);
+    }
 }

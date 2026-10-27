@@ -720,7 +720,7 @@ public static class DevelopmentDataSeeder
 
 
             // Consultas Estruturadas de Pré-Natal (Mariana - Gestante de Demonstração / SPEC-0035 / RN-007)
-            if (!await dbContext.PrenatalVisitRecords.AnyAsync(cancellationToken).ConfigureAwait(false))
+            if (!await dbContext.PrenatalVisitRecords.AnyAsync(r => r.PatientId == DevelopmentDefaults.DemoPatientMarianaId, cancellationToken).ConfigureAwait(false))
             {
                 var todayDate = DateOnly.FromDateTime(now.DateTime);
                 dbContext.PrenatalVisitRecords.AddRange(

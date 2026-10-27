@@ -21,35 +21,45 @@ export function AtalahWeightGainChart({ visits, heightCm = 165 }: Props) {
         effectiveBmi: calculatedBmi,
       };
     })
-    .filter((v) => v.gestationalAgeWeeks && v.gestationalAgeWeeks >= 6 && v.effectiveBmi)
+    .filter((v) => v.gestationalAgeWeeks && v.gestationalAgeWeeks >= 1 && v.effectiveBmi && v.effectiveBmi > 0)
     .sort((a, b) => a.gestationalAgeWeeks! - b.gestationalAgeWeeks!);
 
   // Dimensões do SVG
-  const width = 500;
-  const height = 240;
+  const width = 520;
+  const height = 260;
   const padLeft = 45;
-  const padRight = 20;
-  const padTop = 25;
-  const padBottom = 35;
+  const padRight = 25;
+  const padTop = 28;
+  const padBottom = 38;
 
   const chartW = width - padLeft - padRight;
   const chartH = height - padTop - padBottom;
 
-  // Escala X: semanas 6 a 40 (cobre todo o pré-natal)
-  const minW = 6;
-  const maxW = 40;
-  const scaleX = (w: number) => padLeft + ((w - minW) / (maxW - minW)) * chartW;
+  // Escala X: semanas 4 a 42 (cobre do início do 1º trimestre até pós-termo)
+  const minW = 4;
+  const maxW = 42;
+  const scaleX = (w: number) => {
+    const clampedW = Math.max(minW, Math.min(maxW, w));
+    return padLeft + ((clampedW - minW) / (maxW - minW)) * chartW;
+  };
 
-  // Escala Y: IMC 16 a 40
-  const minBmi = 16;
-  const maxBmi = 38;
-  const scaleY = (bmi: number) => padTop + chartH - ((bmi - minBmi) / (maxBmi - minBmi)) * chartH;
+  // Escala Y dinâmica para nunca truncar IMCs (ex: obesidade materna grave ou desnutrição)
+  const minObservedBmi = validPoints.length > 0 ? Math.min(...validPoints.map((p) => p.effectiveBmi!)) : 16;
+  const maxObservedBmi = validPoints.length > 0 ? Math.max(...validPoints.map((p) => p.effectiveBmi!)) : 38;
 
-  // Polígonos de faixas de Atalah com progressão fisiológica ascendente
-  const atalahWeeks = [6, 10, 15, 20, 25, 30, 35, 40];
-  const lowAdequateThresholds = [19.8, 19.8, 20.6, 21.5, 22.4, 23.2, 24.1, 24.9];
-  const adequateOverweightThresholds = [24.9, 24.9, 25.8, 26.7, 27.5, 28.4, 29.3, 30.1];
-  const overweightObeseThresholds = [29.0, 29.0, 29.9, 30.8, 31.7, 32.6, 33.5, 34.4];
+  const minBmi = Math.min(16, Math.floor(minObservedBmi - 1));
+  const maxBmi = Math.max(38, Math.ceil(maxObservedBmi + 2));
+
+  const scaleY = (bmi: number) => {
+    const clampedBmi = Math.max(minBmi, Math.min(maxBmi, bmi));
+    return padTop + chartH - ((clampedBmi - minBmi) / (maxBmi - minBmi)) * chartH;
+  };
+
+  // Polígonos de faixas de Atalah com progressão fisiológica ascendente (semanas 4 a 42)
+  const atalahWeeks = [4, 6, 10, 15, 20, 25, 30, 35, 40, 42];
+  const lowAdequateThresholds = [19.8, 19.8, 19.8, 20.6, 21.5, 22.4, 23.2, 24.1, 24.9, 25.1];
+  const adequateOverweightThresholds = [24.9, 24.9, 24.9, 25.8, 26.7, 27.5, 28.4, 29.3, 30.1, 30.3];
+  const overweightObeseThresholds = [29.0, 29.0, 29.0, 29.9, 30.8, 31.7, 32.6, 33.5, 34.4, 34.6];
 
   // Gera string de pontos para polígonos fechados
   const buildPolygon = (topThresholds: number[], bottomThresholds: number[]) => {
@@ -62,7 +72,7 @@ export function AtalahWeightGainChart({ visits, heightCm = 165 }: Props) {
   };
 
   const obesePolygon = buildPolygon(
-    atalahWeeks.map(() => 38),
+    atalahWeeks.map(() => maxBmi),
     overweightObeseThresholds
   );
 
@@ -78,8 +88,28 @@ export function AtalahWeightGainChart({ visits, heightCm = 165 }: Props) {
 
   const underweightPolygon = buildPolygon(
     lowAdequateThresholds,
-    atalahWeeks.map(() => 16)
+    atalahWeeks.map(() => minBmi)
   );
+
+  // Status da última consulta
+  const latestPoint = validPoints.length > 0 ? validPoints[validPoints.length - 1] : null;
+  const getAtalahStatus = (gaWeeks: number, bmi: number) => {
+    let idx = atalahWeeks.findIndex((w) => w >= gaWeeks);
+    if (idx === -1) idx = atalahWeeks.length - 1;
+    if (bmi < lowAdequateThresholds[idx]) return { label: 'Baixo Peso', color: '#2B6CB0', bg: '#EFF6FF' };
+    if (bmi <= adequateOverweightThresholds[idx]) return { label: 'Adequado', color: '#852A91', bg: '#F7ECF8' };
+    if (bmi <= overweightObeseThresholds[idx]) return { label: 'Sobrepeso', color: '#C05621', bg: '#FFFBEB' };
+    return { label: 'Obesidade', color: '#C53030', bg: '#FFF1F2' };
+  };
+
+  const latestStatus = latestPoint ? getAtalahStatus(latestPoint.gestationalAgeWeeks!, latestPoint.effectiveBmi!) : null;
+
+  // Gerador de ticks para eixo Y
+  const yTicks: number[] = [];
+  const step = maxBmi - minBmi > 25 ? 6 : 4;
+  for (let val = Math.ceil(minBmi / step) * step; val <= maxBmi; val += step) {
+    yTicks.push(val);
+  }
 
   return (
     <div
@@ -93,9 +123,26 @@ export function AtalahWeightGainChart({ visits, heightCm = 165 }: Props) {
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-        <strong style={{ fontSize: '0.88rem', color: '#6F217B' }}>
-          📈 Curva de Ganho de Peso Gestacional (Atalah / Ministério da Saúde)
-        </strong>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <strong style={{ fontSize: '0.88rem', color: '#6F217B' }}>
+            📈 Curva de Ganho de Peso Gestacional (Atalah / Ministério da Saúde)
+          </strong>
+          {latestPoint && latestStatus && (
+            <span
+              style={{
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                padding: '0.15rem 0.55rem',
+                borderRadius: '9999px',
+                backgroundColor: latestStatus.bg,
+                color: latestStatus.color,
+                border: `1px solid ${latestStatus.color}40`,
+              }}
+            >
+              Último: {latestPoint.gestationalAgeWeeks}s • IMC {latestPoint.effectiveBmi} ({latestStatus.label})
+            </span>
+          )}
+        </div>
         <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.72rem', flexWrap: 'wrap' }}>
           <span style={{ color: '#2B6CB0' }}>🟦 Baixo Peso</span>
           <span style={{ color: '#852A91', fontWeight: 600 }}>🟪 Adequado</span>
@@ -126,7 +173,7 @@ export function AtalahWeightGainChart({ visits, heightCm = 165 }: Props) {
         ))}
 
         {/* Ticks Y: IMC */}
-        {[18, 22, 26, 30, 34].map((bmi) => (
+        {yTicks.map((bmi) => (
           <g key={`y-${bmi}`}>
             <line x1={padLeft - 4} y1={scaleY(bmi)} x2={padLeft} y2={scaleY(bmi)} stroke="#A0AEC0" />
             <text x={padLeft - 8} y={scaleY(bmi) + 3} fontSize="9" textAnchor="end" fill="#718096">
@@ -161,7 +208,7 @@ export function AtalahWeightGainChart({ visits, heightCm = 165 }: Props) {
           </g>
         )}
 
-        {/* Linha e Pontos de evolução do IMC da gestante */}
+        {/* Linha conectora de evolução do IMC */}
         {validPoints.length > 1 && (
           <polyline
             fill="none"
@@ -173,21 +220,39 @@ export function AtalahWeightGainChart({ visits, heightCm = 165 }: Props) {
           />
         )}
 
-        {validPoints.map((p, idx) => (
-          <g key={`point-${idx}`}>
-            <circle
-              cx={scaleX(p.gestationalAgeWeeks!)}
-              cy={scaleY(p.effectiveBmi!)}
-              r={5}
-              fill="#6F217B"
-              stroke="#FFFFFF"
-              strokeWidth="2"
-              
-            >
-              <title>{`${p.gestationalAgeWeeks}s: IMC ${p.effectiveBmi} (${p.weightKg}kg)`}</title>
-            </circle>
-          </g>
-        ))}
+        {/* Pontos plotados com visual em destaque e rótulo claro */}
+        {validPoints.map((p, idx) => {
+          const cx = scaleX(p.gestationalAgeWeeks!);
+          const cy = scaleY(p.effectiveBmi!);
+          return (
+            <g key={`point-${idx}`}>
+              {/* Halo externo para destaque visual */}
+              <circle cx={cx} cy={cy} r={8} fill="#852A91" fillOpacity={0.2} />
+              {/* Ponto principal */}
+              <circle
+                cx={cx}
+                cy={cy}
+                r={5}
+                fill="#6F217B"
+                stroke="#FFFFFF"
+                strokeWidth={2}
+              >
+                <title>{`${p.gestationalAgeWeeks}s: IMC ${p.effectiveBmi} (${p.weightKg}kg)`}</title>
+              </circle>
+              {/* Rótulo de texto com valor do IMC */}
+              <text
+                x={cx}
+                y={cy - 9}
+                fontSize="9"
+                fontWeight="700"
+                textAnchor="middle"
+                fill="#6F217B"
+              >
+                {p.effectiveBmi}
+              </text>
+            </g>
+          );
+        })}
       </svg>
     </div>
   );

@@ -49,7 +49,7 @@ describe('ObstetricCharts Components (Atalah & Altura Uterina)', () => {
 
     expect(screen.getByText(/Curva de Ganho de Peso Gestacional/i)).toBeInTheDocument();
     expect(screen.getByText(/Baixo Peso/i)).toBeInTheDocument();
-    expect(screen.getByText(/Adequado/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Adequado/i)[0]).toBeInTheDocument();
     expect(screen.getByText(/Sobrepeso/i)).toBeInTheDocument();
     expect(screen.getByText(/Obesidade/i)).toBeInTheDocument();
   });
@@ -91,5 +91,31 @@ describe('ObstetricCharts Components (Atalah & Altura Uterina)', () => {
     expect(
       screen.getByText(/A aferição da altura uterina inicia-se habitualmente a partir da 12ª/i)
     ).toBeInTheDocument();
+  });
+
+  it('representa consultas precoces (ex: 5 semanas) e valores elevados nos gráficos sem ocultar os dados', () => {
+    const earlyVisits = [
+      {
+        gestationalAgeWeeks: 5,
+        weightKg: 68.0,
+        bmi: 24.5,
+        uterineHeightCm: 16.0,
+      },
+    ];
+
+    render(
+      <div>
+        <AtalahWeightGainChart visits={earlyVisits} />
+        <UterineHeightChart visits={earlyVisits} />
+      </div>
+    );
+
+    // Na Curva de Atalah, 5 semanas deve ser plotado e não deve mostrar a mensagem de vazio
+    expect(screen.queryByText(/Nenhum registro com peso\/IMC disponível/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/5s • IMC 24.5/i)).toBeInTheDocument();
+
+    // Na Curva de Altura Uterina, 16cm deve ser plotado e não deve mostrar o aviso de ausência
+    expect(screen.queryByText(/A aferição da altura uterina inicia-se habitualmente a partir da 12ª/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/5s • AU 16cm/i)).toBeInTheDocument();
   });
 });

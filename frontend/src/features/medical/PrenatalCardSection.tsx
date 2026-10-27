@@ -795,10 +795,14 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
                       step="1"
                       min="100"
                       max="220"
+                      placeholder="Ex: 165"
                       value={maternalHeightInput}
                       onChange={(e) => setMaternalHeightInput(e.target.value)}
                       className="prenatal-card__input"
                     />
+                    <small style={{ fontSize: '0.68rem', color: '#718096', marginTop: '3px', display: 'block' }}>
+                      Altura da paciente para cálculo do IMC
+                    </small>
                   </div>
                 </div>
 
@@ -826,11 +830,16 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
                   <input
                     type="number"
                     step="0.5"
-                    placeholder="24"
+                    min="8"
+                    max="50"
+                    placeholder="Ex: 24"
                     value={uterineHeight}
                     onChange={(e) => setUterineHeight(e.target.value)}
                     className="prenatal-card__input"
                   />
+                  <small style={{ fontSize: '0.68rem', color: '#718096', marginTop: '3px', display: 'block' }}>
+                    Sínfise púbica ao fundo uterino (normal: 10–40 cm)
+                  </small>
                 </div>
                 <div className="prenatal-card__field">
                   <label className="prenatal-card__field-label">BCF (bpm)</label>

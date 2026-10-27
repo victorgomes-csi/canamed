@@ -1,18 +1,8 @@
 import React, { useRef } from 'react';
 import { X, Printer } from 'lucide-react';
-import type { PrenatalVisitItem, GynecologicalProfileInfo } from './PrenatalCardSection';
+import type { PrenatalVisitItem, GynecologicalProfileInfo, MaternalVaccineItem, MaternalSerologyItem } from './PrenatalCardSection';
 import { createPortal } from 'react-dom';
 import './prenatal-card-a4.css';
-
-export interface MaternalVaccineItem {
-  id: string;
-  name: string;
-  target: string;
-  window: string;
-  status: 'Aplicada' | 'Pendente' | 'Agendada' | 'Não indicada';
-  date?: string;
-  lot?: string;
-}
 
 interface Props {
   open: boolean;
@@ -28,6 +18,7 @@ interface Props {
   heightCm?: number | null;
   visits: PrenatalVisitItem[];
   vaccines?: MaternalVaccineItem[];
+  serologies?: MaternalSerologyItem[];
 }
 
 export const PrenatalCardA4Modal: React.FC<Props> = ({
@@ -44,6 +35,7 @@ export const PrenatalCardA4Modal: React.FC<Props> = ({
   heightCm = 165,
   visits,
   vaccines = [],
+  serologies = [],
 }) => {
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -89,21 +81,41 @@ export const PrenatalCardA4Modal: React.FC<Props> = ({
 
   const sortedVisits = [...visits].sort((a, b) => a.gestationalAgeWeeks - b.gestationalAgeWeeks);
 
-  const getVaccineData = (id: string, defaultDate: string, defaultLot: string, defaultStatus: string) => {
+  const getVaccineData = (id: string, defaultStatus = 'Pendente') => {
     const found = vaccines.find((vac) => vac.id === id);
+    if (!found) {
+      return {
+        date: '—',
+        lot: '—',
+        status: defaultStatus,
+      };
+    }
     return {
-      date: found?.date || defaultDate,
-      lot: found?.lot || defaultLot,
-      status: found?.status || defaultStatus,
+      date: found.date && found.date !== '—' ? found.date : '—',
+      lot: found.lot && found.lot !== '—' ? found.lot : '—',
+      status: found.status || defaultStatus,
     };
   };
 
-  const dtpaData = getVaccineData('dtpa', 'Conforme indicação', 'UBS / Clínica', 'Recomendada');
-  const fluData = getVaccineData('flu', 'Campanha anual', 'Dose única', 'Recomendada');
-  const hepbData = getVaccineData('hepb', 'Esquema prévio', '3 doses', 'Em Dia');
-  const covidData = getVaccineData('covid', 'Reforço anual', 'Atualizada', 'Em Dia');
-  const rsvData = getVaccineData('rsv', '32ª a 36ªs', 'Dose única', 'Programada (32s)');
-  const antidData = getVaccineData('antid', '28ª sem', '300 mcg', isRhNegative ? 'Indicada' : 'Não indicada');
+  const dtpaData = getVaccineData('dtpa', 'Pendente');
+  const fluData = getVaccineData('flu', 'Pendente');
+  const hepbData = getVaccineData('hepb', 'Pendente');
+  const covidData = getVaccineData('covid', 'Pendente');
+  const rsvData = getVaccineData('rsv', 'Pendente');
+  const antidData = getVaccineData('antid', isRhNegative ? 'Pendente' : 'Não indicada');
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'Aplicada':
+        return { color: '#047857', label: '● Aplicada' };
+      case 'Agendada':
+        return { color: '#2563EB', label: '● Agendada' };
+      case 'Não indicada':
+        return { color: '#64748B', label: '● Não indicada' };
+      default:
+        return { color: '#D97706', label: '○ Pendente' };
+    }
+  };
 
   return createPortal(
     <div id="prenatal-card-print-portal" className="prenatal-a4-modal-overlay">
@@ -375,63 +387,27 @@ export const PrenatalCardA4Modal: React.FC<Props> = ({
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>
-                        <strong>Coombs Indireto</strong>
-                        <span className="block text-xxs text-brand-gray">Anticorpos irregulares (especialmente se Rh negativo)</span>
-                      </td>
-                      <td className="text-center">{isRhNegative ? 'Não Reagente' : 'Não indicado (Rh+)'}</td>
-                      <td className="text-center">{isRhNegative ? 'Não Reagente' : '—'}</td>
-                      <td className="text-center font-semibold text-brand-primary">{isRhNegative ? 'Solicitado (28ªs)' : '—'}</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <strong>Sífilis (VDRL / Teste Rápido)</strong>
-                      </td>
-                      <td className="text-center">Não Reagente</td>
-                      <td className="text-center">Não Reagente</td>
-                      <td className="text-center font-semibold text-brand-primary">Solicitado (28–30s)</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <strong>HIV (Anti-HIV / Teste Rápido)</strong>
-                      </td>
-                      <td className="text-center">Não Reagente</td>
-                      <td className="text-center">—</td>
-                      <td className="text-center font-semibold text-brand-primary">Solicitado</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <strong>Hepatite B (HBsAg) e Hepatite C (Anti-HCV)</strong>
-                      </td>
-                      <td className="text-center">Não Reagente</td>
-                      <td className="text-center">—</td>
-                      <td className="text-center font-semibold text-brand-primary">Solicitado HBsAg</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <strong>Toxoplasmose (IgG / IgM)</strong>
-                      </td>
-                      <td className="text-center">IgG+ / IgM- (Imune)</td>
-                      <td className="text-center">—</td>
-                      <td className="text-center">—</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <strong>Glicemia de Jejum / TOTG 75g</strong>
-                      </td>
-                      <td className="text-center">Normal (&lt; 92 mg/dL)</td>
-                      <td className="text-center">TOTG Normal (24–28s)</td>
-                      <td className="text-center">—</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <strong>Urina I (EAS) e Urocultura</strong>
-                      </td>
-                      <td className="text-center">Normal / Negativa</td>
-                      <td className="text-center">Normal / Negativa</td>
-                      <td className="text-center font-semibold text-brand-primary">Solicitado</td>
-                    </tr>
+                    {serologies && serologies.length > 0 ? (
+                      serologies.map((s) => (
+                        <tr key={s.id}>
+                          <td>
+                            <strong>{s.exam}</strong>
+                            <span className="block text-xxs text-brand-gray">{s.description}</span>
+                          </td>
+                          <td className="text-center">{s.tri1 || '—'}</td>
+                          <td className="text-center">{s.tri2 || '—'}</td>
+                          <td className={`text-center ${s.tri3 === 'Solicitado' ? 'font-semibold text-brand-primary' : ''}`}>
+                            {s.tri3 || '—'}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="text-center text-xs text-brand-gray py-4">
+                          Nenhuma sorologia registrada até o momento.
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -501,7 +477,12 @@ export const PrenatalCardA4Modal: React.FC<Props> = ({
                   <div><span className="text-xxs text-brand-gray block">Data:</span> <strong>{dtpaData.date}</strong></div>
                   <div><span className="text-xxs text-brand-gray block">IG Aplicação:</span> <strong>A partir da 20ª sem</strong></div>
                   <div><span className="text-xxs text-brand-gray block">Lote:</span> <strong>{dtpaData.lot}</strong></div>
-                  <div><span className="text-xxs text-brand-gray block">Status:</span> <strong style={{ color: '#047857' }}>● {dtpaData.status}</strong></div>
+                  <div>
+                    <span className="text-xxs text-brand-gray block">Status:</span>
+                    <strong style={{ color: getStatusBadge(dtpaData.status).color }}>
+                      {getStatusBadge(dtpaData.status).label}
+                    </strong>
+                  </div>
                 </div>
               </div>
 
@@ -523,7 +504,12 @@ export const PrenatalCardA4Modal: React.FC<Props> = ({
                   <div><span className="text-xxs text-brand-gray block">Data:</span> <strong>{fluData.date}</strong></div>
                   <div><span className="text-xxs text-brand-gray block">Campanha:</span> <strong>Sazonal</strong></div>
                   <div><span className="text-xxs text-brand-gray block">Lote:</span> <strong>{fluData.lot}</strong></div>
-                  <div><span className="text-xxs text-brand-gray block">Status:</span> <strong style={{ color: '#047857' }}>● {fluData.status}</strong></div>
+                  <div>
+                    <span className="text-xxs text-brand-gray block">Status:</span>
+                    <strong style={{ color: getStatusBadge(fluData.status).color }}>
+                      {getStatusBadge(fluData.status).label}
+                    </strong>
+                  </div>
                 </div>
               </div>
 
@@ -542,9 +528,14 @@ export const PrenatalCardA4Modal: React.FC<Props> = ({
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-2 mt-2 bg-brand-cream rounded-lg p-2 text-xs text-brand-ink">
-                  <div><span className="text-xxs text-brand-gray block">Esquema:</span> <strong>{hepbData.date}</strong></div>
-                  <div><span className="text-xxs text-brand-gray block">Anti-HBs:</span> <strong>{hepbData.lot}</strong></div>
-                  <div><span className="text-xxs text-brand-gray block">Status:</span> <strong style={{ color: '#047857' }}>● {hepbData.status}</strong></div>
+                  <div><span className="text-xxs text-brand-gray block">Data:</span> <strong>{hepbData.date}</strong></div>
+                  <div><span className="text-xxs text-brand-gray block">Lote:</span> <strong>{hepbData.lot}</strong></div>
+                  <div>
+                    <span className="text-xxs text-brand-gray block">Status:</span>
+                    <strong style={{ color: getStatusBadge(hepbData.status).color }}>
+                      {getStatusBadge(hepbData.status).label}
+                    </strong>
+                  </div>
                 </div>
               </div>
 
@@ -563,10 +554,15 @@ export const PrenatalCardA4Modal: React.FC<Props> = ({
                   </span>
                 </div>
                 <div className="grid grid-cols-4 gap-2 mt-2 bg-brand-cream rounded-lg p-2 text-xs text-brand-ink">
-                  <div><span className="text-xxs text-brand-gray block">Dose:</span> <strong>{covidData.date}</strong></div>
+                  <div><span className="text-xxs text-brand-gray block">Dose / Data:</span> <strong>{covidData.date}</strong></div>
                   <div><span className="text-xxs text-brand-gray block">Fabricante:</span> <strong>Atualizada PNI</strong></div>
                   <div><span className="text-xxs text-brand-gray block">Lote:</span> <strong>{covidData.lot}</strong></div>
-                  <div><span className="text-xxs text-brand-gray block">Status:</span> <strong style={{ color: '#047857' }}>● {covidData.status}</strong></div>
+                  <div>
+                    <span className="text-xxs text-brand-gray block">Status:</span>
+                    <strong style={{ color: getStatusBadge(covidData.status).color }}>
+                      {getStatusBadge(covidData.status).label}
+                    </strong>
+                  </div>
                 </div>
               </div>
 
@@ -585,10 +581,15 @@ export const PrenatalCardA4Modal: React.FC<Props> = ({
                   </span>
                 </div>
                 <div className="grid grid-cols-4 gap-2 mt-2 bg-brand-cream rounded-lg p-2 text-xs text-brand-ink">
-                  <div><span className="text-xxs text-brand-gray block">Janela:</span> <strong>{rsvData.date}</strong></div>
-                  <div><span className="text-xxs text-brand-gray block">Dose:</span> <strong>{rsvData.lot}</strong></div>
+                  <div><span className="text-xxs text-brand-gray block">Data:</span> <strong>{rsvData.date}</strong></div>
+                  <div><span className="text-xxs text-brand-gray block">Lote:</span> <strong>{rsvData.lot}</strong></div>
                   <div><span className="text-xxs text-brand-gray block">Via:</span> <strong>Intramuscular</strong></div>
-                  <div><span className="text-xxs text-brand-gray block">Status:</span> <strong className="text-brand-magenta">● {rsvData.status}</strong></div>
+                  <div>
+                    <span className="text-xxs text-brand-gray block">Status:</span>
+                    <strong style={{ color: getStatusBadge(rsvData.status).color }}>
+                      {getStatusBadge(rsvData.status).label}
+                    </strong>
+                  </div>
                 </div>
               </div>
 
@@ -607,7 +608,11 @@ export const PrenatalCardA4Modal: React.FC<Props> = ({
                   </span>
                 </div>
                 <div className="mt-2 bg-brand-cream rounded-lg p-2 text-xs text-brand-gray">
-                  Status: <strong className="text-brand-ink">{isRhNegative ? `● ${antidData.status} na 28ª semana (Mãe Rh Negativo)` : 'Não indicada (Gestante Rh Positivo)'}</strong>.
+                  Status: <strong className="text-brand-ink" style={{ color: getStatusBadge(antidData.status).color }}>
+                    {isRhNegative
+                      ? `${getStatusBadge(antidData.status).label} (Mãe Rh Negativo · Data: ${antidData.date} · Lote: ${antidData.lot})`
+                      : 'Não indicada (Gestante Rh Positivo)'}
+                  </strong>
                 </div>
               </div>
             </div>

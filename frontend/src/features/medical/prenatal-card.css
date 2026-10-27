@@ -679,6 +679,26 @@
   font-weight: 700;
 }
 
+.prenatal-card__serology-select {
+  width: 100%;
+  max-width: 150px;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--prenatal-brand-border);
+  border-radius: var(--prenatal-radius-sm);
+  background-color: #FFFFFF;
+  color: var(--prenatal-brand-ink);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.prenatal-card__serology-select:focus,
+.prenatal-card__serology-select:hover {
+  border-color: var(--prenatal-brand-primary);
+}
+
 /* ==========================================================================
    8. MODAL DE NOVA CONSULTA (.prenatal-card__modal-*)
    ========================================================================== */

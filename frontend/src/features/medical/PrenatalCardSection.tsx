@@ -47,7 +47,7 @@ export interface PrenatalCardSectionProps {
   gynProfile?: GynecologicalProfileInfo | null;
 }
 
-interface MaternalVaccineItem {
+export interface MaternalVaccineItem {
   id: string;
   name: string;
   target: string;
@@ -57,7 +57,8 @@ interface MaternalVaccineItem {
   lot?: string;
 }
 
-interface MaternalSerologyItem {
+export interface MaternalSerologyItem {
+  id: string;
   exam: string;
   description: string;
   tri1: string;
@@ -131,59 +132,81 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
     return { label: 'Obesidade', color: '#C53030', bg: '#FFF5F5' };
   }, [calculatedBmi]);
 
-  // Vacinas com persistência em localStorage por paciente
+  const isRhNegative =
+    rhFactor?.toLowerCase().includes('negativ') || (bloodType && bloodType.includes('-'));
+
+  // Cálculo de DPP por Regra de Naegele (DUM + 7 dias - 3 meses + 1 ano)
+  const effectiveDpp = useMemo(() => {
+    if (dpp) return dpp;
+    if (!dum) return null;
+    try {
+      const d = new Date(dum);
+      if (isNaN(d.getTime())) return null;
+      const edd = new Date(d);
+      edd.setDate(edd.getDate() + 7);
+      edd.setMonth(edd.getMonth() - 3);
+      edd.setFullYear(edd.getFullYear() + 1);
+      return edd.toISOString().slice(0, 10);
+    } catch {
+      return null;
+    }
+  }, [dpp, dum]);
+
+  // Vacinas com persistência em localStorage por paciente — Status inicial 100% fidedigno (Pendente)
   const defaultVaccines: MaternalVaccineItem[] = [
     {
       id: 'dtpa',
       name: 'dTpa (Adulto)',
       target: 'Difteria, Tétano e Coqueluche',
       window: 'A partir da 20ª sem (ideal 27ª–36ªs) · 1 dose a cada gestação',
-      status: 'Aplicada',
-      date: '14/09/2026',
-      lot: 'AD24B918',
+      status: 'Pendente',
+      date: '—',
+      lot: '—',
     },
     {
       id: 'flu',
       name: 'Influenza (Gripe)',
       target: 'Gripe Sazonal e complicações respiratórias',
       window: 'Qualquer Idade Gestacional · 1 dose anual',
-      status: 'Aplicada',
-      date: '01/06/2026',
-      lot: 'FLU2026-X1',
+      status: 'Pendente',
+      date: '—',
+      lot: '—',
     },
     {
       id: 'hepb',
       name: 'Hepatite B (Recombinante)',
       target: 'Prevenção de infecção e transmissão vertical',
       window: '3 doses (0, 1 e 6 meses) ou comprovação de esquema prévio',
-      status: 'Aplicada',
-      date: 'Esquema prévio',
-      lot: 'Comprovado',
+      status: 'Pendente',
+      date: '—',
+      lot: '—',
     },
     {
       id: 'covid',
       name: 'COVID-19 (Bivalente/Atualizada)',
       target: 'Prevenção de formas graves de infecção por SARS-CoV-2',
       window: 'Conforme cronograma PNI · Gestante grupo prioritário',
-      status: 'Aplicada',
-      date: '10/05/2026',
-      lot: 'CV2026-B8',
+      status: 'Pendente',
+      date: '—',
+      lot: '—',
     },
     {
       id: 'rsv',
       name: 'Vírus Sincicial Respiratório (VSR / Bivalent)',
       target: 'Prevenção de bronquiolite no recém-nascido',
       window: 'Entre a 32ª e 36ª semana gestacional · Dose única',
-      status: 'Agendada',
-      date: 'Prevista para 32ª sem',
+      status: 'Pendente',
+      date: '—',
+      lot: '—',
     },
     {
       id: 'antid',
       name: 'Imunoglobulina Anti-D (300 mcg)',
       target: 'Profilaxia de aloimunização em mães Rh Negativo',
       window: '28ª semana de gestação e em até 72h após o parto (se RN Rh+)',
-      status: rhFactor?.toLowerCase().includes('negativ') ? 'Agendada' : 'Não indicada',
-      date: rhFactor?.toLowerCase().includes('negativ') ? 'Prevista na 28ª sem' : 'Mãe Rh Positivo',
+      status: isRhNegative ? 'Pendente' : 'Não indicada',
+      date: '—',
+      lot: '—',
     },
   ];
 
@@ -204,7 +227,8 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
         return {
           ...vac,
           status: newStatus,
-          date: newStatus === 'Aplicada' ? new Date().toLocaleDateString('pt-BR') : vac.date,
+          date: newStatus === 'Aplicada' ? new Date().toLocaleDateString('pt-BR') : '—',
+          lot: newStatus === 'Aplicada' && vac.lot === '—' ? 'Registrado em Prontuário' : vac.lot,
         };
       }
       return vac;
@@ -218,58 +242,92 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
     }
   };
 
-  // Sorologias do Ministério da Saúde / FEBRASGO
-  const serologies: MaternalSerologyItem[] = [
+  // Sorologias do Ministério da Saúde / FEBRASGO — Status fidedignos gerenciáveis por paciente
+  const defaultSerologies: MaternalSerologyItem[] = [
     {
-      exam: 'Sífilis (VDRL / Teste Rápido)',
-      description: 'Pesquisa e vigilância de transmissão vertical de Treponema pallidum',
-      tri1: 'Não Reagente (04/05/2026)',
-      tri2: 'Não Reagente (12/08/2026)',
-      tri3: 'Solicitado',
-    },
-    {
-      exam: 'HIV (Anti-HIV 1 e 2)',
-      description: 'Rastreamento rápido e sorológico com profilaxia imediata se reagente',
-      tri1: 'Não Reagente (04/05/2026)',
-      tri2: '—',
-      tri3: 'Solicitado',
-    },
-    {
-      exam: 'Hepatite B (HBsAg)',
-      description: 'Detecção de infecção aguda ou crônica e preparo para imunoglobulina no RN',
-      tri1: 'Não Reagente (04/05/2026)',
-      tri2: '—',
-      tri3: 'Solicitado',
-    },
-    {
-      exam: 'Toxoplasmose (IgM e IgG)',
-      description: 'Pesquisa de susceptibilidade (IgM-/IgG-) ou primo-infecção gestacional',
-      tri1: 'IgG Reagente / IgM Não Reagente (Imune)',
-      tri2: '— (Imune)',
-      tri3: '— (Imune)',
-    },
-    {
-      exam: 'Glicemia de Jejum / TOTG 75g',
-      description: 'Rastreamento de Diabetes Mellitus Gestacional (DMG)',
-      tri1: '82 mg/dL (Normal)',
-      tri2: 'TOTG: Jejum 84 / 1h 122 / 2h 108 mg/dL',
-      tri3: 'Avaliação Clínica',
-    },
-    {
-      exam: 'Urina EAS & Urocultura',
-      description: 'Rastreamento de bacteriúria assintomática e profilaxia de pielonefrite',
-      tri1: 'Normal / Negativa',
-      tri2: 'Normal / Negativa',
-      tri3: 'Solicitado',
-    },
-    {
+      id: 'coombs',
       exam: 'Coombs Indireto (Gestante Rh-)',
       description: 'Pesquisa de anticorpos irregulares em gestantes não aloimunizadas',
-      tri1: rhFactor?.toLowerCase().includes('negativ') ? 'Negativo (04/05/2026)' : 'Não indicado (Rh+)',
-      tri2: rhFactor?.toLowerCase().includes('negativ') ? 'Negativo (12/08/2026)' : 'Não indicado (Rh+)',
-      tri3: rhFactor?.toLowerCase().includes('negativ') ? 'Solicitado (28ªs)' : 'Não indicado (Rh+)',
+      tri1: isRhNegative ? '—' : 'Não indicado (Rh+)',
+      tri2: isRhNegative ? '—' : 'Não indicado (Rh+)',
+      tri3: isRhNegative ? '—' : 'Não indicado (Rh+)',
+    },
+    {
+      id: 'vdrl',
+      exam: 'Sífilis (VDRL / Teste Rápido)',
+      description: 'Pesquisa e vigilância de transmissão vertical de Treponema pallidum',
+      tri1: '—',
+      tri2: '—',
+      tri3: '—',
+    },
+    {
+      id: 'hiv',
+      exam: 'HIV (Anti-HIV 1 e 2)',
+      description: 'Rastreamento rápido e sorológico com profilaxia imediata se reagente',
+      tri1: '—',
+      tri2: '—',
+      tri3: '—',
+    },
+    {
+      id: 'hepb',
+      exam: 'Hepatite B (HBsAg)',
+      description: 'Detecção de infecção aguda ou crônica e preparo para imunoglobulina no RN',
+      tri1: '—',
+      tri2: '—',
+      tri3: '—',
+    },
+    {
+      id: 'toxo',
+      exam: 'Toxoplasmose (IgM e IgG)',
+      description: 'Pesquisa de susceptibilidade (IgM-/IgG-) ou primo-infecção gestacional',
+      tri1: '—',
+      tri2: '—',
+      tri3: '—',
+    },
+    {
+      id: 'glicemia',
+      exam: 'Glicemia de Jejum / TOTG 75g',
+      description: 'Rastreamento de Diabetes Mellitus Gestacional (DMG)',
+      tri1: '—',
+      tri2: '—',
+      tri3: '—',
+    },
+    {
+      id: 'urina',
+      exam: 'Urina EAS & Urocultura',
+      description: 'Rastreamento de bacteriúria assintomática e profilaxia de pielonefrite',
+      tri1: '—',
+      tri2: '—',
+      tri3: '—',
     },
   ];
+
+  const serologiesStorageKey = `canamed_prenatal_serologies_${patientId || 'default'}`;
+  const [serologies, setSerologies] = useState<MaternalSerologyItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(serologiesStorageKey);
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // fallback
+    }
+    return defaultSerologies;
+  });
+
+  const handleUpdateSerology = (id: string, trimester: 'tri1' | 'tri2' | 'tri3', value: string) => {
+    const updated = serologies.map((s) => {
+      if (s.id === id) {
+        return { ...s, [trimester]: value };
+      }
+      return s;
+    });
+    setSerologies(updated);
+    try {
+      localStorage.setItem(serologiesStorageKey, JSON.stringify(updated));
+      addToast('Resultado de sorologia atualizado com sucesso.', 'success');
+    } catch {
+      // ignore
+    }
+  };
 
   const handleSaveVisit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -324,7 +382,6 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
     }
   };
 
-  const isRhNegative = rhFactor?.toLowerCase().includes('negativ') || (bloodType && bloodType.includes('-'));
   const fullBloodType = bloodType ? `${bloodType}${isRhNegative ? '-' : '+'}` : null;
 
   return (
@@ -397,7 +454,9 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
           {/* DPP */}
           <div className="prenatal-card__metric-tile">
             <span className="prenatal-card__metric-label">DPP (Naegele)</span>
-            <strong className="prenatal-card__metric-value">{formatIsoDate(dpp)}</strong>
+            <strong className="prenatal-card__metric-value">
+              {effectiveDpp ? formatIsoDate(effectiveDpp) : 'Pendente de DUM'}
+            </strong>
             <span className="prenatal-card__metric-sub">Data provável parto</span>
           </div>
 
@@ -659,24 +718,40 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
             <table className="prenatal-card__table prenatal-card__serologies-table">
               <thead>
                 <tr>
-                  <th style={{ width: '40%' }}>Exame / Parâmetro</th>
-                  <th style={{ width: '20%', textAlign: 'center' }}>1º Trimestre</th>
-                  <th style={{ width: '20%', textAlign: 'center' }}>2º Trimestre</th>
-                  <th style={{ width: '20%', textAlign: 'center' }}>3º Trimestre</th>
+                  <th style={{ width: '37%' }}>Exame / Parâmetro</th>
+                  <th style={{ width: '21%', textAlign: 'center' }}>1º Trimestre</th>
+                  <th style={{ width: '21%', textAlign: 'center' }}>2º Trimestre</th>
+                  <th style={{ width: '21%', textAlign: 'center' }}>3º Trimestre</th>
                 </tr>
               </thead>
               <tbody>
-                {serologies.map((s, idx) => (
-                  <tr key={idx}>
+                {serologies.map((s) => (
+                  <tr key={s.id}>
                     <td>
                       <span className="prenatal-card__serology-exam-title">{s.exam}</span>
                       <span className="prenatal-card__serology-exam-desc">{s.description}</span>
                     </td>
-                    <td className="prenatal-card__serology-cell">{s.tri1}</td>
-                    <td className="prenatal-card__serology-cell">{s.tri2}</td>
-                    <td className={`prenatal-card__serology-cell ${s.tri3 === 'Solicitado' ? 'prenatal-card__serology-cell--active' : ''}`}>
-                      {s.tri3}
-                    </td>
+                    {(['tri1', 'tri2', 'tri3'] as const).map((tri) => (
+                      <td key={tri} className="prenatal-card__serology-cell">
+                        <select
+                          value={s[tri]}
+                          onChange={(e) => handleUpdateSerology(s.id, tri, e.target.value)}
+                          className="prenatal-card__serology-select"
+                          title="Alterar resultado registrado do trimestre"
+                        >
+                          <option value="—">—</option>
+                          <option value="Não Reagente">Não Reagente</option>
+                          <option value="Reagente">Reagente</option>
+                          <option value="Normal">Normal</option>
+                          <option value="Alterado">Alterado</option>
+                          <option value="Solicitado">Solicitado</option>
+                          <option value="Não indicado">Não indicado</option>
+                          {!['—', 'Não Reagente', 'Reagente', 'Normal', 'Alterado', 'Solicitado', 'Não indicado'].includes(s[tri]) && (
+                            <option value={s[tri]}>{s[tri]}</option>
+                          )}
+                        </select>
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
@@ -930,10 +1005,11 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
         rhFactor={rhFactor}
         gynProfile={gynProfile}
         dum={dum}
-        dpp={dpp}
+        dpp={effectiveDpp}
         heightCm={heightCm}
         visits={visits}
         vaccines={vaccines}
+        serologies={serologies}
       />
     </div>
   );

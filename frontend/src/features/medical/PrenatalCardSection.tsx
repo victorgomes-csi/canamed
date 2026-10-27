@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Download, Plus, Baby, Calendar, Activity, ShieldAlert, Syringe, FileSpreadsheet } from 'lucide-react';
+import { Download, Plus, Baby, Calendar, Activity, ShieldAlert, Syringe, FileSpreadsheet, AlertTriangle } from 'lucide-react';
 import { useToast } from '../layout/Toast';
 import { AtalahWeightGainChart } from './AtalahWeightGainChart';
 import { UterineHeightChart } from './UterineHeightChart';
+import './prenatal-card.css';
 
 export interface PrenatalVisitItem {
   id: string;
@@ -158,101 +159,112 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
     },
     {
       id: 'covid',
-      name: 'COVID-19 (Atualizada)',
-      target: 'Formas graves de infecção respiratória',
-      window: 'Qualquer Idade Gestacional conforme esquema vigente',
+      name: 'COVID-19 (Bivalente/Atualizada)',
+      target: 'Prevenção de formas graves de infecção por SARS-CoV-2',
+      window: 'Conforme cronograma PNI · Gestante grupo prioritário',
       status: 'Aplicada',
       date: '10/05/2026',
-      lot: 'CV260519',
+      lot: 'CV2026-B8',
     },
     {
-      id: 'vsr',
-      name: 'Vírus Sincicial Respiratório (VSR / Abrysvo)',
-      target: 'Prevenção de bronquiolite grave no recém-nascido',
-      window: 'Entre 32ª e 36ª semanas · Dose única intramuscular',
+      id: 'rsv',
+      name: 'Vírus Sincicial Respiratório (VSR / Bivalent)',
+      target: 'Prevenção de bronquiolite no recém-nascido',
+      window: 'Entre a 32ª e 36ª semana gestacional · Dose única',
       status: 'Agendada',
-      date: 'Agendada 32s',
-      lot: 'Pendente',
+      date: 'Prevista para 32ª sem',
     },
     {
       id: 'antid',
-      name: 'Imunoglobulina Anti-D',
-      target: 'Profilaxia de aloimunização Rh (se mãe Rh negativo)',
-      window: '28ª semana e até 72h pós-parto se Coombs Indireto negativo',
-      status: rhFactor === 'Negativo' ? 'Pendente' : 'Não indicada',
-      date: rhFactor === 'Negativo' ? 'Pendente 28s' : 'Não se aplica (Rh+)',
+      name: 'Imunoglobulina Anti-D (300 mcg)',
+      target: 'Profilaxia de aloimunização em mães Rh Negativo',
+      window: '28ª semana de gestação e em até 72h após o parto (se RN Rh+)',
+      status: rhFactor?.toLowerCase().includes('negativ') ? 'Agendada' : 'Não indicada',
+      date: rhFactor?.toLowerCase().includes('negativ') ? 'Prevista na 28ª sem' : 'Mãe Rh Positivo',
     },
   ];
 
+  const storageKey = `canamed_prenatal_vaccines_${patientId || 'default'}`;
   const [vaccines, setVaccines] = useState<MaternalVaccineItem[]>(() => {
     try {
-      const saved = localStorage.getItem(`canamed_vaccines_${patientId}`);
-      return saved ? JSON.parse(saved) : defaultVaccines;
+      const saved = localStorage.getItem(storageKey);
+      if (saved) return JSON.parse(saved);
     } catch {
-      return defaultVaccines;
+      // fallback
     }
+    return defaultVaccines;
   });
 
   const handleUpdateVaccine = (id: string, newStatus: MaternalVaccineItem['status']) => {
-    setVaccines((prev) => {
-      const updated = prev.map((v) => (v.id === id ? { ...v, status: newStatus } : v));
-      try {
-        localStorage.setItem(`canamed_vaccines_${patientId}`, JSON.stringify(updated));
-      } catch {}
-      return updated;
+    const updated = vaccines.map((vac) => {
+      if (vac.id === id) {
+        return {
+          ...vac,
+          status: newStatus,
+          date: newStatus === 'Aplicada' ? new Date().toLocaleDateString('pt-BR') : vac.date,
+        };
+      }
+      return vac;
     });
+    setVaccines(updated);
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(updated));
+      addToast(`Status da vacina atualizado para "${newStatus}".`, 'success');
+    } catch {
+      // ignore
+    }
   };
 
-  // Sorologias Trimestrais
+  // Sorologias do Ministério da Saúde / FEBRASGO
   const serologies: MaternalSerologyItem[] = [
     {
-      exam: 'Coombs Indireto',
-      description: 'Pesquisa de anticorpos irregulares (especial se Rh negativo)',
-      tri1: 'Não Reagente (02/06)',
-      tri2: '—',
-      tri3: rhFactor === 'Negativo' ? 'Indicado na 28ªs' : '—',
-    },
-    {
       exam: 'Sífilis (VDRL / Teste Rápido)',
-      description: 'Rastreio de sífilis congênita',
-      tri1: 'Não Reagente (02/06)',
-      tri2: 'Não Reagente (24/08)',
-      tri3: 'Solicitado em 28-30s',
+      description: 'Pesquisa e vigilância de transmissão vertical de Treponema pallidum',
+      tri1: 'Não Reagente (04/05/2026)',
+      tri2: 'Não Reagente (12/08/2026)',
+      tri3: 'Solicitado',
     },
     {
-      exam: 'HIV (Anti-HIV)',
-      description: 'Prevenção de transmissão vertical',
-      tri1: 'Não Reagente (02/06)',
+      exam: 'HIV (Anti-HIV 1 e 2)',
+      description: 'Rastreamento rápido e sorológico com profilaxia imediata se reagente',
+      tri1: 'Não Reagente (04/05/2026)',
       tri2: '—',
       tri3: 'Solicitado',
     },
     {
-      exam: 'Hepatite B (HBsAg) & C (Anti-HCV)',
-      description: 'Rastreio de hepatites virais',
-      tri1: 'Não Reagente (02/06)',
+      exam: 'Hepatite B (HBsAg)',
+      description: 'Detecção de infecção aguda ou crônica e preparo para imunoglobulina no RN',
+      tri1: 'Não Reagente (04/05/2026)',
       tri2: '—',
-      tri3: 'Solicitado HBsAg',
+      tri3: 'Solicitado',
     },
     {
-      exam: 'Toxoplasmose (IgG / IgM)',
-      description: 'Imunidade e infecção recente',
-      tri1: 'IgG+ / IgM- (Imune)',
-      tri2: '—',
-      tri3: '—',
+      exam: 'Toxoplasmose (IgM e IgG)',
+      description: 'Pesquisa de susceptibilidade (IgM-/IgG-) ou primo-infecção gestacional',
+      tri1: 'IgG Reagente / IgM Não Reagente (Imune)',
+      tri2: '— (Imune)',
+      tri3: '— (Imune)',
     },
     {
       exam: 'Glicemia de Jejum / TOTG 75g',
-      description: 'Rastreio de Diabetes Gestacional (DMG)',
-      tri1: '84 mg/dL (< 92)',
-      tri2: 'TOTG: 82/118/104 mg/dL',
-      tri3: '—',
+      description: 'Rastreamento de Diabetes Mellitus Gestacional (DMG)',
+      tri1: '82 mg/dL (Normal)',
+      tri2: 'TOTG: Jejum 84 / 1h 122 / 2h 108 mg/dL',
+      tri3: 'Avaliação Clínica',
     },
     {
-      exam: 'Urina I (EAS) e Urocultura',
-      description: 'Rastreio de bacteriúria assintomática e ITU',
+      exam: 'Urina EAS & Urocultura',
+      description: 'Rastreamento de bacteriúria assintomática e profilaxia de pielonefrite',
       tri1: 'Normal / Negativa',
       tri2: 'Normal / Negativa',
       tri3: 'Solicitado',
+    },
+    {
+      exam: 'Coombs Indireto (Gestante Rh-)',
+      description: 'Pesquisa de anticorpos irregulares em gestantes não aloimunizadas',
+      tri1: rhFactor?.toLowerCase().includes('negativ') ? 'Negativo (04/05/2026)' : 'Não indicado (Rh+)',
+      tri2: rhFactor?.toLowerCase().includes('negativ') ? 'Negativo (12/08/2026)' : 'Não indicado (Rh+)',
+      tri3: rhFactor?.toLowerCase().includes('negativ') ? 'Solicitado (28ªs)' : 'Não indicado (Rh+)',
     },
   ];
 
@@ -299,34 +311,42 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
       if (onAddVisit) {
         await onAddVisit({
           visitDate,
-          gestationalAgeWeeks: parseInt(weeks, 10),
-          gestationalAgeDays: parseInt(days, 10),
+          gestationalAgeWeeks: parseInt(weeks, 10) || 12,
+          gestationalAgeDays: parseInt(days, 10) || 0,
           weightKg: parseFloat(weight),
           bmi: calculatedBmi,
-          bloodPressure: bp.trim(),
+          bloodPressure: bp,
           uterineHeightCm: uterineHeight ? parseFloat(uterineHeight) : null,
           fetalHeartRateBpm: fhr ? parseInt(fhr, 10) : null,
           fetalMovementPresent: movement,
           edemaClassification: edema,
           fetalPresentation: presentation,
-          clinicalNotes: notes.trim() || null,
+          clinicalNotes: notes || null,
         });
-        addToast('Consulta pré-natal registrada com sucesso.', 'success');
-        setModalOpen(false);
       }
+
+      addToast('Consulta de Pré-Natal registrada com sucesso!', 'success');
+      setModalOpen(false);
+      setWeight('');
+      setBp('');
+      setUterineHeight('');
+      setFhr('');
+      setNotes('');
     } catch (err: unknown) {
-      addToast(err instanceof Error ? err.message : 'Falha ao registrar consulta.', 'error');
+      addToast(err instanceof Error ? err.message : 'Falha ao salvar consulta pré-natal.', 'error');
     } finally {
       setSaving(false);
     }
   };
 
-  // Formatação de datas auxiliares
   const formatIsoDate = (d?: string | null) => {
     if (!d) return 'Não informada';
     try {
-      const [year, month, day] = d.slice(0, 10).split('-');
-      return `${day}/${month}/${year}`;
+      const parts = d.split('T')[0].split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return new Date(d).toLocaleDateString('pt-BR');
     } catch {
       return d;
     }
@@ -336,109 +356,106 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
   const fullBloodType = bloodType ? `${bloodType}${isRhNegative ? '-' : '+'}` : null;
 
   return (
-    <div
-      data-testid="prenatal-card-section"
-      className="bg-white rounded-xl border border-[#E9D5FF] p-5 shadow-sm space-y-4"
-    >
+    <div data-testid="prenatal-card-section" className="prenatal-card">
       {/* 1. TOPO DA SEÇÃO: Cabeçalho com ações */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E9D5FF] pb-4">
-        <div className="flex items-center gap-2.5">
-          <div className="p-2.5 rounded-xl bg-[#F7ECF8] text-[#852A91] border border-[#B77AD8]/40">
-            <Baby className="w-5 h-5" />
+      <div className="prenatal-card__header">
+        <div className="prenatal-card__header-left">
+          <div className="prenatal-card__icon-badge">
+            <Baby style={{ width: 22, height: 22 }} />
           </div>
-          <div>
-            <h3 className="text-base font-bold text-[#6F217B]">
+          <div className="prenatal-card__titles">
+            <h3 className="prenatal-card__title">
               Cartão da Gestante & Consultas de Pré-Natal
             </h3>
-            <p className="text-xs text-[#64748B]">
+            <p className="prenatal-card__subtitle">
               Acompanhamento longitudinal materno-fetal · Diretrizes FEBRASGO / Ministério da Saúde
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="prenatal-card__actions">
           {onAddVisit && (
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#852A91] text-[#852A91] font-semibold text-xs bg-white hover:bg-[#F7ECF8] transition-colors"
+              className="prenatal-card__btn-secondary"
               onClick={() => setModalOpen(true)}
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus style={{ width: 14, height: 14 }} />
               + Nova Consulta
             </button>
           )}
 
           <button
             type="button"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#852A91] text-white font-semibold text-xs hover:bg-[#6F217B] transition-colors shadow-sm disabled:opacity-50"
+            className="prenatal-card__btn-primary"
             onClick={handleDownloadPdf}
             disabled={downloading || visits.length === 0}
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download style={{ width: 14, height: 14 }} />
             {downloading ? 'Gerando...' : 'Exportar Cartão (PDF)'}
           </button>
         </div>
       </div>
 
       {/* 2. RESUMO OBSTÉTRICO EXECUTIVO (Fundo #F7ECF8, Borda #B77AD8) */}
-      <div className="rounded-xl bg-[#F7ECF8] border border-[#B77AD8]/60 p-4">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 text-xs">
+      <div className="prenatal-card__summary-card">
+        <div className="prenatal-card__summary-grid">
           {/* DUM */}
-          <div className="bg-white rounded-lg p-2.5 border border-[#E9D5FF]">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] block">DUM</span>
-            <strong className="text-sm text-[#1E293B] block mt-0.5">{formatIsoDate(dum)}</strong>
-            <span className="text-[10px] text-[#852A91]">Última menstruação</span>
+          <div className="prenatal-card__metric-tile">
+            <span className="prenatal-card__metric-label">DUM</span>
+            <strong className="prenatal-card__metric-value">{formatIsoDate(dum)}</strong>
+            <span className="prenatal-card__metric-sub">Última menstruação</span>
           </div>
 
           {/* DPP */}
-          <div className="bg-white rounded-lg p-2.5 border border-[#E9D5FF]">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] block">DPP (Naegele)</span>
-            <strong className="text-sm text-[#1E293B] block mt-0.5">{formatIsoDate(dpp)}</strong>
-            <span className="text-[10px] text-[#852A91]">Data provável parto</span>
+          <div className="prenatal-card__metric-tile">
+            <span className="prenatal-card__metric-label">DPP (Naegele)</span>
+            <strong className="prenatal-card__metric-value">{formatIsoDate(dpp)}</strong>
+            <span className="prenatal-card__metric-sub">Data provável parto</span>
           </div>
 
           {/* IG Atual */}
-          <div className="bg-white rounded-lg p-2.5 border border-[#E9D5FF]">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] block">IG Atual</span>
-            <strong className="text-sm text-[#6F217B] block mt-0.5">
+          <div className="prenatal-card__metric-tile">
+            <span className="prenatal-card__metric-label">IG Atual</span>
+            <strong className="prenatal-card__metric-value prenatal-card__metric-value--primary">
               {visits.length > 0
                 ? `${visits[visits.length - 1].gestationalAgeWeeks}s ${visits[visits.length - 1].gestationalAgeDays}d`
                 : initialGestationalAgeWeeks
                 ? `${initialGestationalAgeWeeks}s ${initialGestationalAgeDays || 0}d`
                 : '—'}
             </strong>
-            <span className="text-[10px] text-[#64748B]">Idade gestacional</span>
+            <span className="prenatal-card__metric-sub prenatal-card__metric-sub--muted">Idade gestacional</span>
           </div>
 
           {/* GPA */}
-          <div className="bg-white rounded-lg p-2.5 border border-[#E9D5FF]">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] block">Histórico GPA</span>
-            <strong className="text-sm text-[#1E293B] block mt-0.5">
+          <div className="prenatal-card__metric-tile">
+            <span className="prenatal-card__metric-label">Histórico GPA</span>
+            <strong className="prenatal-card__metric-value">
               {gynProfile
                 ? `G${gynProfile.gravida ?? 1} P${gynProfile.para ?? 0} C${gynProfile.cesareans ?? 0} A${gynProfile.abortions ?? 0}`
                 : 'G1 P0 C0 A0'}
             </strong>
-            <span className="text-[10px] text-[#64748B]">
+            <span className="prenatal-card__metric-sub prenatal-card__metric-sub--muted">
               {gynProfile?.livingChildren ? `${gynProfile.livingChildren} filhos vivos` : 'Primeira gravidez'}
             </span>
           </div>
 
           {/* Tipagem ABO/Rh */}
-          <div className="bg-white rounded-lg p-2.5 border border-[#E9D5FF] flex flex-col justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] block">Tipagem ABO/Rh</span>
-            <strong className="text-sm text-[#852A91] block mt-0.5">
+          <div className="prenatal-card__metric-tile">
+            <span className="prenatal-card__metric-label">Tipagem ABO/Rh</span>
+            <strong className="prenatal-card__metric-value prenatal-card__metric-value--accent">
               {fullBloodType || (bloodType ? `${bloodType} ${rhFactor || ''}` : 'Não informada')}
             </strong>
-            <span className="text-[10px] text-[#64748B]">
+            <span className="prenatal-card__metric-sub prenatal-card__metric-sub--muted">
               {isRhNegative ? 'Rh Negativo' : 'Rh Positivo'}
             </span>
           </div>
 
           {/* Estatura & IMC Basal */}
-          <div className="bg-white rounded-lg p-2.5 border border-[#E9D5FF]">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] block">Estatura / IMC</span>
-            <strong className="text-sm text-[#1E293B] block mt-0.5">{heightCm || 165} cm</strong>
-            <span className="text-[10px] text-[#852A91]">
+          <div className="prenatal-card__metric-tile">
+            <span className="prenatal-card__metric-label">Estatura / IMC</span>
+            <strong className="prenatal-card__metric-value">{heightCm || 165} cm</strong>
+            <span className="prenatal-card__metric-sub">
               {visits.length > 0 && visits[visits.length - 1].bmi
                 ? `IMC: ${visits[visits.length - 1].bmi?.toFixed(1)}`
                 : 'Acompanhamento'}
@@ -448,8 +465,8 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
 
         {/* Alerta de Rh Negativo e Aloimunização */}
         {isRhNegative && (
-          <div className="mt-3 bg-[#FDF2F8] border border-[#D83C91]/40 rounded-lg p-2.5 flex items-center gap-2.5 text-xs text-[#9D174D]">
-            <ShieldAlert className="w-4 h-4 text-[#D83C91] shrink-0" />
+          <div className="prenatal-card__rh-alert">
+            <ShieldAlert style={{ width: 18, height: 18 }} />
             <div>
               <strong>Gestante Rh Negativo — Vigilância de Aloimunização:</strong> Realizar Coombs Indireto trimestral e aplicar Imunoglobulina Anti-D (300 mcg) na 28ª semana e até 72h pós-parto caso o RN seja Rh+.
             </div>
@@ -457,109 +474,100 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
         )}
       </div>
 
-      {/* 3. NAVEGAÇÃO ENTRE ABAS (Segmented Control) */}
-      <div className="flex border-b border-[#E9D5FF] gap-2 pt-1 text-xs font-semibold">
+      {/* 3. NAVEGAÇÃO ENTRE ABAS (Segmented Tabs) */}
+      <div className="prenatal-card__tabs">
         <button
           type="button"
           onClick={() => setActiveTab('consultas')}
-          className={`pb-2.5 px-3 border-b-2 flex items-center gap-1.5 transition-colors ${
-            activeTab === 'consultas'
-              ? 'border-[#852A91] text-[#852A91]'
-              : 'border-transparent text-[#64748B] hover:text-[#1E293B]'
-          }`}
+          className={`prenatal-card__tab-btn ${activeTab === 'consultas' ? 'prenatal-card__tab-btn--active' : ''}`}
         >
-          <Activity className="w-3.5 h-3.5" />
+          <Activity style={{ width: 14, height: 14 }} />
           Consultas & Gráficos
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('vacinas')}
-          className={`pb-2.5 px-3 border-b-2 flex items-center gap-1.5 transition-colors ${
-            activeTab === 'vacinas'
-              ? 'border-[#852A91] text-[#852A91]'
-              : 'border-transparent text-[#64748B] hover:text-[#1E293B]'
-          }`}
+          className={`prenatal-card__tab-btn ${activeTab === 'vacinas' ? 'prenatal-card__tab-btn--active' : ''}`}
         >
-          <Syringe className="w-3.5 h-3.5" />
+          <Syringe style={{ width: 14, height: 14 }} />
           Vacinas da Gestante
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('sorologias')}
-          className={`pb-2.5 px-3 border-b-2 flex items-center gap-1.5 transition-colors ${
-            activeTab === 'sorologias'
-              ? 'border-[#852A91] text-[#852A91]'
-              : 'border-transparent text-[#64748B] hover:text-[#1E293B]'
-          }`}
+          className={`prenatal-card__tab-btn ${activeTab === 'sorologias' ? 'prenatal-card__tab-btn--active' : ''}`}
         >
-          <FileSpreadsheet className="w-3.5 h-3.5" />
+          <FileSpreadsheet style={{ width: 14, height: 14 }} />
           Sorologias por Trimestre
         </button>
       </div>
 
       {/* 4. CONTEÚDO DAS ABAS */}
       {activeTab === 'consultas' && (
-        <div className="space-y-4">
+        <div className="prenatal-card__content-panel">
           {loading ? (
-            <div className="py-8 text-center text-sm text-neutral-400">Carregando consultas pré-natais...</div>
+            <div className="prenatal-card__empty-state">
+              <p className="prenatal-card__empty-title">Carregando consultas pré-natais...</p>
+            </div>
           ) : visits.length === 0 ? (
-            <div className="py-8 text-center bg-neutral-50 rounded-xl border border-dashed border-[#E9D5FF]">
-              <Calendar className="w-8 h-8 text-[#B77AD8] mx-auto mb-2" />
-              <p className="text-sm font-medium text-neutral-700">Nenhuma consulta pré-natal registrada</p>
-              <p className="text-xs text-neutral-400 mt-0.5">
+            <div className="prenatal-card__empty-state">
+              <Calendar style={{ width: 32, height: 32 }} />
+              <p className="prenatal-card__empty-title">Nenhuma consulta pré-natal registrada</p>
+              <p className="prenatal-card__empty-desc">
                 Clique em "+ Nova Consulta" para registrar os parâmetros da visita obstétrica.
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto border border-[#E9D5FF] rounded-xl shadow-sm">
-              <table className="w-full text-left text-xs border-collapse">
+            <div className="prenatal-card__table-wrapper">
+              <table className="prenatal-card__table">
                 <thead>
-                  <tr className="border-b border-[#E9D5FF] bg-[#FAF5FB] text-[#6F217B] font-bold">
-                    <th className="py-2.5 px-3">Data</th>
-                    <th className="py-2.5 px-3">IG (Sem/D)</th>
-                    <th className="py-2.5 px-3">Peso (kg)</th>
-                    <th className="py-2.5 px-3">IMC</th>
-                    <th className="py-2.5 px-3">PA (mmHg)</th>
-                    <th className="py-2.5 px-3">AU (cm)</th>
-                    <th className="py-2.5 px-3">BCF (bpm)</th>
-                    <th className="py-2.5 px-3">Mov. Fetal</th>
-                    <th className="py-2.5 px-3">Edema</th>
-                    <th className="py-2.5 px-3">Apresentação</th>
+                  <tr>
+                    <th>Data</th>
+                    <th>IG (Sem/D)</th>
+                    <th>Peso (kg)</th>
+                    <th>IMC</th>
+                    <th>PA (mmHg)</th>
+                    <th>AU (cm)</th>
+                    <th>BCF (bpm)</th>
+                    <th>Mov. Fetal</th>
+                    <th>Edema</th>
+                    <th>Apresentação</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E9D5FF]/50">
+                <tbody>
                   {visits.map((v) => {
                     const effectiveBmi = v.bmi ?? (v.weightKg ? Number((v.weightKg / Math.pow((heightCm || 165) / 100, 2)).toFixed(1)) : null);
                     return (
                       <React.Fragment key={v.id}>
-                        <tr className="hover:bg-[#FAF5FB] transition-colors">
-                          <td className="py-2.5 px-3 font-semibold text-[#1E293B]">
+                        <tr>
+                          <td className="col-date">
                             {new Date(v.visitDate + 'T00:00:00').toLocaleDateString('pt-BR')}
                           </td>
-                          <td className="py-2.5 px-3 text-[#6F217B] font-medium">
+                          <td className="col-ig">
                             {v.gestationalAgeWeeks}s {v.gestationalAgeDays}d
                           </td>
-                          <td className="py-2.5 px-3 text-[#1E293B] font-medium">{v.weightKg.toFixed(1)}</td>
-                          <td className="py-2.5 px-3 text-[#852A91] font-bold">{effectiveBmi ?? '-'}</td>
-                          <td className="py-2.5 px-3 font-semibold text-[#1E293B]">{v.bloodPressure}</td>
-                          <td className="py-2.5 px-3 text-[#1E293B]">{v.uterineHeightCm ?? '-'}</td>
-                          <td className="py-2.5 px-3 font-semibold text-[#852A91]">{v.fetalHeartRateBpm ?? '-'}</td>
-                          <td className="py-2.5 px-3 text-[#1E293B]">
+                          <td>{v.weightKg.toFixed(1)}</td>
+                          <td className="col-imc">{effectiveBmi ?? '-'}</td>
+                          <td style={{ fontWeight: 600 }}>{v.bloodPressure}</td>
+                          <td>{v.uterineHeightCm ?? '-'}</td>
+                          <td className="col-fhr">{v.fetalHeartRateBpm ?? '-'}</td>
+                          <td className={v.fetalMovementPresent ? 'col-mv-active' : ''}>
                             {v.fetalMovementPresent === true
                               ? 'Presente'
                               : v.fetalMovementPresent === false
                               ? 'Ausente'
                               : '-'}
                           </td>
-                          <td className="py-2.5 px-3 text-[#64748B]">{v.edemaClassification || 'Ausente'}</td>
-                          <td className="py-2.5 px-3 font-medium text-[#6F217B]">{v.fetalPresentation || '-'}</td>
+                          <td style={{ color: 'var(--prenatal-brand-muted)' }}>{v.edemaClassification || 'Ausente'}</td>
+                          <td className="col-presentation">{v.fetalPresentation || '-'}</td>
                         </tr>
                         {v.clinicalNotes && (
-                          <tr className="bg-[#FAF5FB]/60 text-[11px] text-[#64748B]">
-                            <td colSpan={10} className="py-1 px-3 italic border-b border-[#E9D5FF]/40">
-                              <span className="font-semibold text-[#6F217B]">Conduta/Notas:</span> {v.clinicalNotes}
+                          <tr className="prenatal-card__table-notes-row">
+                            <td colSpan={10}>
+                              <span className="prenatal-card__table-notes-prefix">Conduta/Notas:</span>
+                              {v.clinicalNotes}
                             </td>
                           </tr>
                         )}
@@ -571,58 +579,70 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
             </div>
           )}
 
-          {/* Gráficos sempre visíveis */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1rem' }}>
+          {/* Gráficos sempre visíveis na Aba 1 */}
+          <div className="prenatal-card__charts-grid">
             <AtalahWeightGainChart visits={visits} heightCm={heightCm} />
             <UterineHeightChart visits={visits} />
           </div>
         </div>
       )}
 
-      {/* ABA 2: VACINAS DA GESTANTE */}
+      {/* ABA 2: PÁGINA EXCLUSIVA DE VACINAS DA GESTANTE */}
       {activeTab === 'vacinas' && (
-        <div className="space-y-3">
-          <div className="bg-[#FAF5FB] p-3 rounded-lg border border-[#E9D5FF] text-xs text-[#64748B] leading-relaxed">
-            <strong className="text-[#6F217B] font-bold block mb-0.5">Calendário Vacinal da Gestante (SBIm / FEBRASGO / Ministério da Saúde)</strong>
-            As vacinas na gravidez induzem produção de imunoglobulinas maternas (IgG) que atravessam a barreira placentária, conferindo imunidade passiva ao bebê nos primeiros meses de vida.
+        <div className="prenatal-card__content-panel">
+          {/* Hero Editorial de Imunização Materno-Infantil */}
+          <div className="prenatal-card__vaccine-hero">
+            <div className="prenatal-card__vaccine-hero-icon">
+              <Syringe style={{ width: 22, height: 22 }} />
+            </div>
+            <div>
+              <span className="prenatal-card__vaccine-hero-tag">Imunização Materno-Infantil · Diretrizes SBIm / FEBRASGO</span>
+              <h4 className="prenatal-card__vaccine-hero-title">
+                Minhas Vacinas na Gestação: Proteção para Mim e para Meu Bebê
+              </h4>
+              <p className="prenatal-card__vaccine-hero-desc">
+                As vacinas durante a gravidez protegem a gestante de quadros graves e transferem anticorpos protetores (imunoglobulinas IgG) através da barreira placentária, conferindo imunidade passiva vital ao bebê nos primeiros meses de vida.
+              </p>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+          {/* Grade de Vacinas */}
+          <div className="prenatal-card__vaccine-grid">
             {vaccines.map((vac) => {
-              const isApplied = vac.status === 'Aplicada';
+              const badgeClass =
+                vac.status === 'Aplicada'
+                  ? 'prenatal-card__vaccine-badge--applied'
+                  : vac.status === 'Agendada'
+                  ? 'prenatal-card__vaccine-badge--scheduled'
+                  : vac.status === 'Não indicada'
+                  ? 'prenatal-card__vaccine-badge--none'
+                  : 'prenatal-card__vaccine-badge--pending';
+
               return (
-                <div key={vac.id} className="p-3.5 rounded-xl border border-[#E9D5FF] bg-white shadow-sm flex flex-col justify-between">
+                <div key={vac.id} className="prenatal-card__vaccine-card">
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <strong className="text-[#6F217B] text-sm">{vac.name}</strong>
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          isApplied
-                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                            : vac.status === 'Agendada'
-                            ? 'bg-purple-50 text-purple-800 border border-purple-200'
-                            : vac.status === 'Não indicada'
-                            ? 'bg-neutral-100 text-neutral-600'
-                            : 'bg-amber-50 text-amber-800 border border-amber-200'
-                        }`}
-                      >
+                    <div className="prenatal-card__vaccine-header">
+                      <strong className="prenatal-card__vaccine-name">{vac.name}</strong>
+                      <span className={`prenatal-card__vaccine-badge ${badgeClass}`}>
                         {vac.status}
                       </span>
                     </div>
-                    <p className="text-[11px] text-[#64748B] mb-2">{vac.target}</p>
-                    <span className="text-[10px] text-[#852A91] font-medium block mb-2">{vac.window}</span>
+                    <p className="prenatal-card__vaccine-target">{vac.target}</p>
+                    <span className="prenatal-card__vaccine-window">{vac.window}</span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-[#F1E8F5] text-[11px]">
-                    <span className="text-[#64748B]">{vac.date || 'Sem data'} {vac.lot ? `(${vac.lot})` : ''}</span>
-                    <div className="flex gap-1">
+                  <div className="prenatal-card__vaccine-footer">
+                    <span className="prenatal-card__vaccine-meta">
+                      {vac.date || 'Sem data'} {vac.lot ? `(${vac.lot})` : ''}
+                    </span>
+                    <div className="prenatal-card__vaccine-actions">
                       {(['Aplicada', 'Pendente', 'Agendada'] as const).map((st) => (
                         <button
                           key={st}
                           type="button"
                           onClick={() => handleUpdateVaccine(vac.id, st)}
-                          className={`px-2 py-0.5 rounded text-[10px] font-semibold transition ${
-                            vac.status === st ? 'bg-[#852A91] text-white' : 'bg-[#FAF5FB] text-[#64748B] hover:bg-[#F7ECF8]'
+                          className={`prenatal-card__vaccine-action-btn ${
+                            vac.status === st ? 'prenatal-card__vaccine-action-btn--active' : ''
                           }`}
                         >
                           {st}
@@ -634,32 +654,42 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
               );
             })}
           </div>
+
+          {/* Alerta de Contraindicações Absolutas */}
+          <div className="prenatal-card__vaccine-alert">
+            <AlertTriangle style={{ width: 20, height: 20 }} />
+            <div>
+              <strong style={{ fontWeight: 700 }}>Atenção às Contraindicações Absolutas:</strong> Vacinas de vírus ou bactérias vivas atenuadas são terminantemente contraindicadas na gravidez: <strong>Tríplice Viral (Sarampo, Caxumba, Rubéola), Varicela (Catapora), HPV, Dengue e Febre Amarela (salvo alto risco epidemiológico)</strong>.
+            </div>
+          </div>
         </div>
       )}
 
       {/* ABA 3: SOROLOGIAS POR TRIMESTRE */}
       {activeTab === 'sorologias' && (
-        <div className="space-y-3">
-          <div className="overflow-x-auto border border-[#E9D5FF] rounded-xl shadow-sm">
-            <table className="w-full text-left text-xs border-collapse">
+        <div className="prenatal-card__content-panel">
+          <div className="prenatal-card__table-wrapper">
+            <table className="prenatal-card__table prenatal-card__serologies-table">
               <thead>
-                <tr className="bg-[#6F217B] text-white text-[10px] uppercase font-bold tracking-wider">
-                  <th className="py-2.5 px-3">Exame / Parâmetro</th>
-                  <th className="py-2.5 px-3 text-center">1º Trimestre</th>
-                  <th className="py-2.5 px-3 text-center">2º Trimestre</th>
-                  <th className="py-2.5 px-3 text-center">3º Trimestre</th>
+                <tr>
+                  <th style={{ width: '40%' }}>Exame / Parâmetro</th>
+                  <th style={{ width: '20%', textAlign: 'center' }}>1º Trimestre</th>
+                  <th style={{ width: '20%', textAlign: 'center' }}>2º Trimestre</th>
+                  <th style={{ width: '20%', textAlign: 'center' }}>3º Trimestre</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E9D5FF]/60 text-xs">
+              <tbody>
                 {serologies.map((s, idx) => (
-                  <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-[#FAF5FB]'}>
-                    <td className="py-2 px-3 font-semibold text-[#1E293B]">
-                      {s.exam}
-                      <span className="block text-[10px] text-[#64748B] font-normal">{s.description}</span>
+                  <tr key={idx}>
+                    <td>
+                      <span className="prenatal-card__serology-exam-title">{s.exam}</span>
+                      <span className="prenatal-card__serology-exam-desc">{s.description}</span>
                     </td>
-                    <td className="py-2 px-3 text-center text-[#1E293B] font-medium">{s.tri1}</td>
-                    <td className="py-2 px-3 text-center text-[#1E293B] font-medium">{s.tri2}</td>
-                    <td className="py-2 px-3 text-center text-[#852A91] font-semibold">{s.tri3}</td>
+                    <td className="prenatal-card__serology-cell">{s.tri1}</td>
+                    <td className="prenatal-card__serology-cell">{s.tri2}</td>
+                    <td className={`prenatal-card__serology-cell ${s.tri3 === 'Solicitado' ? 'prenatal-card__serology-cell--active' : ''}`}>
+                      {s.tri3}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -670,51 +700,52 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
 
       {/* MODAL DE REGISTRO DE CONSULTA PRÉ-NATAL */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-[#E9D5FF] max-w-lg w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150 max-h-[92vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-[#E9D5FF] pb-3">
-              <h4 className="font-bold text-[#6F217B] text-base flex items-center gap-2">
-                <Activity className="w-5 h-5 text-[#852A91]" />
+        <div className="prenatal-card__modal-overlay">
+          <div className="prenatal-card__modal-dialog">
+            <div className="prenatal-card__modal-header">
+              <h4 className="prenatal-card__modal-title">
+                <Activity style={{ width: 18, height: 18, color: 'var(--prenatal-brand-primary)' }} />
                 Registrar Consulta de Pré-Natal
               </h4>
               <button
                 type="button"
-                className="text-[#64748B] hover:text-[#1E293B] font-bold p-1 rounded"
+                className="prenatal-card__modal-close"
                 onClick={() => setModalOpen(false)}
+                aria-label="Fechar"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleSaveVisit} className="space-y-3.5 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-[#1E293B] mb-1">Data da Consulta *</label>
+            <form onSubmit={handleSaveVisit} className="prenatal-card__form">
+              <div className="prenatal-card__form-grid-2">
+                <div className="prenatal-card__field">
+                  <label className="prenatal-card__field-label">Data da Consulta *</label>
                   <input
                     type="date"
                     required
                     value={visitDate}
                     onChange={(e) => setVisitDate(e.target.value)}
-                    className="w-full border rounded-lg p-2 border-[#CBD5E1] outline-none focus:border-[#852A91]"
+                    className="prenatal-card__input"
                   />
                 </div>
-                <div>
-                  <label className="block font-semibold text-[#1E293B] mb-1">Pressão Arterial (PA) *</label>
+                <div className="prenatal-card__field">
+                  <label className="prenatal-card__field-label">Pressão Arterial (PA) *</label>
                   <input
                     type="text"
                     required
                     placeholder="Ex: 120/80"
                     value={bp}
                     onChange={(e) => setBp(e.target.value)}
-                    className="w-full border rounded-lg p-2 border-[#CBD5E1] outline-none focus:border-[#852A91]"
+                    className="prenatal-card__input"
                   />
                 </div>
               </div>
 
               {/* Idade Gestacional */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="prenatal-weeks" className="block font-semibold text-[#1E293B] mb-1">IG Semanas *</label>
+              <div className="prenatal-card__form-grid-2">
+                <div className="prenatal-card__field">
+                  <label htmlFor="prenatal-weeks" className="prenatal-card__field-label">IG Semanas *</label>
                   <input
                     id="prenatal-weeks"
                     type="number"
@@ -723,11 +754,11 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
                     required
                     value={weeks}
                     onChange={(e) => setWeeks(e.target.value)}
-                    className="w-full border rounded-lg p-2 border-[#CBD5E1] outline-none focus:border-[#852A91]"
+                    className="prenatal-card__input"
                   />
                 </div>
-                <div>
-                  <label htmlFor="prenatal-days" className="block font-semibold text-[#1E293B] mb-1">IG Dias</label>
+                <div className="prenatal-card__field">
+                  <label htmlFor="prenatal-days" className="prenatal-card__field-label">IG Dias</label>
                   <input
                     id="prenatal-days"
                     type="number"
@@ -735,16 +766,16 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
                     max="6"
                     value={days}
                     onChange={(e) => setDays(e.target.value)}
-                    className="w-full border rounded-lg p-2 border-[#CBD5E1] outline-none focus:border-[#852A91]"
+                    className="prenatal-card__input"
                   />
                 </div>
               </div>
 
               {/* Biometria e IMC Dinâmico */}
-              <div className="bg-[#FAF5FB] p-3 rounded-xl border border-[#E9D5FF] space-y-2">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-semibold text-[#1E293B] mb-1">Peso Atual (kg) *</label>
+              <div className="prenatal-card__bmi-panel">
+                <div className="prenatal-card__form-grid-2">
+                  <div className="prenatal-card__field">
+                    <label className="prenatal-card__field-label">Peso Atual (kg) *</label>
                     <input
                       type="number"
                       step="0.1"
@@ -754,11 +785,11 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
                       placeholder="65.0"
                       value={weight}
                       onChange={(e) => setWeight(e.target.value)}
-                      className="w-full border rounded-lg p-2 border-[#CBD5E1] bg-white outline-none focus:border-[#852A91]"
+                      className="prenatal-card__input"
                     />
                   </div>
-                  <div>
-                    <label className="block font-semibold text-[#1E293B] mb-1">Estatura Materna (cm)</label>
+                  <div className="prenatal-card__field">
+                    <label className="prenatal-card__field-label">Estatura Materna (cm)</label>
                     <input
                       type="number"
                       step="1"
@@ -766,19 +797,19 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
                       max="220"
                       value={maternalHeightInput}
                       onChange={(e) => setMaternalHeightInput(e.target.value)}
-                      className="w-full border rounded-lg p-2 border-[#CBD5E1] bg-white outline-none focus:border-[#852A91]"
+                      className="prenatal-card__input"
                     />
                   </div>
                 </div>
 
                 {calculatedBmi && (
-                  <div className="flex items-center justify-between text-xs pt-1">
-                    <span className="font-bold text-[#6F217B]">
+                  <div className="prenatal-card__bmi-result">
+                    <span style={{ fontWeight: 700, color: 'var(--prenatal-brand-deep)' }}>
                       IMC Calculado: {calculatedBmi.toFixed(1)} kg/m²
                     </span>
                     {bmiClassification && (
                       <span
-                        className="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                        className="prenatal-card__bmi-badge"
                         style={{ color: bmiClassification.color, backgroundColor: bmiClassification.bg }}
                       >
                         {bmiClassification.label}
@@ -789,34 +820,34 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
               </div>
 
               {/* Parâmetros Fetais */}
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block font-semibold text-[#1E293B] mb-1">AU (cm)</label>
+              <div className="prenatal-card__form-grid-3">
+                <div className="prenatal-card__field">
+                  <label className="prenatal-card__field-label">AU (cm)</label>
                   <input
                     type="number"
                     step="0.5"
                     placeholder="24"
                     value={uterineHeight}
                     onChange={(e) => setUterineHeight(e.target.value)}
-                    className="w-full border rounded-lg p-2 border-[#CBD5E1] outline-none focus:border-[#852A91]"
+                    className="prenatal-card__input"
                   />
                 </div>
-                <div>
-                  <label className="block font-semibold text-[#1E293B] mb-1">BCF (bpm)</label>
+                <div className="prenatal-card__field">
+                  <label className="prenatal-card__field-label">BCF (bpm)</label>
                   <input
                     type="number"
                     placeholder="145"
                     value={fhr}
                     onChange={(e) => setFhr(e.target.value)}
-                    className="w-full border rounded-lg p-2 border-[#CBD5E1] outline-none focus:border-[#852A91]"
+                    className="prenatal-card__input"
                   />
                 </div>
-                <div>
-                  <label className="block font-semibold text-[#1E293B] mb-1">Edema</label>
+                <div className="prenatal-card__field">
+                  <label className="prenatal-card__field-label">Edema</label>
                   <select
                     value={edema}
                     onChange={(e) => setEdema(e.target.value)}
-                    className="w-full border rounded-lg p-2 border-[#CBD5E1] outline-none focus:border-[#852A91]"
+                    className="prenatal-card__select"
                   >
                     <option value="Ausente">Ausente</option>
                     <option value="+/4+">+/4+</option>
@@ -828,28 +859,28 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
               </div>
 
               {/* Movimentação Fetal e Apresentação Fetal */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-[#1E293B] mb-1">Movimento Fetal</label>
+              <div className="prenatal-card__form-grid-2">
+                <div className="prenatal-card__field">
+                  <label className="prenatal-card__field-label">Movimento Fetal</label>
                   <select
                     value={movement === null ? 'null' : String(movement)}
                     onChange={(e) => {
                       const val = e.target.value;
                       setMovement(val === 'null' ? null : val === 'true');
                     }}
-                    className="w-full border rounded-lg p-2 border-[#CBD5E1] outline-none focus:border-[#852A91]"
+                    className="prenatal-card__select"
                   >
                     <option value="true">Presente / Ativo</option>
                     <option value="false">Ausente / Reduzido</option>
                     <option value="null">Não aplicável (&lt; 18s)</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block font-semibold text-[#1E293B] mb-1">Apresentação Fetal</label>
+                <div className="prenatal-card__field">
+                  <label className="prenatal-card__field-label">Apresentação Fetal</label>
                   <select
                     value={presentation}
                     onChange={(e) => setPresentation(e.target.value)}
-                    className="w-full border rounded-lg p-2 border-[#CBD5E1] outline-none focus:border-[#852A91]"
+                    className="prenatal-card__select"
                   >
                     <option value="Cefálica">Cefálica</option>
                     <option value="Pélvica">Pélvica</option>
@@ -860,21 +891,21 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
               </div>
 
               {/* Conduta e Observações Clínicas */}
-              <div>
-                <label className="block font-semibold text-[#1E293B] mb-1">Conduta e Observações Clínicas</label>
+              <div className="prenatal-card__field">
+                <label className="prenatal-card__field-label">Conduta e Observações Clínicas</label>
                 <textarea
                   rows={3}
                   placeholder="Conduta, exames solicitados e queixas..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full border rounded-lg p-2 border-[#CBD5E1] outline-none focus:border-[#852A91] text-xs"
+                  className="prenatal-card__textarea"
                 />
               </div>
 
-              <div className="flex justify-end gap-2.5 pt-3 border-t border-[#E9D5FF]">
+              <div className="prenatal-card__modal-footer">
                 <button
                   type="button"
-                  className="px-3.5 py-1.5 rounded-lg border border-[#CBD5E1] text-[#64748B] font-semibold hover:bg-neutral-50 transition"
+                  className="prenatal-card__btn-secondary"
                   onClick={() => setModalOpen(false)}
                 >
                   Cancelar
@@ -882,7 +913,7 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-1.5 rounded-lg bg-[#852A91] text-white font-bold hover:bg-[#6F217B] transition shadow-sm disabled:opacity-50"
+                  className="prenatal-card__btn-primary"
                 >
                   {saving ? 'Gravando...' : 'Salvar Consulta'}
                 </button>

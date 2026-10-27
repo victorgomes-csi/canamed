@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   getPatientMedicalRecordHistory,
@@ -531,6 +531,7 @@ export function DoctorMedicalRecordsPage() {
             <PrenatalCardSection
               patientId={patientId}
               patientName={selectedPatient?.name || 'Paciente'}
+              patientBirthDate={selectedPatient?.birthDate}
               visits={prenatalVisits}
               heightCm={(selectedPatient as any)?.heightCm}
               dum={(gynProfile as any)?.lastMenstrualPeriod || undefined}

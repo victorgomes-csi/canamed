@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Download, Plus, Baby, Calendar, Activity, ShieldAlert, Syringe, FileSpreadsheet, AlertTriangle } from 'lucide-react';
+import { Download, Plus, Baby, Calendar, Activity, ShieldAlert, Syringe, FileSpreadsheet, AlertTriangle, Eye } from 'lucide-react';
 import { useToast } from '../layout/Toast';
 import { AtalahWeightGainChart } from './AtalahWeightGainChart';
 import { UterineHeightChart } from './UterineHeightChart';
 import { downloadPrenatalCardPdf } from './medicalRecordsApi';
+import { PrenatalCardEditorialModal } from './PrenatalCardEditorialModal';
 import './prenatal-card.css';
 
 export interface PrenatalVisitItem {
@@ -33,6 +34,7 @@ export interface GynecologicalProfileInfo {
 export interface PrenatalCardSectionProps {
   patientId: string;
   patientName: string;
+  patientBirthDate?: string | null;
   visits: PrenatalVisitItem[];
   onAddVisit?: (visit: Omit<PrenatalVisitItem, 'id'>) => Promise<void>;
   loading?: boolean;
@@ -67,6 +69,7 @@ interface MaternalSerologyItem {
 export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
   patientId,
   patientName,
+  patientBirthDate,
   visits,
   onAddVisit,
   loading = false,
@@ -82,6 +85,7 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
   const { addToast } = useToast();
   const [downloading, setDownloading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editorialModalOpen, setEditorialModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'consultas' | 'vacinas' | 'sorologias'>('consultas');
 
@@ -385,11 +389,22 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
           <button
             type="button"
             className="prenatal-card__btn-primary"
+            onClick={() => setEditorialModalOpen(true)}
+            title="Visualizar o Cartão da Gestante no padrão editorial de 6 páginas e imprimir/salvar em PDF"
+          >
+            <Eye style={{ width: 14, height: 14 }} />
+            Ver Cartão Editorial (6 Páginas)
+          </button>
+
+          <button
+            type="button"
+            className="prenatal-card__btn-secondary"
             onClick={handleDownloadPdf}
             disabled={downloading || visits.length === 0}
+            title="Exportar arquivo PDF gerado pelo servidor"
           >
             <Download style={{ width: 14, height: 14 }} />
-            {downloading ? 'Gerando...' : 'Exportar Cartão (PDF)'}
+            {downloading ? 'Gerando...' : 'Exportar PDF Servidor'}
           </button>
         </div>
       </div>
@@ -928,6 +943,23 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
           </div>
         </div>
       )}
+
+      {/* Modal Editorial A4 — 6 Páginas com Impressão/Exportação Direta */}
+      <PrenatalCardEditorialModal
+        open={editorialModalOpen}
+        onClose={() => setEditorialModalOpen(false)}
+        patientId={patientId}
+        patientName={patientName}
+        patientBirthDate={patientBirthDate}
+        bloodType={bloodType}
+        rhFactor={rhFactor}
+        gynProfile={gynProfile}
+        dum={dum}
+        dpp={dpp}
+        heightCm={heightCm}
+        visits={visits}
+        vaccines={vaccines}
+      />
     </div>
   );
 };

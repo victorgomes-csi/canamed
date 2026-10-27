@@ -165,7 +165,32 @@ describe('PrenatalCardSection Component (SPEC-0035 / RN-007 / Editorial GO)', ()
       />
     );
 
-    const downloadBtn = screen.getByRole('button', { name: /Exportar Cartão \(PDF\)/i });
+    const downloadBtn = screen.getByRole('button', { name: /Exportar PDF Servidor/i });
     expect(downloadBtn).not.toBeDisabled();
+  });
+
+  it('abre a modal editorial do Cartão da Gestante (6 páginas) e renderiza as páginas canônicas do protótipo', () => {
+    render(
+      <PrenatalCardSection
+        patientId="pat-1"
+        patientName="Juliana Silveira"
+        visits={dummyVisits}
+        dum="2026-04-11"
+        dpp="2027-01-16"
+        bloodType="A"
+        rhFactor="Positivo"
+      />
+    );
+
+    const editorialBtn = screen.getByRole('button', { name: /Ver Cartão Editorial \(6 Páginas\)/i });
+    expect(editorialBtn).toBeInTheDocument();
+    fireEvent.click(editorialBtn);
+
+    // Modal aberta: verifica elementos do protótipo
+    expect(screen.getByText(/Meu acompanhamento pré-natal/i)).toBeInTheDocument();
+    expect(screen.getByText(/Carteira de Imunização Materna/i)).toBeInTheDocument();
+    expect(screen.getByText(/Página 1 de 6/i)).toBeInTheDocument();
+    expect(screen.getByText(/Página 3 de 6/i)).toBeInTheDocument();
+    expect(screen.getByText(/Página 6 de 6/i)).toBeInTheDocument();
   });
 });

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import {
   getDoctorWorkspaceState,
@@ -1128,6 +1128,7 @@ export function DoctorWorkspace() {
                     <PrenatalCardSection
                       patientId={state?.activeConsultation?.patientId || ''}
                       patientName={state?.activeConsultation?.patientName || 'Paciente'}
+                      patientBirthDate={state?.activeConsultation?.patientBirthDate}
                       visits={prenatalVisits}
                       initialGestationalAgeWeeks={gestationalAge?.weeks}
                       initialGestationalAgeDays={gestationalAge?.days}

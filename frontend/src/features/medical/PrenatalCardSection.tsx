@@ -390,7 +390,7 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
             type="button"
             className="prenatal-card__btn-primary"
             onClick={() => setEditorialModalOpen(true)}
-            title="Visualizar o Cartão da Gestante no padrão editorial de 6 páginas e imprimir/salvar em PDF"
+            title="Visualizar o Cartão da Gestante no padrão editorial oficial de 6 páginas e imprimir/salvar em PDF"
           >
             <Eye style={{ width: 14, height: 14 }} />
             Ver Cartão Editorial (6 Páginas)

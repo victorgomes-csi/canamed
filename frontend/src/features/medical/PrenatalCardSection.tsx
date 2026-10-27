@@ -3,8 +3,7 @@ import { Download, Plus, Baby, Calendar, Activity, ShieldAlert, Syringe, FileSpr
 import { useToast } from '../layout/Toast';
 import { AtalahWeightGainChart } from './AtalahWeightGainChart';
 import { UterineHeightChart } from './UterineHeightChart';
-import { downloadPrenatalCardPdf } from './medicalRecordsApi';
-import { PrenatalCardEditorialModal } from './PrenatalCardEditorialModal';
+import { PrenatalCardA4Modal } from './PrenatalCardA4Modal';
 import './prenatal-card.css';
 
 export interface PrenatalVisitItem {
@@ -83,9 +82,8 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
   gynProfile,
 }) => {
   const { addToast } = useToast();
-  const [downloading, setDownloading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editorialModalOpen, setEditorialModalOpen] = useState(false);
+  const [a4ModalOpen, setA4ModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'consultas' | 'vacinas' | 'sorologias'>('consultas');
 
@@ -273,33 +271,6 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
     },
   ];
 
-  const handleDownloadPdf = async () => {
-    try {
-      setDownloading(true);
-      const blob = await downloadPrenatalCardPdf(patientId);
-
-      if (!blob || blob.size === 0) {
-        throw new Error('Não foi possível gerar o Cartão da Gestante em PDF.');
-      }
-
-      const pdfBlob = new Blob([blob], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(pdfBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `cartao-gestante-${patientName.toLowerCase().replace(/\s+/g, '-')}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      addToast('Cartão da Gestante baixado com sucesso.', 'success');
-    } catch (err: unknown) {
-      addToast(err instanceof Error ? err.message : 'Erro ao baixar PDF.', 'error');
-    } finally {
-      setDownloading(false);
-    }
-  };
-
   const handleSaveVisit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!weight || !bp) {
@@ -388,23 +359,27 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
 
           <button
             type="button"
-            className="prenatal-card__btn-primary"
-            onClick={() => setEditorialModalOpen(true)}
-            title="Visualizar o Cartão da Gestante no padrão editorial oficial de 6 páginas e imprimir/salvar em PDF"
+            className="prenatal-card__btn-secondary"
+            onClick={() => setA4ModalOpen(true)}
+            title="Visualizar o Cartão da Gestante completo de 6 páginas"
           >
             <Eye style={{ width: 14, height: 14 }} />
-            Ver Cartão Editorial (6 Páginas)
+            Visualizar Cartão (6 Páginas)
           </button>
 
           <button
             type="button"
-            className="prenatal-card__btn-secondary"
-            onClick={handleDownloadPdf}
-            disabled={downloading || visits.length === 0}
-            title="Exportar arquivo PDF gerado pelo servidor"
+            className="prenatal-card__btn-primary"
+            onClick={() => {
+              setA4ModalOpen(true);
+              setTimeout(() => {
+                window.print();
+              }, 400);
+            }}
+            title="Exportar Cartão da Gestante idêntico à tela em formato PDF A4 oficial"
           >
             <Download style={{ width: 14, height: 14 }} />
-            {downloading ? 'Gerando...' : 'Exportar PDF Servidor'}
+            Exportar Cartão (PDF)
           </button>
         </div>
       </div>
@@ -602,7 +577,7 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
       {/* ABA 2: PÁGINA EXCLUSIVA DE VACINAS DA GESTANTE */}
       {activeTab === 'vacinas' && (
         <div className="prenatal-card__content-panel">
-          {/* Hero Editorial de Imunização Materno-Infantil */}
+          {/* Hero de Imunização Materno-Infantil */}
           <div className="prenatal-card__vaccine-hero">
             <div className="prenatal-card__vaccine-hero-icon">
               <Syringe style={{ width: 22, height: 22 }} />
@@ -944,10 +919,10 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
         </div>
       )}
 
-      {/* Modal Editorial A4 — 6 Páginas com Impressão/Exportação Direta */}
-      <PrenatalCardEditorialModal
-        open={editorialModalOpen}
-        onClose={() => setEditorialModalOpen(false)}
+      {/* Modal Cartão da Gestante A4 — 6 Páginas */}
+      <PrenatalCardA4Modal
+        open={a4ModalOpen}
+        onClose={() => setA4ModalOpen(false)}
         patientId={patientId}
         patientName={patientName}
         patientBirthDate={patientBirthDate}

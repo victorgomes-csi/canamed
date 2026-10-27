@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { PrenatalCardSection, type PrenatalVisitItem } from './PrenatalCardSection';
 
-describe('PrenatalCardSection Component (SPEC-0035 / RN-007 / Editorial GO)', () => {
+describe('PrenatalCardSection Component (SPEC-0035 / RN-007 / GO)', () => {
   const dummyVisits: PrenatalVisitItem[] = [
     {
       id: 'visit-1',
@@ -150,13 +150,7 @@ describe('PrenatalCardSection Component (SPEC-0035 / RN-007 / Editorial GO)', ()
     );
   });
 
-  it('aciona o download do Cartao da Gestante em formato PDF binario valido', async () => {
-    // Mock URL.createObjectURL e revokeObjectURL
-    const createObjectUrlMock = vi.fn().mockReturnValue('blob:http://localhost:5173/mock-pdf');
-    const revokeObjectUrlMock = vi.fn();
-    window.URL.createObjectURL = createObjectUrlMock;
-    window.URL.revokeObjectURL = revokeObjectUrlMock;
-
+  it('aciona o botão de exportar Cartão da Gestante e abre a visualização para salvar em PDF', async () => {
     render(
       <PrenatalCardSection
         patientId="pat-1"
@@ -165,11 +159,11 @@ describe('PrenatalCardSection Component (SPEC-0035 / RN-007 / Editorial GO)', ()
       />
     );
 
-    const downloadBtn = screen.getByRole('button', { name: /Exportar PDF Servidor/i });
-    expect(downloadBtn).not.toBeDisabled();
+    const exportBtn = screen.getByRole('button', { name: /Exportar Cartão \(PDF\)/i });
+    expect(exportBtn).not.toBeDisabled();
   });
 
-  it('abre a modal editorial do Cartão da Gestante (6 páginas) e renderiza as páginas canônicas do protótipo', () => {
+  it('abre a modal do Cartão da Gestante (6 páginas) e renderiza as páginas canônicas do protótipo', () => {
     render(
       <PrenatalCardSection
         patientId="pat-1"
@@ -182,9 +176,9 @@ describe('PrenatalCardSection Component (SPEC-0035 / RN-007 / Editorial GO)', ()
       />
     );
 
-    const editorialBtn = screen.getByRole('button', { name: /Ver Cartão Editorial \(6 Páginas\)/i });
-    expect(editorialBtn).toBeInTheDocument();
-    fireEvent.click(editorialBtn);
+    const viewBtn = screen.getByRole('button', { name: /Visualizar Cartão \(6 Páginas\)/i });
+    expect(viewBtn).toBeInTheDocument();
+    fireEvent.click(viewBtn);
 
     // Modal aberta: verifica elementos do protótipo
     expect(screen.getByText(/Meu acompanhamento pré-natal/i)).toBeInTheDocument();

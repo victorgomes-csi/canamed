@@ -1,9 +1,8 @@
 import React, { useRef } from 'react';
-import { X, Printer, Download } from 'lucide-react';
+import { X, Printer } from 'lucide-react';
 import type { PrenatalVisitItem, GynecologicalProfileInfo } from './PrenatalCardSection';
-import { downloadPrenatalCardPdf } from './medicalRecordsApi';
-import { useToast } from '../layout/Toast';
-import './prenatal-card-editorial.css';
+import { createPortal } from 'react-dom';
+import './prenatal-card-a4.css';
 
 export interface MaternalVaccineItem {
   id: string;
@@ -31,7 +30,7 @@ interface Props {
   vaccines?: MaternalVaccineItem[];
 }
 
-export const PrenatalCardEditorialModal: React.FC<Props> = ({
+export const PrenatalCardA4Modal: React.FC<Props> = ({
   open,
   onClose,
   patientId,
@@ -46,7 +45,6 @@ export const PrenatalCardEditorialModal: React.FC<Props> = ({
   visits,
   vaccines = [],
 }) => {
-  const { addToast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
 
   if (!open) return null;
@@ -89,24 +87,6 @@ export const PrenatalCardEditorialModal: React.FC<Props> = ({
     window.print();
   };
 
-  const handleDownloadServerPdf = async () => {
-    try {
-      const blob = await downloadPrenatalCardPdf(patientId);
-      const pdfBlob = new Blob([blob], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(pdfBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `cartao-gestante-${patientName.toLowerCase().replace(/\s+/g, '-')}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      addToast('Download do PDF do Cartão iniciado!', 'success');
-    } catch (err: unknown) {
-      addToast(err instanceof Error ? err.message : 'Falha ao baixar PDF.', 'error');
-    }
-  };
-
   const sortedVisits = [...visits].sort((a, b) => a.gestationalAgeWeeks - b.gestationalAgeWeeks);
 
   const getVaccineData = (id: string, defaultDate: string, defaultLot: string, defaultStatus: string) => {
@@ -125,59 +105,49 @@ export const PrenatalCardEditorialModal: React.FC<Props> = ({
   const rsvData = getVaccineData('rsv', '32ª a 36ªs', 'Dose única', 'Programada (32s)');
   const antidData = getVaccineData('antid', '28ª sem', '300 mcg', isRhNegative ? 'Indicada' : 'Não indicada');
 
-  return (
-    <div className="editorial-modal-overlay">
+  return createPortal(
+    <div id="prenatal-card-print-portal" className="prenatal-a4-modal-overlay">
       {/* =====================================================================
-           BARRA DE CONTROLE DO PROTÓTIPO EDITORIAL (STICKY)
+           BARRA DE CONTROLE DO PROTÓTIPO CANAMED (STICKY)
            ===================================================================== */}
-      <header className="editorial-topbar no-print">
-        <div className="editorial-topbar__inner">
-          <div className="editorial-topbar__brand">
-            <div className="editorial-topbar__brand-icon">
+      <header className="prenatal-a4-topbar no-print">
+        <div className="prenatal-a4-topbar__inner">
+          <div className="prenatal-a4-topbar__brand">
+            <div className="prenatal-a4-topbar__brand-icon">
               <svg className="w-4 h-4" style={{ width: 16, height: 16, color: '#FFFFFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
               </svg>
             </div>
             <div>
-              <span className="editorial-topbar__tag">Protótipo Editorial A4 — 6 Páginas</span>
-              <h1 className="editorial-topbar__title">Cartão da Gestante Editorial · Cana Med Mulher</h1>
+              <span className="prenatal-a4-topbar__tag">Cartão da Gestante A4 — 6 Páginas</span>
+              <h1 className="prenatal-a4-topbar__title">Cartão da Gestante · Cana Med Mulher</h1>
             </div>
           </div>
 
           {/* Navegação rápida das 6 páginas */}
-          <nav className="editorial-topbar__nav">
-            <a href="#page-1" className="editorial-topbar__nav-link">Pág 1 · Identificação</a>
-            <a href="#page-2" className="editorial-topbar__nav-link">Pág 2 · Dados & Sorologias</a>
-            <a href="#page-3" className="editorial-topbar__nav-link editorial-topbar__nav-link--accent">Pág 3 · Vacinas Gestante</a>
-            <a href="#page-4" className="editorial-topbar__nav-link">Pág 4 · Curvas Gráficas</a>
-            <a href="#page-5" className="editorial-topbar__nav-link">Pág 5 · Consultas 1–10</a>
-            <a href="#page-6" className="editorial-topbar__nav-link">Pág 6 · Anotações & Alertas</a>
+          <nav className="prenatal-a4-topbar__nav">
+            <a href="#page-1" className="prenatal-a4-topbar__nav-link">Pág 1 · Identificação</a>
+            <a href="#page-2" className="prenatal-a4-topbar__nav-link">Pág 2 · Dados & Sorologias</a>
+            <a href="#page-3" className="prenatal-a4-topbar__nav-link prenatal-a4-topbar__nav-link--accent">Pág 3 · Vacinas Gestante</a>
+            <a href="#page-4" className="prenatal-a4-topbar__nav-link">Pág 4 · Curvas Gráficas</a>
+            <a href="#page-5" className="prenatal-a4-topbar__nav-link">Pág 5 · Consultas 1–10</a>
+            <a href="#page-6" className="prenatal-a4-topbar__nav-link">Pág 6 · Anotações & Alertas</a>
           </nav>
 
-          <div className="editorial-topbar__actions">
+          <div className="prenatal-a4-topbar__actions">
             <button
               type="button"
               onClick={handlePrint}
-              className="editorial-topbar__btn-print"
-              title="Abre o diálogo de impressão do navegador para Salvar em PDF A4 de alta resolução"
+              className="prenatal-a4-topbar__btn-print"
+              title="Abre o diálogo de impressão para Salvar em PDF com qualidade vetorial e visual idêntico ao protótipo"
             >
-              <Printer style={{ width: 14, height: 14 }} />
-              Imprimir / Salvar PDF (A4)
-            </button>
-            <button
-              type="button"
-              onClick={handleDownloadServerPdf}
-              className="editorial-topbar__btn-print"
-              style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', border: '1px solid rgba(255, 255, 255, 0.3)' }}
-              title="Baixar arquivo binário gerado pelo backend"
-            >
-              <Download style={{ width: 14, height: 14 }} />
-              PDF Servidor
+              <Printer style={{ width: 15, height: 15 }} />
+              Salvar como PDF / Imprimir (A4)
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="editorial-topbar__btn-close"
+              className="prenatal-a4-topbar__btn-close"
               aria-label="Fechar"
             >
               <X style={{ width: 20, height: 20 }} />
@@ -187,7 +157,7 @@ export const PrenatalCardEditorialModal: React.FC<Props> = ({
       </header>
 
       {/* ÁREA DE ROLAGEM DAS 6 PÁGINAS A4 */}
-      <main className="editorial-scroll-area" ref={printRef}>
+      <main className="prenatal-a4-scroll-area" ref={printRef}>
 
         {/* =====================================================================
              PÁGINA 1 — MINHA GESTAÇÃO (APRESENTAÇÃO E IDENTIFICAÇÃO)
@@ -214,7 +184,7 @@ export const PrenatalCardEditorialModal: React.FC<Props> = ({
               </div>
             </div>
 
-            {/* Hero Editorial de Acolhimento */}
+            {/* Hero de Acolhimento */}
             <div className="mt-7 mb-7 rounded-2xl bg-brand-soft border border-brand-lilac p-7 overflow-hidden">
               <span className="inline-block text-xxs font-bold uppercase tracking-widest text-brand-primary mb-2">
                 Meu acompanhamento pré-natal
@@ -308,7 +278,7 @@ export const PrenatalCardEditorialModal: React.FC<Props> = ({
           {/* Rodapé Institucional */}
           <footer className="sheet-footer">
             <div>
-              <strong className="text-brand-deep font-bold">Cana Med Mulher</strong> · Cartão da Gestante Editorial · Lei nº 13.787/2018
+              <strong className="text-brand-deep font-bold">Cana Med Mulher</strong> · Cartão da Gestante · Lei nº 13.787/2018
             </div>
             <div className="font-semibold text-brand-primary">Página 1 de 6</div>
           </footer>
@@ -470,7 +440,7 @@ export const PrenatalCardEditorialModal: React.FC<Props> = ({
 
           <footer className="sheet-footer">
             <div>
-              <strong className="text-brand-deep font-bold">Cana Med Mulher</strong> · Cartão da Gestante Editorial · Lei nº 13.787/2018
+              <strong className="text-brand-deep font-bold">Cana Med Mulher</strong> · Cartão da Gestante · Lei nº 13.787/2018
             </div>
             <div className="font-semibold text-brand-primary">Página 2 de 6</div>
           </footer>
@@ -491,7 +461,7 @@ export const PrenatalCardEditorialModal: React.FC<Props> = ({
               <span className="text-xxs font-semibold text-brand-magenta">Carteira de Imunização Materna</span>
             </div>
 
-            {/* Hero Editorial da Página de Vacinas */}
+            {/* Hero da Página de Vacinas */}
             <div className="rounded-2xl bg-brand-soft border border-brand-lilac p-6 mb-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 rounded-xl bg-brand-primary text-white flex items-center justify-center shadow-sm" style={{ width: 40, height: 40 }}>
@@ -655,7 +625,7 @@ export const PrenatalCardEditorialModal: React.FC<Props> = ({
 
           <footer className="sheet-footer">
             <div>
-              <strong className="text-brand-deep font-bold">Cana Med Mulher</strong> · Cartão da Gestante Editorial · Lei nº 13.787/2018
+              <strong className="text-brand-deep font-bold">Cana Med Mulher</strong> · Cartão da Gestante · Lei nº 13.787/2018
             </div>
             <div className="font-semibold text-brand-primary">Página 3 de 6</div>
           </footer>
@@ -842,7 +812,7 @@ export const PrenatalCardEditorialModal: React.FC<Props> = ({
 
           <footer className="sheet-footer">
             <div>
-              <strong className="text-brand-deep font-bold">Cana Med Mulher</strong> · Cartão da Gestante Editorial · Lei nº 13.787/2018
+              <strong className="text-brand-deep font-bold">Cana Med Mulher</strong> · Cartão da Gestante · Lei nº 13.787/2018
             </div>
             <div className="font-semibold text-brand-primary">Página 4 de 6</div>
           </footer>
@@ -942,7 +912,7 @@ export const PrenatalCardEditorialModal: React.FC<Props> = ({
 
           <footer className="sheet-footer">
             <div>
-              <strong className="text-brand-deep font-bold">Cana Med Mulher</strong> · Cartão da Gestante Editorial · Lei nº 13.787/2018
+              <strong className="text-brand-deep font-bold">Cana Med Mulher</strong> · Cartão da Gestante · Lei nº 13.787/2018
             </div>
             <div className="font-semibold text-brand-primary">Página 5 de 6</div>
           </footer>
@@ -1028,13 +998,14 @@ export const PrenatalCardEditorialModal: React.FC<Props> = ({
 
           <footer className="sheet-footer">
             <div>
-              <strong className="text-brand-deep font-bold">Cana Med Mulher</strong> · Cartão da Gestante Editorial · Lei nº 13.787/2018
+              <strong className="text-brand-deep font-bold">Cana Med Mulher</strong> · Cartão da Gestante · Lei nº 13.787/2018
             </div>
             <div className="font-semibold text-brand-primary">Página 6 de 6</div>
           </footer>
         </section>
 
       </main>
-    </div>
+    </div>,
+    document.body
   );
 };

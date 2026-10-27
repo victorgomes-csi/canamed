@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Download, Plus, Baby, Calendar, Activity, ShieldAlert, Syringe, FileSpreadsheet, AlertTriangle, Eye } from 'lucide-react';
+import { Download, Plus, Baby, Calendar, Activity, ShieldAlert, Syringe, FileSpreadsheet, AlertTriangle, Eye, Pencil } from 'lucide-react';
 import { useToast } from '../layout/Toast';
 import { AtalahWeightGainChart } from './AtalahWeightGainChart';
 import { UterineHeightChart } from './UterineHeightChart';
@@ -327,6 +327,120 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
     } catch {
       // ignore
     }
+  };
+
+  // Estados e controle de edição de exames / sorologias
+  const [serologyModalOpen, setSerologyModalOpen] = useState(false);
+  const [editingSerology, setEditingSerology] = useState<MaternalSerologyItem | null>(null);
+  const [selectedTrimester, setSelectedTrimester] = useState<'tri1' | 'tri2' | 'tri3'>('tri1');
+  const [examResultInput, setExamResultInput] = useState('');
+  const [examDateInput, setExamDateInput] = useState('');
+  const [newExamName, setNewExamName] = useState('');
+  const [newExamDesc, setNewExamDesc] = useState('');
+
+  const openEditSerologyModal = (serology: MaternalSerologyItem, tri: 'tri1' | 'tri2' | 'tri3' = 'tri1') => {
+    setEditingSerology(serology);
+    setSelectedTrimester(tri);
+    setNewExamName(serology.exam);
+    setNewExamDesc(serology.description);
+
+    const val = serology[tri] || '';
+    setExamResultInput(val === '—' ? '' : val);
+    setExamDateInput(new Date().toISOString().slice(0, 10));
+    setSerologyModalOpen(true);
+  };
+
+  const openNewSerologyModal = () => {
+    setEditingSerology(null);
+    setSelectedTrimester('tri1');
+    setNewExamName('');
+    setNewExamDesc('');
+    setExamResultInput('');
+    setExamDateInput(new Date().toISOString().slice(0, 10));
+    setSerologyModalOpen(true);
+  };
+
+  const handleSaveSerologyForm = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    let formattedResult = examResultInput.trim() || '—';
+    if (formattedResult !== '—' && examDateInput) {
+      const parts = examDateInput.split('-');
+      if (parts.length === 3) {
+        const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        if (!formattedResult.includes(formattedDate)) {
+          formattedResult = `${formattedResult} (${formattedDate})`;
+        }
+      }
+    }
+
+    if (editingSerology) {
+      handleUpdateSerology(editingSerology.id, selectedTrimester, formattedResult);
+    } else {
+      if (!newExamName.trim()) {
+        addToast('Nome do exame é obrigatório.', 'error');
+        return;
+      }
+      const newId = `custom_${Date.now()}`;
+      const newItem: MaternalSerologyItem = {
+        id: newId,
+        exam: newExamName.trim(),
+        description: newExamDesc.trim() || 'Exame complementar registrado',
+        tri1: selectedTrimester === 'tri1' ? formattedResult : '—',
+        tri2: selectedTrimester === 'tri2' ? formattedResult : '—',
+        tri3: selectedTrimester === 'tri3' ? formattedResult : '—',
+      };
+      const updated = [...serologies, newItem];
+      setSerologies(updated);
+      try {
+        localStorage.setItem(serologiesStorageKey, JSON.stringify(updated));
+        addToast(`Exame "${newExamName}" registrado com sucesso.`, 'success');
+      } catch {
+        // ignore
+      }
+    }
+    setSerologyModalOpen(false);
+  };
+
+  // Estados e controle de edição de vacinas
+  const [vaccineModalOpen, setVaccineModalOpen] = useState(false);
+  const [editingVaccine, setEditingVaccine] = useState<MaternalVaccineItem | null>(null);
+  const [vacStatusInput, setVacStatusInput] = useState<MaternalVaccineItem['status']>('Pendente');
+  const [vacDateInput, setVacDateInput] = useState('');
+  const [vacLotInput, setVacLotInput] = useState('');
+
+  const openEditVaccineModal = (vac: MaternalVaccineItem) => {
+    setEditingVaccine(vac);
+    setVacStatusInput(vac.status);
+    setVacDateInput(vac.date && vac.date !== '—' ? vac.date : new Date().toLocaleDateString('pt-BR'));
+    setVacLotInput(vac.lot && vac.lot !== '—' ? vac.lot : '');
+    setVaccineModalOpen(true);
+  };
+
+  const handleSaveVaccineForm = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingVaccine) return;
+
+    const updated = vaccines.map((vac) => {
+      if (vac.id === editingVaccine.id) {
+        return {
+          ...vac,
+          status: vacStatusInput,
+          date: vacStatusInput === 'Aplicada' ? (vacDateInput.trim() || new Date().toLocaleDateString('pt-BR')) : '—',
+          lot: vacStatusInput === 'Aplicada' ? (vacLotInput.trim() || 'Registrado em Prontuário') : '—',
+        };
+      }
+      return vac;
+    });
+
+    setVaccines(updated);
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(updated));
+      addToast(`Vacina "${editingVaccine.name}" atualizada com sucesso.`, 'success');
+    } catch {
+      // ignore
+    }
+    setVaccineModalOpen(false);
   };
 
   const handleSaveVisit = async (e: React.FormEvent) => {
@@ -679,9 +793,24 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
 
                   <div className="prenatal-card__vaccine-footer">
                     <span className="prenatal-card__vaccine-meta">
-                      {vac.date || 'Sem data'} {vac.lot ? `(${vac.lot})` : ''}
+                      {vac.status === 'Aplicada'
+                        ? `Aplicada: ${vac.date || '—'} · Lote: ${vac.lot || '—'}`
+                        : vac.status === 'Agendada'
+                        ? `Agendada (${vac.date && vac.date !== '—' ? vac.date : vac.window})`
+                        : vac.status === 'Não indicada'
+                        ? 'Não indicada'
+                        : 'Pendente de aplicação'}
                     </span>
                     <div className="prenatal-card__vaccine-actions">
+                      <button
+                        type="button"
+                        onClick={() => openEditVaccineModal(vac)}
+                        className="prenatal-card__vaccine-action-btn"
+                        title="Editar data, lote e status da vacina"
+                      >
+                        <Pencil style={{ width: 11, height: 11 }} />
+                        Editar
+                      </button>
                       {(['Aplicada', 'Pendente', 'Agendada'] as const).map((st) => (
                         <button
                           key={st}
@@ -714,14 +843,35 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
       {/* ABA 3: SOROLOGIAS POR TRIMESTRE */}
       {activeTab === 'sorologias' && (
         <div className="prenatal-card__content-panel">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div>
+              <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--prenatal-brand-deep)' }}>
+                Exames Laboratoriais & Sorologias Pré-Natais
+              </h4>
+              <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: 'var(--prenatal-brand-muted)' }}>
+                Acompanhamento fidedigno por trimestre. Altere no seletor rápido ou clique em <strong>Editar</strong> para registrar datas e laudos detalhados.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="prenatal-card__btn-primary"
+              onClick={openNewSerologyModal}
+              style={{ fontSize: '0.8rem', padding: '0.45rem 0.9rem' }}
+            >
+              <Plus style={{ width: 14, height: 14 }} />
+              + Registrar Novo Exame
+            </button>
+          </div>
+
           <div className="prenatal-card__table-wrapper">
             <table className="prenatal-card__table prenatal-card__serologies-table">
               <thead>
                 <tr>
-                  <th style={{ width: '37%' }}>Exame / Parâmetro</th>
-                  <th style={{ width: '21%', textAlign: 'center' }}>1º Trimestre</th>
-                  <th style={{ width: '21%', textAlign: 'center' }}>2º Trimestre</th>
-                  <th style={{ width: '21%', textAlign: 'center' }}>3º Trimestre</th>
+                  <th style={{ width: '34%' }}>Exame / Parâmetro</th>
+                  <th style={{ width: '20%', textAlign: 'center' }}>1º Trimestre</th>
+                  <th style={{ width: '20%', textAlign: 'center' }}>2º Trimestre</th>
+                  <th style={{ width: '20%', textAlign: 'center' }}>3º Trimestre</th>
+                  <th style={{ width: '6%', textAlign: 'center' }}>Ação</th>
                 </tr>
               </thead>
               <tbody>
@@ -752,6 +902,17 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
                         </select>
                       </td>
                     ))}
+                    <td className="prenatal-card__serology-cell" style={{ textAlign: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => openEditSerologyModal(s, 'tri1')}
+                        className="prenatal-card__vaccine-action-btn"
+                        title="Editar com data e laudo detalhado"
+                        style={{ padding: '0.3rem 0.5rem' }}
+                      >
+                        <Pencil style={{ width: 12, height: 12 }} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -987,6 +1148,235 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
                   className="prenatal-card__btn-primary"
                 >
                   {saving ? 'Gravando...' : 'Salvar Consulta'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE REGISTRO E EDIÇÃO DE EXAME / SOROLOGIA */}
+      {serologyModalOpen && (
+        <div className="prenatal-card__modal-overlay">
+          <div className="prenatal-card__modal-dialog">
+            <div className="prenatal-card__modal-header">
+              <h4 className="prenatal-card__modal-title">
+                <FileSpreadsheet style={{ width: 18, height: 18, color: 'var(--prenatal-brand-primary)' }} />
+                {editingSerology ? `Editar Exame: ${editingSerology.exam}` : 'Registrar Novo Exame / Sorologia'}
+              </h4>
+              <button
+                type="button"
+                className="prenatal-card__modal-close"
+                onClick={() => setSerologyModalOpen(false)}
+                aria-label="Fechar"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSerologyForm} className="prenatal-card__form">
+              {!editingSerology && (
+                <>
+                  <div className="prenatal-card__field">
+                    <label className="prenatal-card__field-label">Nome do Exame *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newExamName}
+                      onChange={(e) => setNewExamName(e.target.value)}
+                      placeholder="Ex: Hemograma Completo, TSH, Estreptococo B..."
+                      className="prenatal-card__input"
+                    />
+                  </div>
+                  <div className="prenatal-card__field">
+                    <label className="prenatal-card__field-label">Descrição / Parâmetro Clínico</label>
+                    <input
+                      type="text"
+                      value={newExamDesc}
+                      onChange={(e) => setNewExamDesc(e.target.value)}
+                      placeholder="Ex: Avaliação de anemia, função tireoidiana..."
+                      className="prenatal-card__input"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="prenatal-card__form-grid-2">
+                <div className="prenatal-card__field">
+                  <label className="prenatal-card__field-label">Trimestre de Referência *</label>
+                  <select
+                    value={selectedTrimester}
+                    onChange={(e) => {
+                      const tri = e.target.value as 'tri1' | 'tri2' | 'tri3';
+                      setSelectedTrimester(tri);
+                      if (editingSerology) {
+                        const val = editingSerology[tri] || '';
+                        setExamResultInput(val === '—' ? '' : val);
+                      }
+                    }}
+                    className="prenatal-card__input"
+                  >
+                    <option value="tri1">1º Trimestre</option>
+                    <option value="tri2">2º Trimestre</option>
+                    <option value="tri3">3º Trimestre</option>
+                  </select>
+                </div>
+
+                <div className="prenatal-card__field">
+                  <label className="prenatal-card__field-label">Data da Coleta / Realização</label>
+                  <input
+                    type="date"
+                    value={examDateInput}
+                    onChange={(e) => setExamDateInput(e.target.value)}
+                    className="prenatal-card__input"
+                  />
+                </div>
+              </div>
+
+              <div className="prenatal-card__field">
+                <label className="prenatal-card__field-label">Seleção Rápida de Resultado</label>
+                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                  {(['Não Reagente', 'Reagente', 'Normal', 'Alterado', 'Solicitado', 'Não indicado', '—'] as const).map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setExamResultInput(opt)}
+                      className="prenatal-card__vaccine-action-btn"
+                      style={{
+                        padding: '0.3rem 0.6rem',
+                        backgroundColor: examResultInput.startsWith(opt) ? 'var(--prenatal-brand-primary)' : 'var(--prenatal-brand-soft)',
+                        color: examResultInput.startsWith(opt) ? '#FFFFFF' : 'var(--prenatal-brand-deep)',
+                        fontWeight: 600,
+                        borderRadius: 4,
+                        border: '1px solid var(--prenatal-brand-border)',
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="prenatal-card__field">
+                <label className="prenatal-card__field-label">Resultado / Laudo Detalhado *</label>
+                <input
+                  type="text"
+                  required
+                  value={examResultInput}
+                  onChange={(e) => setExamResultInput(e.target.value)}
+                  placeholder="Ex: Não Reagente, 84 mg/dL, 1:4, Normal..."
+                  className="prenatal-card__input"
+                />
+                <span style={{ fontSize: '0.6875rem', color: 'var(--prenatal-brand-muted)', marginTop: '0.25rem', display: 'block' }}>
+                  A data informada será adicionada automaticamente ao laudo na formatação oficial.
+                </span>
+              </div>
+
+              <div className="prenatal-card__modal-footer">
+                <button
+                  type="button"
+                  className="prenatal-card__btn-secondary"
+                  onClick={() => setSerologyModalOpen(false)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="prenatal-card__btn-primary"
+                >
+                  Salvar Exame
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE EDIÇÃO DE VACINA */}
+      {vaccineModalOpen && editingVaccine && (
+        <div className="prenatal-card__modal-overlay">
+          <div className="prenatal-card__modal-dialog">
+            <div className="prenatal-card__modal-header">
+              <h4 className="prenatal-card__modal-title">
+                <Syringe style={{ width: 18, height: 18, color: 'var(--prenatal-brand-primary)' }} />
+                Editar Vacina: {editingVaccine.name}
+              </h4>
+              <button
+                type="button"
+                className="prenatal-card__modal-close"
+                onClick={() => setVaccineModalOpen(false)}
+                aria-label="Fechar"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveVaccineForm} className="prenatal-card__form">
+              <div className="prenatal-card__field">
+                <label className="prenatal-card__field-label">Status da Vacina *</label>
+                <select
+                  value={vacStatusInput}
+                  onChange={(e) => setVacStatusInput(e.target.value as MaternalVaccineItem['status'])}
+                  className="prenatal-card__input"
+                >
+                  <option value="Aplicada">Aplicada</option>
+                  <option value="Agendada">Agendada</option>
+                  <option value="Pendente">Pendente</option>
+                  <option value="Não indicada">Não indicada</option>
+                </select>
+              </div>
+
+              {vacStatusInput === 'Aplicada' && (
+                <div className="prenatal-card__form-grid-2">
+                  <div className="prenatal-card__field">
+                    <label className="prenatal-card__field-label">Data da Aplicação *</label>
+                    <input
+                      type="text"
+                      value={vacDateInput}
+                      onChange={(e) => setVacDateInput(e.target.value)}
+                      placeholder="DD/MM/AAAA ou Hoje"
+                      className="prenatal-card__input"
+                    />
+                  </div>
+                  <div className="prenatal-card__field">
+                    <label className="prenatal-card__field-label">Lote da Vacina</label>
+                    <input
+                      type="text"
+                      value={vacLotInput}
+                      onChange={(e) => setVacLotInput(e.target.value)}
+                      placeholder="Ex: AD24B918"
+                      className="prenatal-card__input"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {vacStatusInput === 'Agendada' && (
+                <div className="prenatal-card__field">
+                  <label className="prenatal-card__field-label">Previsão / Janela Agendada</label>
+                  <input
+                    type="text"
+                    value={vacDateInput}
+                    onChange={(e) => setVacDateInput(e.target.value)}
+                    placeholder="Ex: Prevista para 28ª sem"
+                    className="prenatal-card__input"
+                  />
+                </div>
+              )}
+
+              <div className="prenatal-card__modal-footer">
+                <button
+                  type="button"
+                  className="prenatal-card__btn-secondary"
+                  onClick={() => setVaccineModalOpen(false)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="prenatal-card__btn-primary"
+                >
+                  Salvar Vacina
                 </button>
               </div>
             </form>

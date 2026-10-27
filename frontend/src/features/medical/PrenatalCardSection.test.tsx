@@ -187,4 +187,40 @@ describe('PrenatalCardSection Component (SPEC-0035 / RN-007 / GO)', () => {
     expect(screen.getByText(/Página 3 de 6/i)).toBeInTheDocument();
     expect(screen.getByText(/Página 6 de 6/i)).toBeInTheDocument();
   });
+
+  it('permite registrar novo exame complementar e editar resultados de exames na aba Sorologias', () => {
+    render(
+      <PrenatalCardSection
+        patientId="pat-1"
+        patientName="Juliana Silveira"
+        visits={dummyVisits}
+      />
+    );
+
+    // Alterna para Sorologias
+    const sorologiasTab = screen.getByRole('button', { name: /Sorologias por Trimestre/i });
+    fireEvent.click(sorologiasTab);
+
+    // Botão de registrar novo exame
+    const newExamBtn = screen.getByRole('button', { name: /\+ Registrar Novo Exame/i });
+    expect(newExamBtn).toBeInTheDocument();
+    fireEvent.click(newExamBtn);
+
+    expect(screen.getByText(/Registrar Novo Exame \/ Sorologia/i)).toBeInTheDocument();
+
+    // Preenche novo exame
+    const nameInput = screen.getByPlaceholderText(/Ex: Hemograma Completo, TSH/i);
+    fireEvent.change(nameInput, { target: { value: 'Hemograma e Ferritina' } });
+
+    // Clica no chip rápido "Normal"
+    const normalChip = screen.getByRole('button', { name: /^Normal$/i });
+    fireEvent.click(normalChip);
+
+    // Submete
+    const saveBtn = screen.getByRole('button', { name: /Salvar Exame/i });
+    fireEvent.click(saveBtn);
+
+    // Novo exame aparece na tabela
+    expect(screen.getByText('Hemograma e Ferritina')).toBeInTheDocument();
+  });
 });

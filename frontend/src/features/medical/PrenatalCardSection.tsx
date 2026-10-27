@@ -3,6 +3,7 @@ import { Download, Plus, Baby, Calendar, Activity, ShieldAlert, Syringe, FileSpr
 import { useToast } from '../layout/Toast';
 import { AtalahWeightGainChart } from './AtalahWeightGainChart';
 import { UterineHeightChart } from './UterineHeightChart';
+import { downloadPrenatalCardPdf } from './medicalRecordsApi';
 import './prenatal-card.css';
 
 export interface PrenatalVisitItem {
@@ -271,18 +272,14 @@ export const PrenatalCardSection: React.FC<PrenatalCardSectionProps> = ({
   const handleDownloadPdf = async () => {
     try {
       setDownloading(true);
-      const res = await fetch(`/api/v1/patients/${patientId}/prenatal-card/pdf`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('canamed_token') || ''}`,
-        },
-      });
+      const blob = await downloadPrenatalCardPdf(patientId);
 
-      if (!res.ok) {
+      if (!blob || blob.size === 0) {
         throw new Error('Não foi possível gerar o Cartão da Gestante em PDF.');
       }
 
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
+      const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(pdfBlob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `cartao-gestante-${patientName.toLowerCase().replace(/\s+/g, '-')}.pdf`;

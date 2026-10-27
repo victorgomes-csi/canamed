@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut, apiDelete, apiPostForm } from '../../api/client';
+import { apiGet, apiPost, apiPut, apiDelete, apiPostForm, apiGetBlob } from '../../api/client';
 
 export interface MedicalRecordAddendumResponse {
   id: string;
@@ -372,4 +372,8 @@ export async function addPrenatalVisit(
   request: CreatePrenatalVisitRequest,
 ): Promise<PrenatalVisitDto> {
   return apiPost<PrenatalVisitDto>(`/medical-records/${medicalRecordId}/prenatal-visits`, request);
+}
+
+export async function downloadPrenatalCardPdf(patientId: string): Promise<Blob> {
+  return apiGetBlob(`/patients/${patientId}/prenatal-card/pdf`);
 }

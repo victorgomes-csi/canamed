@@ -149,4 +149,23 @@ describe('PrenatalCardSection Component (SPEC-0035 / RN-007 / Editorial GO)', ()
       })
     );
   });
+
+  it('aciona o download do Cartao da Gestante em formato PDF binario valido', async () => {
+    // Mock URL.createObjectURL e revokeObjectURL
+    const createObjectUrlMock = vi.fn().mockReturnValue('blob:http://localhost:5173/mock-pdf');
+    const revokeObjectUrlMock = vi.fn();
+    window.URL.createObjectURL = createObjectUrlMock;
+    window.URL.revokeObjectURL = revokeObjectUrlMock;
+
+    render(
+      <PrenatalCardSection
+        patientId="pat-1"
+        patientName="Juliana Silveira"
+        visits={dummyVisits}
+      />
+    );
+
+    const downloadBtn = screen.getByRole('button', { name: /Exportar Cartão \(PDF\)/i });
+    expect(downloadBtn).not.toBeDisabled();
+  });
 });

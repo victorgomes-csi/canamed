@@ -411,7 +411,12 @@ public static class PrenatalCardPdfGenerator
     private static string EscapePdf(string input)
     {
         if (string.IsNullOrEmpty(input)) return string.Empty;
-        return input.Replace("\\", "\\\\").Replace("(", "\\(").Replace(")", "\\)");
+        return input
+            .Replace("\\", "\\\\")
+            .Replace("(", "\\(")
+            .Replace(")", "\\)")
+            .Replace("\r", " ")
+            .Replace("\n", " ");
     }
 
     private static string Truncate(string input, int maxLength)

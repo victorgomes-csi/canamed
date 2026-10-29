@@ -5,8 +5,8 @@
 | **ID** | SPEC-0036 |
 | **Título** | Substituição Integral da Área do Paciente: Cana Med Mulher Mobile & Web (Design System Serene Bloom) |
 | **Status** | Aprovada |
-| **Versão** | 1.0.0 |
-| **Data** | 2026-10-28 |
+| **Versão** | 1.1.0 |
+| **Data** | 2026-10-29 |
 | **Autor** | Time Multidisciplinar Cana Med (Product Architect, Planejador e Arquiteto de Produto) |
 | **Revisores** | Medical Systems Domain Expert, UI/UX Reviewer, Technical Architect |
 | **Módulos afetados** | `frontend/src/features/patient/`, `frontend/src/app/PatientLayout.tsx`, `frontend/src/navigation/routes.ts`, `backend/src/Canamed.Api/Endpoints/PortalEndpoints.cs`, `backend/src/Canamed.Application/Portal/` |
@@ -58,8 +58,20 @@ A modernização unifica o agendamento de telemedicina de urgência ginecológic
      - Dica de cuidado da semana personalizada para a idade gestacional;
      - Seção de Emergência e Plantão Obstétrico 24h com discagem telefônica direta e canal com enfermagem obstétrica.
    - **Tela 6 — Cartão da Gestante Digital:** Resumo gestacional (DUM, DPP, GPA, Tipagem Sanguínea), linha do tempo cronológica com consultas prévias e aferições clínicas (PA, BCF, AU, peso), status de exames com download de laudo PDF e selo de autenticidade médica Cana Med Mulher.
+
+#### Mapeamento de Telas com o Protótipo Google Stitch (`projects/10903446353704381660`)
+
+| Tela | Nome no Stitch | ID no Stitch (Mobile) | ID no Stitch (Web Desktop) | Regras Associadas |
+| :--- | :--- | :--- | :--- | :--- |
+| **Tela 1** | Entrada e Agendamento Público | `40f6632ec6254fcaab6d80525ac83e5c` | *Centralizada responsiva (max-w-md)* | RN-001, RN-002, RN-008 |
+| **Tela 2** | Consulta Avulsa | `f23dda729ff04ac98b50c8bb97556183` | `5ac5683bf5dd4f4282d30c64bd7421d8` | RN-003, RN-006, RN-009 |
+| **Tela 3** | Cadastro Consulta Avulsa (CFM) | `39bea112d8ad45e58b3941e4e06d38b5` | `3e2084fab7fa44078e4edf6a0554c023` | RN-004, RN-005, RN-016, RN-019, RN-020 |
+| **Tela 4** | Cadastro Avançado (PEP) | `df17e465bdc44277958b461a3ec586ab` | `30c0016a3ed44faab2150a94f127aef3` | RN-007, RN-018, RN-019, RN-020 |
+| **Tela 5** | Dashboard da Paciente | `42d1f55b38bf41089fa86a6f5ed83174` | `00365685b61340f48418c80749f442a9` | RN-008, RN-009, RN-010, RN-011, RN-012, RN-013, RN-015 |
+| **Tela 6** | Cartão da Gestante Digital | `88916904197542538c4751cced6fc0c2` | `9aa88ca665ac4461b46ece13bf0d4d4e` | RN-009, RN-014, RN-018 |
+
 2. **Navegação Adaptativa:**
-   - *Mobile (< 1024px):* Bottom Navigation com 5 ícones: Início, Agendar, Consultas, Pré-natal, Perfil.
+   - *Mobile (< 1024px):* Bottom Navigation com 5 ícones: Início, Agendar, Consultas, Pré-natal, Perfil. Ocultada dinamicamente nas Telas 3 e 4 durante formulários transacionais (RN-020).
    - *Desktop (≥ 1024px):* SideNavBar fixa de 288px com tokens Serene Bloom, TopNavBar com breadcrumb estruturado e botão Plantão de Emergência.
 3. **Contrato de API do Portal do Paciente:** Consumo e extensão dos endpoints de `/portal/` e `/public/` para suportar o resumo gestacional e download do cartão da gestante com token de sessão seguro (`X-Patient-Token`).
 
@@ -432,6 +444,7 @@ A trilha de auditoria é armazenada de forma imutável e estruturada (*append-on
 | Versão | Data | Autor | Alteração |
 | :--- | :--- | :--- | :--- |
 | **1.0.0** | 2026-10-28 | Time Multidisciplinar Cana Med | Versão inicial da especificação de substituição integral da Área do Paciente inspirada no protótipo oficial do Stitch "Cana Med Mulher Mobile Login" (Design System Serene Bloom). |
+| **1.1.0** | 2026-10-29 | Time Multidisciplinar Cana Med (Product Architect) | Alinhamento minucioso dos fluxos reais do Stitch (Consulta Avulsa sem conta, Cadastro Rápido CFM, Cadastro Avançado PEP, Dashboard da Paciente, Cartão Digital da Gestante e NavBars Mobile/Desktop); mapeamento de IDs de tela Mobile/Desktop e vinculação ao Plano Atômico TDD (`docs/plans/2026-10-29-reimplementacao-area-paciente-stitch-serene-bloom.md`). |
 
 ---
 
@@ -439,7 +452,7 @@ A trilha de auditoria é armazenada de forma imutável e estruturada (*append-on
 
 | Papel | Nome | Data | Status |
 | :--- | :--- | :--- | :--- |
-| **Autor (Planejador e Arquiteto de Produto)** | Victor Gomes | 2026-10-28 | Aprovado |
-| **Medical Systems Domain Expert** | Dra. Especialista de Domínio Clínico | 2026-10-28 | Aprovado |
-| **UI/UX Reviewer** | Designer Chefe de Interfaces | 2026-10-28 | Aprovado |
-| **Technical Architect** | Arquiteto de Software Cana Med | 2026-10-28 | Aprovado |
+| **Autor (Planejador e Arquiteto de Produto)** | Victor Gomes | 2026-10-29 | Aprovado |
+| **Medical Systems Domain Expert** | Dra. Especialista de Domínio Clínico | 2026-10-29 | Aprovado |
+| **UI/UX Reviewer** | Designer Chefe de Interfaces | 2026-10-29 | Aprovado |
+| **Technical Architect** | Arquiteto de Software Cana Med | 2026-10-29 | Aprovado |

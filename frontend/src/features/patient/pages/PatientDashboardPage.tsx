@@ -46,8 +46,8 @@ export const PatientDashboardPage: React.FC<PatientDashboardPageProps> = ({
 
   return (
     <div className="serene-page text-[var(--color-serene-on-surface)] pb-24">
-      {/* Mobile Top Header (Shared Anchor) */}
-      <header className="sticky top-0 left-0 w-full z-40 bg-[var(--color-serene-surface)]/90 backdrop-blur-md px-4 py-3 border-b border-[var(--color-serene-outline-variant)]/30 flex items-center justify-between">
+      {/* Mobile Top Header (Shared Anchor - Hidden on Desktop since PatientLayoutSerene provides Desktop TopBar) */}
+      <header className="lg:hidden sticky top-0 left-0 w-full z-40 bg-[var(--color-serene-surface)]/90 backdrop-blur-md px-4 py-3 border-b border-[var(--color-serene-outline-variant)]/30 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-[var(--color-serene-primary-container)]/15 flex items-center justify-center text-[var(--color-serene-primary-text)] font-bold text-sm">
             CM

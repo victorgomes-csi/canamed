@@ -135,9 +135,9 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
 
   return (
     <div className="serene-page relative min-h-screen flex flex-col justify-between selection:bg-[var(--color-serene-surface-low)] selection:text-[var(--color-serene-primary-text)]">
-      {/* Header Mobile Compacto */}
-      <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 h-16 max-w-screen-md mx-auto bg-white/95 backdrop-blur-md shadow-sm border-b border-[var(--color-serene-outline-variant)]">
-        <div className="flex items-center gap-2">
+      {/* Header Sticky Centrado */}
+      <header className="sticky top-0 z-50 w-full flex justify-between items-center px-4 h-16 bg-white/95 backdrop-blur-md shadow-sm border-b border-[var(--color-serene-outline-variant)]">
+        <div className="flex items-center gap-2 max-w-screen-md mx-auto w-full">
           <button
             aria-label="Voltar"
             className="w-10 h-10 rounded-full flex items-center justify-center text-[var(--color-serene-secondary)] hover:bg-[var(--color-serene-surface-low)] active:scale-95 transition-all"
@@ -158,7 +158,7 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 w-full max-w-screen-md mx-auto pt-20 pb-32 px-4 space-y-6">
+      <main className="flex-1 w-full max-w-screen-md mx-auto pt-6 pb-20 px-4 space-y-6">
         {/* Barra de Progresso Clínico */}
         <section className="serene-card p-4">
           <div className="flex items-center justify-between mb-2">

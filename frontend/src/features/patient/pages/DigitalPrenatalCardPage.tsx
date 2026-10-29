@@ -181,8 +181,8 @@ export const DigitalPrenatalCardPage: React.FC<DigitalPrenatalCardPageProps> = (
         }
       `}</style>
 
-      {/* TOP APP BAR */}
-      <header className="sticky top-0 left-0 w-full z-40 bg-[var(--color-serene-surface)]/90 backdrop-blur-md px-4 py-3 border-b border-[var(--color-serene-outline-variant)]/30 flex items-center justify-between shadow-sm no-print">
+      {/* TOP APP BAR (Sticky on mobile, static inside desktop layout) */}
+      <header className="sticky top-0 left-0 w-full z-20 bg-[var(--color-serene-surface)]/90 backdrop-blur-md px-4 py-3 border-b border-[var(--color-serene-outline-variant)]/30 lg:border-b-0 lg:bg-transparent lg:shadow-none flex items-center justify-between shadow-sm no-print max-w-6xl mx-auto">
         <div className="flex items-center gap-2">
           <button
             type="button"

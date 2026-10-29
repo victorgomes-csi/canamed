@@ -42,40 +42,40 @@ export interface DigitalPrenatalCardPageProps {
   sessionToken?: string;
   onBack?: () => void;
   onDownloadPdf?: () => Promise<void> | void;
+  onNavigateTab?: (tab: string) => void;
 }
 
 const defaultVisits: PrenatalVisit[] = [
   {
     week: 24,
     date: '14/10/2024',
-    title: 'Consulta de Rotina do 2º Trimestre',
+    title: 'Consulta de rotina e aferição clínica',
     bloodPressure: '110 x 70 mmHg',
     fetalHeartRateBpm: 144,
     uterineHeightCm: 23,
     weightKg: 64.8,
     notes:
-      'Desenvolvimento fetal compatível com a idade gestacional. Movimentação fetal ativa e percebida pela gestante diariamente. Manutenção de suplementação de sulfato ferroso e metilfolato.',
+      'Desenvolvimento fetal compatível com a idade gestacional. Movimentação fetal ativa.',
   },
   {
     week: 20,
     date: '16/09/2024',
-    title: 'Ultrassonografia Morfológica de 2º Trimestre',
+    title: 'Ultrassonografia Morfológica de 2º trimestre',
     bloodPressure: '115 x 75 mmHg',
     fetalHeartRateBpm: 148,
     uterineHeightCm: 19,
     weightKg: 62.5,
-    notes:
-      'Estudo morfológico detalhado sem alterações detectáveis. Doppler de artérias uterinas com fluxo de baixa resistência normal para a idade gestacional.',
+    notes: 'Parâmetros biométricos dentro da normalidade para a IG.',
     isUltrasound: true,
   },
   {
     week: 12,
     date: '22/07/2024',
-    title: 'US Translucência Nucal & Triagem',
+    title: 'Ultrassom de Translucência Nucal',
     bloodPressure: '110 x 70 mmHg',
     fetalHeartRateBpm: 156,
     notes:
-      'Translucência nucal (TN) medindo 1.4 mm. Osso nasal presente e ducto venoso normal. Triagem com baixo risco para aneuploidias.',
+      'Exames laboratoriais de sangue e sorologias do 1º trimestre concluídos com sucesso.',
     isUltrasound: true,
   },
 ];
@@ -84,29 +84,21 @@ const defaultDocuments: AttachedDocument[] = [
   {
     id: '1',
     title: 'Morfologia Fetal 2T.pdf',
-    date: '16/09/2024',
-    size: '3.4 MB',
+    date: '16 Set 2024',
+    size: '2.4 MB',
     doctorOrLab: 'Dr. Arthur Albuquerque',
   },
   {
     id: '2',
     title: 'Hemograma Completo.pdf',
-    date: '14/10/2024',
-    size: '1.1 MB',
+    date: '14 Out 2024',
+    size: '640 KB',
     doctorOrLab: 'Lab Cana Med',
-  },
-  {
-    id: '3',
-    title: 'Ecocardiograma Fetal.pdf',
-    date: '18/09/2024',
-    size: '4.2 MB',
-    doctorOrLab: 'Dra. Camila Vasconcelos',
   },
 ];
 
 export const DigitalPrenatalCardPage: React.FC<DigitalPrenatalCardPageProps> = ({
   patientName = 'Juliana Rocha Mendes',
-  recordNumber = '2024-8842-OBST',
   bloodType = 'A+',
   isRhNegative = false,
   gestationalAgeText = '26 sem e 3 dias',
@@ -114,483 +106,475 @@ export const DigitalPrenatalCardPage: React.FC<DigitalPrenatalCardPageProps> = (
   totalWeeks = 40,
   lastMenstrualPeriod = '15/04/2024',
   estimatedDueDate = '20/01/2025',
-  daysRemaining = 95,
   responsibleDoctor = 'Dr. Arthur Albuquerque',
-  doctorCrm = 'CRM/SP 148.902',
-  nextAppointmentDate = 'Seg, 04/Nov às 10:00',
+  doctorCrm = 'Médico Obstetra & Fisiologia Fetal',
+  nextAppointmentDate = 'Seg, 04/Nov • 10:00',
   visits = defaultVisits,
   documents = defaultDocuments,
   sessionToken,
   onBack,
   onDownloadPdf,
+  onNavigateTab,
 }) => {
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
-  const percentage = Math.min(100, Math.max(0, Math.round((currentWeeks / totalWeeks) * 100)));
+  const progressPercent = Math.min(100, Math.round((currentWeeks / totalWeeks) * 100));
 
-  const handleDownloadPdf = async () => {
-    setIsDownloading(true);
-    setDownloadError(null);
-    try {
-      if (onDownloadPdf) {
-        await onDownloadPdf();
-      } else if (sessionToken) {
+  const handleDownload = async () => {
+    if (onDownloadPdf) {
+      await onDownloadPdf();
+      return;
+    }
+
+    if (sessionToken) {
+      setDownloading(true);
+      try {
         const blob = await patientApi.downloadPrenatalCardPdf(sessionToken);
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Cartao_Gestante_${patientName.replace(/\s+/g, '_')}.pdf`;
+        a.download = `cartao-gestante-${patientName.toLowerCase().replace(/\s+/g, '-')}.pdf`;
         document.body.appendChild(a);
         a.click();
-        document.body.removeChild(a);
+        a.remove();
         window.URL.revokeObjectURL(url);
-      } else {
-        window.print();
+      } catch (err) {
+        console.error('Falha ao baixar PDF:', err);
+      } finally {
+        setDownloading(false);
       }
-    } catch (err) {
-      console.error(err);
-      setDownloadError('Não foi possível gerar o PDF no momento. Tente novamente ou use a impressão.');
-    } finally {
-      setIsDownloading(false);
+    } else {
+      window.print();
     }
   };
 
   return (
-    <div className="serene-page min-h-screen text-[var(--color-serene-on-surface)] pb-24">
-      {/* Print Styles for clean A4 physical print */}
-      <style>{`
-        @media print {
-          body {
-            background: #ffffff !important;
-            color: #000000 !important;
-          }
-          header, nav, button, .no-print {
-            display: none !important;
-          }
-          main {
-            padding: 0 !important;
-            margin: 0 !important;
-            max-width: 100% !important;
-          }
-          .serene-card, section {
-            box-shadow: none !important;
-            border: 1px solid #d1d5db !important;
-            page-break-inside: avoid;
-          }
-        }
-      `}</style>
-
-      {/* TOP APP BAR (Sticky on mobile, static inside desktop layout) */}
-      <header className="sticky top-0 left-0 w-full z-20 bg-[var(--color-serene-surface)]/90 backdrop-blur-md px-4 py-3 border-b border-[var(--color-serene-outline-variant)]/30 lg:border-b-0 lg:bg-transparent lg:shadow-none flex items-center justify-between shadow-sm no-print max-w-6xl mx-auto">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onBack}
-            aria-label="Voltar para tela anterior"
-            className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-serene-secondary)] hover:bg-[var(--color-serene-surface-container)] active:scale-95 transition-all"
-          >
-            <span className="material-symbols-outlined text-[22px]">arrow_back</span>
-          </button>
-          <div>
-            <h1 className="text-base md:text-lg font-bold text-[var(--color-serene-primary-text)] tracking-tight">
-              Cartão da Gestante
-            </h1>
-            <p className="text-[11px] text-[var(--color-serene-on-surface-variant)]">
-              Seu acompanhamento pré-natal em um só lugar
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleDownloadPdf}
-            disabled={isDownloading}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[var(--color-serene-outline-variant)] bg-[var(--color-serene-surface-card)] text-[var(--color-serene-secondary)] hover:bg-[var(--color-serene-surface-container-low)] text-xs font-semibold shadow-xs active:scale-95 transition-all disabled:opacity-50"
-          >
-            <span className="material-symbols-outlined text-[16px]">download</span>
-            <span>{isDownloading ? 'Gerando...' : 'Baixar Cartão em PDF'}</span>
-          </button>
-        </div>
-      </header>
-
-      {/* MAIN CONTENT */}
-      <main className="max-w-6xl mx-auto px-4 pt-4 md:pt-6 space-y-6">
-        {/* STATUS CLÍNICO & ALERTA RH NEGATIVO [P1-02] */}
-        <div className="flex flex-wrap items-center justify-between gap-2 px-1">
-          <div className="inline-flex items-center gap-1.5 bg-[var(--color-serene-surface-container)] text-[var(--color-serene-secondary)] px-3 py-1 rounded-full text-xs font-semibold border border-[var(--color-serene-outline-variant)]/40">
-            <span className="w-2 h-2 rounded-full bg-[var(--color-serene-primary)] animate-pulse" />
-            <span>Gestação em Acompanhamento Ativo</span>
-          </div>
-
+    <div className="bg-background text-on-surface antialiased font-body-md min-h-screen flex justify-center selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+      {/* Mobile Container Wrapper */}
+      <div className="w-full max-w-md bg-surface min-h-screen relative flex flex-col pb-24 shadow-2xl">
+        {/* Top App Bar */}
+        <header className="sticky top-0 left-0 w-full z-40 bg-surface/90 backdrop-blur-md px-4 pt-3 pb-3 border-b border-outline-variant/30 flex items-center justify-between gap-2 shadow-sm">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-[var(--color-serene-on-surface-variant)] font-semibold">
-              Tipo Sanguíneo: {bloodType}
-            </span>
-            <span
-              className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                isRhNegative
-                  ? 'bg-rose-100 text-rose-800 border border-rose-300'
-                  : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-              }`}
+            <button
+              aria-label="Voltar para tela anterior"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-secondary hover:bg-surface-container active:scale-95 transition-all"
+              type="button"
+              onClick={onBack}
             >
-              {isRhNegative ? 'Rh Negativo' : 'Rh Positivo'}
-            </span>
-          </div>
-        </div>
-
-        {/* ALERTA CLÍNICO RH NEGATIVO (SE APLICÁVEL) */}
-        {isRhNegative && (
-          <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs flex items-start gap-2.5">
-            <span
-              className="material-symbols-outlined text-[20px] text-rose-700 shrink-0 mt-0.5"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              warning
-            </span>
-            <div className="space-y-0.5">
-              <span className="font-bold block">Alerta Rh Negativo</span>
-              <p>
-                Acompanhamento de Coombs Indireto e Profilaxia Anti-D recomendada na 28ª semana para prevenção de isoimunização materna.
+              <span className="material-symbols-outlined text-[24px]">arrow_back</span>
+            </button>
+            <div className="flex flex-col">
+              <h1 className="text-headline-sm font-headline-sm text-primary tracking-tight font-bold">
+                Cartão da Gestante
+              </h1>
+              <p className="text-label-sm font-label-sm text-tertiary">
+                Seu acompanhamento pré-natal em um só lugar
               </p>
             </div>
           </div>
-        )}
+          <div className="flex-shrink-0 pl-1">
+            <img
+              alt="Logo Cana Med Mulher"
+              className="h-8 w-auto object-contain"
+              src="/assets/brand/canamed_logo-removebg-preview.png"
+            />
+          </div>
+        </header>
 
-        {/* 1. CLINICAL IDENTIFICATION BANNER */}
-        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--color-serene-surface-card)] via-[var(--color-serene-surface-container-low)] to-[var(--color-serene-surface-container)]/50 border border-[var(--color-serene-outline-variant)]/40 p-5 md:p-6 serene-shadow-soft">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-[var(--color-serene-secondary-fixed)] flex items-center justify-center text-[var(--color-serene-secondary)] shrink-0 shadow-sm">
-                <span className="material-symbols-outlined text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+        {/* Main Content */}
+        <main className="flex-1 px-4 pt-4 space-y-6">
+          {/* Badge de Status Clínico */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between px-1">
+              <div className="inline-flex items-center gap-1.5 bg-surface-container text-secondary px-3 py-1 rounded-full text-label-md font-label-md border border-outline-variant/30 font-semibold">
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                Gestação em Acompanhamento Ativo
+              </div>
+              <span className="text-label-md font-label-md text-tertiary font-bold">
+                {bloodType} | {isRhNegative ? 'Rh Negativo' : 'Rh Positivo'}
+              </span>
+            </div>
+            {isRhNegative && (
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium flex items-center justify-between">
+                <span className="font-bold">Alerta Rh Negativo</span>
+                <span>Acompanhamento de Coombs Indireto e Profilaxia Anti-D</span>
+              </div>
+            )}
+          </div>
+
+          {/* Card Principal: Resumo da Gestação */}
+          <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-surface-container-lowest via-surface-container-low to-surface-container p-5 border border-outline-variant/40 custom-luminescence">
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="flex items-start justify-between border-b border-outline-variant/30 pb-3 mb-4">
+              <div>
+                <span className="text-label-sm font-label-sm uppercase tracking-wider text-primary font-bold">
+                  Prontuário Pré-Natal Digital
+                </span>
+                <h2 className="text-headline-md font-headline-md text-on-surface font-bold mt-0.5">
+                  {patientName}
+                </h2>
+                <div className="flex items-center gap-1.5 mt-1 text-tertiary text-body-sm font-body-sm">
+                  <span className="material-symbols-outlined text-[16px] text-primary">verified</span>
+                  <span>Identificação: Gestação Única Tópica</span>
+                </div>
+              </div>
+              <div className="w-11 h-11 rounded-2xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed flex-shrink-0 shadow-sm">
+                <span
+                  className="material-symbols-outlined text-[24px]"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
                   pregnant_woman
                 </span>
               </div>
-              <div className="space-y-0.5 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-serene-primary-text)]">
-                    Prontuário Pré-Natal Digital
+            </div>
+
+            {/* Metric Grid */}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              {/* Idade Gestacional */}
+              <div className="col-span-2 bg-surface-container-lowest/90 backdrop-blur p-3.5 rounded-xl border border-outline-variant/20 flex items-center justify-between">
+                <div>
+                  <span className="text-label-sm font-label-sm text-tertiary font-semibold block">
+                    IDADE GESTACIONAL HOJE
                   </span>
-                  <span className="text-[11px] text-[var(--color-serene-on-surface-variant)]">
-                    Nº {recordNumber}
+                  <span className="text-headline-md font-headline-md text-primary font-bold">
+                    {gestationalAgeText}
                   </span>
                 </div>
-                <h2 className="text-xl md:text-2xl font-extrabold text-[var(--color-serene-on-surface)] truncate">
-                  {patientName}
-                </h2>
-                <p className="text-xs text-[var(--color-serene-secondary)] font-medium">
-                  Identificação: Gestação Única Tópica
-                </p>
-              </div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-[var(--color-serene-surface-card)] border border-[var(--color-serene-outline-variant)]/30 text-xs space-y-1">
-              <div className="flex items-center gap-1.5 text-[var(--color-serene-primary-text)] font-bold">
-                <span className="material-symbols-outlined text-[16px]">health_and_safety</span>
-                <span>Validação Médica Cana Med</span>
-              </div>
-              <p className="text-[var(--color-serene-on-surface-variant)]">
-                Obstetra: <strong className="text-[var(--color-serene-on-surface)]">{responsibleDoctor}</strong> ({doctorCrm})
-              </p>
-            </div>
-          </div>
-
-          {/* 4 HORIZONTAL METRIC CARDS */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
-            {/* 1. Idade Gestacional */}
-            <div className="p-3.5 rounded-xl bg-[var(--color-serene-surface-card)] border border-[var(--color-serene-outline-variant)]/30 space-y-1">
-              <span className="text-[11px] text-[var(--color-serene-on-surface-variant)] font-semibold block uppercase">
-                Idade Gestacional Hoje
-              </span>
-              <p className="text-lg md:text-xl font-extrabold text-[var(--color-serene-primary-text)]">
-                {gestationalAgeText}
-              </p>
-              <span className="text-[11px] text-[var(--color-serene-secondary)] font-medium block">
-                2º Trimestre
-              </span>
-            </div>
-
-            {/* 2. DUM */}
-            <div className="p-3.5 rounded-xl bg-[var(--color-serene-surface-card)] border border-[var(--color-serene-outline-variant)]/30 space-y-1">
-              <span className="text-[11px] text-[var(--color-serene-on-surface-variant)] font-semibold block uppercase">
-                DUM (Última Menstruação)
-              </span>
-              <p className="text-lg md:text-xl font-bold text-[var(--color-serene-on-surface)]">
-                {lastMenstrualPeriod}
-              </p>
-              <span className="text-[11px] text-[var(--color-serene-on-surface-variant)] block">
-                Confirmada por US
-              </span>
-            </div>
-
-            {/* 3. DPP */}
-            <div className="p-3.5 rounded-xl bg-[var(--color-serene-surface-card)] border border-[var(--color-serene-outline-variant)]/30 space-y-1">
-              <span className="text-[11px] text-[var(--color-serene-on-surface-variant)] font-semibold block uppercase">
-                DPP Estimada (Previsão)
-              </span>
-              <p className="text-lg md:text-xl font-extrabold text-[var(--color-serene-secondary)]">
-                {estimatedDueDate}
-              </p>
-              <span className="text-[11px] text-[var(--color-serene-primary-text)] font-semibold block">
-                Faltam ~{daysRemaining} dias
-              </span>
-            </div>
-
-            {/* 4. Próxima Consulta */}
-            <div className="p-3.5 rounded-xl bg-[var(--color-serene-surface-card)] border border-[var(--color-serene-outline-variant)]/30 space-y-1">
-              <span className="text-[11px] text-[var(--color-serene-on-surface-variant)] font-semibold block uppercase">
-                Próxima Consulta
-              </span>
-              <p className="text-sm md:text-base font-bold text-[var(--color-serene-on-surface)]">
-                {nextAppointmentDate}
-              </p>
-              <span className="text-[11px] text-emerald-700 font-semibold block">
-                Confirmada com Obstetra
-              </span>
-            </div>
-          </div>
-
-          {/* Mini Weekly Progress Bar */}
-          <div className="mt-4 p-3 rounded-xl bg-[var(--color-serene-surface-card)] border border-[var(--color-serene-outline-variant)]/20 space-y-1.5">
-            <div className="flex justify-between items-center text-xs">
-              <span className="font-semibold text-[var(--color-serene-on-surface-variant)]">
-                Progresso da Gestação
-              </span>
-              <span className="font-bold text-[var(--color-serene-primary-text)]">
-                {percentage}% concluído
-              </span>
-            </div>
-            <div className="w-full bg-[var(--color-serene-surface-container)] h-2.5 rounded-full overflow-hidden p-0.5">
-              <div
-                className="bg-gradient-to-r from-[var(--color-serene-secondary)] to-[var(--color-serene-primary-container)] h-full rounded-full transition-all duration-500"
-                style={{ width: `${percentage}%` }}
-              />
-            </div>
-            <div className="flex justify-between text-[10px] text-[var(--color-serene-on-surface-variant)]">
-              <span>Semana 1</span>
-              <span className="font-bold text-[var(--color-serene-secondary)]">Semana {currentWeeks}</span>
-              <span>Semana {totalWeeks}</span>
-            </div>
-          </div>
-        </section>
-
-        {/* 2-COLUMN BALANCED LAYOUT */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* LEFT: TIMELINE (7 COLS) */}
-          <section className="lg:col-span-7 serene-card rounded-2xl p-5 md:p-6 space-y-5">
-            <div className="flex items-center justify-between border-b border-[var(--color-serene-surface-container)] pb-3">
-              <div className="flex items-center gap-2">
-                <span className="p-1.5 rounded-lg bg-[var(--color-serene-secondary-fixed)] text-[var(--color-serene-secondary)] flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    timeline
+                <div className="text-right">
+                  <span className="text-label-md font-label-md text-secondary font-bold bg-surface-container px-2.5 py-1 rounded-full">
+                    2º Trimestre
                   </span>
+                </div>
+              </div>
+
+              {/* DUM */}
+              <div className="bg-surface-container-lowest/80 p-3 rounded-xl border border-outline-variant/20">
+                <div className="flex items-center gap-1.5 text-tertiary text-label-sm font-label-sm mb-1">
+                  <span className="material-symbols-outlined text-[15px] text-secondary">
+                    calendar_today
+                  </span>
+                  <span>DUM</span>
+                </div>
+                <span className="text-body-md font-body-md font-bold text-on-surface">
+                  {lastMenstrualPeriod}
                 </span>
+                <span className="text-label-sm font-label-sm text-tertiary block mt-0.5">
+                  Última Menstruação
+                </span>
+              </div>
+
+              {/* DPP */}
+              <div className="bg-surface-container-lowest/80 p-3 rounded-xl border border-outline-variant/20">
+                <div className="flex items-center gap-1.5 text-tertiary text-label-sm font-label-sm mb-1">
+                  <span className="material-symbols-outlined text-[15px] text-primary">
+                    event_available
+                  </span>
+                  <span>DPP Estimada</span>
+                </div>
+                <span className="text-body-md font-body-md font-bold text-primary">
+                  {estimatedDueDate}
+                </span>
+                <span className="text-label-sm font-label-sm text-tertiary block mt-0.5">
+                  Previsão do Parto
+                </span>
+              </div>
+            </div>
+
+            {/* Mini Progress Bar de Gestação */}
+            <div className="bg-surface-container-lowest/90 p-3 rounded-xl border border-outline-variant/20">
+              <div className="flex justify-between items-center text-label-sm font-label-sm mb-1.5">
+                <span className="text-tertiary font-semibold">Progresso da Gestação</span>
+                <span className="text-primary font-bold">{progressPercent}% concluído</span>
+              </div>
+              <div className="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
+                <div
+                  className="bg-gradient-to-r from-secondary to-primary-container h-full rounded-full transition-all duration-500"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-[10px] text-tertiary mt-1.5">
+                <span>Semana 1</span>
+                <span className="font-bold text-secondary">Semana {currentWeeks}</span>
+                <span>Semana {totalWeeks}</span>
+              </div>
+            </div>
+          </section>
+
+          {/* Card: Próxima Consulta de Pré-Natal */}
+          <section className="rounded-2xl bg-surface-container-lowest p-4 border border-outline-variant/30 card-shadow-soft">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-7 h-7 rounded-lg bg-surface-container text-secondary flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[18px]">event</span>
+                </span>
+                <h3 className="text-label-lg font-label-lg font-bold text-on-surface">
+                  Próxima Consulta de Pré-Natal
+                </h3>
+              </div>
+              <span className="bg-primary/10 text-primary font-bold text-label-sm font-label-sm px-2.5 py-0.5 rounded-full">
+                Confirmada
+              </span>
+            </div>
+
+            <div className="bg-surface-container-low rounded-xl p-3.5 border border-outline-variant/20 space-y-2.5">
+              <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-base font-bold text-[var(--color-serene-on-surface)]">
-                    Linha do Tempo Pré-Natal
-                  </h3>
-                  <p className="text-xs text-[var(--color-serene-on-surface-variant)]">
-                    Consultas, sinais vitais e condutas clínicas
+                  <p className="text-body-md font-body-md font-bold text-on-surface">
+                    {responsibleDoctor}
+                  </p>
+                  <p className="text-label-md font-label-md text-tertiary">
+                    {doctorCrm}
                   </p>
                 </div>
+                <div className="w-9 h-9 rounded-full bg-surface-container-highest flex items-center justify-center text-secondary">
+                  <span className="material-symbols-outlined text-[20px]">stethoscope</span>
+                </div>
               </div>
 
-              <span className="text-xs text-[var(--color-serene-on-surface-variant)]">
+              <div className="pt-2 border-t border-outline-variant/30 grid grid-cols-2 gap-2 text-label-md font-label-md">
+                <div className="flex items-center gap-1.5 text-on-surface">
+                  <span className="material-symbols-outlined text-[16px] text-primary">
+                    schedule
+                  </span>
+                  <span>{nextAppointmentDate}</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-on-surface">
+                  <span className="material-symbols-outlined text-[16px] text-secondary">
+                    location_on
+                  </span>
+                  <span>Unidade Paulista</span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              aria-label="Baixar Cartão em PDF"
+              onClick={handleDownload}
+              disabled={downloading}
+              className="mt-3 w-full bg-gradient-to-r from-primary-container to-primary text-on-primary font-label-lg py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 hover:opacity-95 active:scale-[0.98] transition-all shadow-sm font-bold"
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                {downloading ? 'hourglass_top' : 'download'}
+              </span>
+              <span>{downloading ? 'Gerando Cartão...' : 'Baixar Cartão em PDF'}</span>
+            </button>
+          </section>
+
+          {/* Seção: Linha do Tempo Pré-Natal */}
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-7 h-7 rounded-lg bg-surface-container text-secondary flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[18px]">timeline</span>
+                </span>
+                <h3 className="text-headline-sm font-headline-sm font-bold text-on-surface">
+                  Linha do Tempo Pré-Natal
+                </h3>
+              </div>
+              <span className="text-label-sm font-label-sm text-tertiary">
                 {visits.length} registros
               </span>
             </div>
 
-            {/* Vertical Timeline */}
-            <div className="relative pl-6 space-y-5 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-[var(--color-serene-outline-variant)]/60">
+            {/* Vertical Timeline Items */}
+            <div className="relative pl-6 space-y-4 before:content-[''] before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-outline-variant/50">
               {visits.map((v, idx) => (
                 <div key={idx} className="relative">
-                  {/* Timeline point */}
-                  <div className="absolute -left-[27px] top-1.5 w-4 h-4 rounded-full bg-[var(--color-serene-primary)] ring-4 ring-[var(--color-serene-surface-card)] shadow-xs" />
-
-                  <div className="p-4 rounded-xl bg-[var(--color-serene-surface-container-low)]/70 border border-[var(--color-serene-outline-variant)]/30 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[var(--color-serene-primary-text)] uppercase">
+                  <div
+                    className={`absolute -left-6 top-1 w-5 h-5 rounded-full border-4 border-surface flex items-center justify-center shadow-sm ${
+                      idx === 0
+                        ? 'bg-primary-container'
+                        : idx === 1
+                        ? 'bg-secondary'
+                        : 'bg-outline'
+                    }`}
+                  />
+                  <div className="bg-surface-container-lowest p-3.5 rounded-xl border border-outline-variant/20 card-shadow-soft">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-label-md font-label-md font-bold text-primary">
                         {v.week}ª SEMANA
                       </span>
-                      <span className="text-xs text-[var(--color-serene-on-surface-variant)]">
-                        {v.date}
-                      </span>
+                      <span className="text-label-sm font-label-sm text-tertiary">{v.date}</span>
                     </div>
-
-                    <h4 className="font-bold text-sm text-[var(--color-serene-on-surface)]">
+                    <p className="text-body-sm font-body-sm font-semibold text-on-surface">
                       {v.title}
-                    </h4>
-
-                    {/* Vitals Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
-                      {v.bloodPressure && (
-                        <div className="p-2 rounded-lg bg-[var(--color-serene-surface-card)] border border-[var(--color-serene-outline-variant)]/20">
-                          <span className="text-[11px] text-[var(--color-serene-on-surface-variant)] block">
-                            PA
-                          </span>
-                          <span className="font-bold text-[var(--color-serene-on-surface)]">
-                            {v.bloodPressure}
-                          </span>
-                        </div>
-                      )}
-                      {v.fetalHeartRateBpm !== undefined && (
-                        <div className="p-2 rounded-lg bg-[var(--color-serene-surface-card)] border border-[var(--color-serene-outline-variant)]/20">
-                          <span className="text-[11px] text-[var(--color-serene-on-surface-variant)] block">
-                            BCF
-                          </span>
-                          <span className="font-bold text-[var(--color-serene-primary-text)]">
-                            {v.fetalHeartRateBpm} bpm
-                          </span>
-                        </div>
-                      )}
-                      {v.uterineHeightCm !== undefined && (
-                        <div className="p-2 rounded-lg bg-[var(--color-serene-surface-card)] border border-[var(--color-serene-outline-variant)]/20">
-                          <span className="text-[11px] text-[var(--color-serene-on-surface-variant)] block">
-                            Alt. Uterina
-                          </span>
-                          <span className="font-bold text-[var(--color-serene-on-surface)]">
-                            {v.uterineHeightCm} cm
-                          </span>
-                        </div>
-                      )}
-                      {v.weightKg !== undefined && (
-                        <div className="p-2 rounded-lg bg-[var(--color-serene-surface-card)] border border-[var(--color-serene-outline-variant)]/20">
-                          <span className="text-[11px] text-[var(--color-serene-on-surface-variant)] block">
-                            Peso
-                          </span>
-                          <span className="font-bold text-[var(--color-serene-secondary)]">
-                            {v.weightKg} kg
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
+                    </p>
                     {v.notes && (
-                      <p className="text-xs text-[var(--color-serene-on-surface-variant)] leading-relaxed pt-1 border-t border-[var(--color-serene-outline-variant)]/20">
+                      <p className="text-label-md font-label-md text-tertiary mt-0.5">
                         {v.notes}
                       </p>
                     )}
+                    <div className="mt-2.5 flex items-center gap-2 flex-wrap">
+                      <div className="bg-surface-container px-2.5 py-1 rounded-lg text-label-md font-label-md text-on-surface flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[15px] text-primary">
+                          monitor_heart
+                        </span>
+                        <span>
+                          PA: <strong>{v.bloodPressure}</strong>
+                        </span>
+                      </div>
+                      {v.fetalHeartRateBpm && (
+                        <div className="bg-surface-container px-2.5 py-1 rounded-lg text-label-md font-label-md text-on-surface flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[15px] text-secondary">
+                            favorite
+                          </span>
+                          <span>
+                            BCF: <strong>{v.fetalHeartRateBpm} bpm</strong>
+                          </span>
+                        </div>
+                      )}
+                      {v.uterineHeightCm && (
+                        <div className="bg-surface-container px-2.5 py-1 rounded-lg text-label-md font-label-md text-on-surface flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[15px] text-primary">
+                            straighten
+                          </span>
+                          <span>
+                            AU: <strong>{v.uterineHeightCm} cm</strong>
+                          </span>
+                        </div>
+                      )}
+                      {v.weightKg && (
+                        <div className="bg-surface-container px-2.5 py-1 rounded-lg text-label-md font-label-md text-on-surface flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[15px] text-secondary">
+                            scale
+                          </span>
+                          <span>
+                            Peso: <strong>{v.weightKg} kg</strong>
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </section>
 
-          {/* RIGHT: DOCUMENTOS E ORIENTAÇÕES (5 COLS) */}
-          <div className="lg:col-span-5 space-y-6">
-            {/* 1. DOCUMENTOS E LAUDOS ANEXADOS */}
-            <section className="serene-card rounded-2xl p-5 md:p-6 space-y-4">
-              <div className="flex items-center justify-between border-b border-[var(--color-serene-surface-container)] pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="p-1.5 rounded-lg bg-[var(--color-serene-secondary-fixed)] text-[var(--color-serene-secondary)] flex items-center justify-center">
-                    <span className="material-symbols-outlined text-[20px]">folder_open</span>
-                  </span>
-                  <div>
-                    <h3 className="text-base font-bold text-[var(--color-serene-on-surface)]">
-                      Documentos e Laudos
-                    </h3>
-                    <p className="text-xs text-[var(--color-serene-on-surface-variant)]">
-                      Exames e ultrassonografias oficiais
-                    </p>
-                  </div>
-                </div>
-
-                <span className="text-xs text-[var(--color-serene-primary-text)] font-bold">
-                  {documents.length} arquivos
-                </span>
-              </div>
-
-              <div className="space-y-2.5">
-                {documents.map((doc) => (
-                  <div
-                    key={doc.id}
-                    className="p-3 rounded-xl bg-[var(--color-serene-surface-container-low)]/60 border border-[var(--color-serene-outline-variant)]/30 flex items-center justify-between hover:border-[var(--color-serene-primary)]/40 transition-colors"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-9 h-9 rounded-lg bg-[var(--color-serene-surface-card)] flex items-center justify-center text-[var(--color-serene-primary-text)] shrink-0">
-                        <span className="material-symbols-outlined text-[20px]">picture_as_pdf</span>
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-[var(--color-serene-on-surface)] truncate">
-                          {doc.title}
-                        </p>
-                        <p className="text-[11px] text-[var(--color-serene-on-surface-variant)]">
-                          {doc.date} • {doc.size}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        type="button"
-                        aria-label={`Visualizar ${doc.title}`}
-                        className="p-1.5 rounded-lg text-[var(--color-serene-secondary)] hover:bg-[var(--color-serene-surface-card)] transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">visibility</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {downloadError && (
-                <p className="text-xs text-rose-700 bg-rose-50 p-2 rounded-lg border border-rose-200">
-                  {downloadError}
-                </p>
-              )}
-            </section>
-
-            {/* 2. SINAIS DE ALERTA */}
-            <section className="p-5 rounded-2xl bg-gradient-to-br from-rose-50/70 to-purple-50/50 border border-rose-200/80 serene-shadow-soft space-y-3">
+          {/* Seção: Documentos e Laudos Anexados */}
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span
-                  className="material-symbols-outlined text-rose-600 text-[20px]"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  warning
+                <span className="w-7 h-7 rounded-lg bg-surface-container text-secondary flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[18px]">folder_open</span>
                 </span>
-                <h4 className="font-bold text-sm text-[var(--color-serene-on-surface)]">
-                  Orientações & Sinais de Alerta
-                </h4>
+                <h3 className="text-headline-sm font-headline-sm font-bold text-on-surface">
+                  Documentos e Laudos Anexados
+                </h3>
               </div>
+              <span className="text-label-sm font-label-sm text-primary font-bold">
+                {documents.length} arquivos
+              </span>
+            </div>
 
-              <p className="text-xs text-[var(--color-serene-on-surface-variant)] leading-relaxed">
-                Contate a equipe médica imediatamente caso identifique:
-              </p>
-
-              <ul className="space-y-1.5 text-xs text-[var(--color-serene-on-surface)]">
-                <li className="flex items-start gap-1.5">
-                  <span className="text-rose-600 font-bold">•</span>
-                  <span><strong>Sangramento vaginal</strong> de qualquer intensidade ou perda de líquido.</span>
-                </li>
-                <li className="flex items-start gap-1.5">
-                  <span className="text-rose-600 font-bold">•</span>
-                  <span><strong>Dor de cabeça intensa</strong> com visão embaçada.</span>
-                </li>
-                <li className="flex items-start gap-1.5">
-                  <span className="text-rose-600 font-bold">•</span>
-                  <span><strong>Redução marcante</strong> dos movimentos fetais (&gt;12h).</span>
-                </li>
-                <li className="flex items-start gap-1.5">
-                  <span className="text-rose-600 font-bold">•</span>
-                  <span><strong>Febre acima de 37.8°C</strong> ou ardor miccional intenso.</span>
-                </li>
-              </ul>
-
-              <div className="pt-2 no-print">
-                <a
-                  href="tel:08007702262"
-                  className="w-full py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow-sm"
+            <div className="space-y-2">
+              {documents.map((doc) => (
+                <div
+                  key={doc.id}
+                  className="bg-surface-container-lowest p-3 rounded-xl border border-outline-variant/30 flex items-center justify-between hover:border-primary-container/40 transition-colors card-shadow-soft"
                 >
-                  <span className="material-symbols-outlined text-[18px]">call</span>
-                  <span>Ligar para Emergência 24h</span>
-                </a>
-              </div>
-            </section>
-          </div>
-        </div>
-      </main>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-primary flex-shrink-0">
+                      <span className="material-symbols-outlined text-[22px]">
+                        picture_as_pdf
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-body-sm font-body-sm font-bold text-on-surface truncate">
+                        {doc.title}
+                      </p>
+                      <p className="text-label-sm font-label-sm text-tertiary">
+                        {doc.date} • {doc.size}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (doc.pdfUrl) {
+                        window.open(doc.pdfUrl, '_blank');
+                      } else {
+                        handleDownload();
+                      }
+                    }}
+                    className="ml-2 px-3 py-1.5 rounded-lg bg-surface-container text-secondary text-label-md font-label-md font-bold hover:bg-secondary hover:text-on-secondary active:scale-95 transition-all flex items-center gap-1 flex-shrink-0"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">visibility</span>
+                    <span>Visualizar</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Aviso Institucional */}
+          <section className="rounded-xl bg-surface-container-high/60 border border-outline-variant/40 p-3.5 flex items-start gap-3">
+            <span className="material-symbols-outlined text-[20px] text-primary flex-shrink-0 mt-0.5">
+              verified_user
+            </span>
+            <div className="text-label-md font-label-md text-tertiary">
+              <span className="font-bold text-on-surface block mb-0.5">
+                Validação Médica Cana Med
+              </span>
+              Informações preenchidas e validadas pela equipe obstétrica da Cana Med Mulher.
+            </div>
+          </section>
+        </main>
+
+        {/* Bottom Navigation Bar */}
+        <nav
+          aria-label="Navegação Principal"
+          className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-2 h-16 bg-surface border-t border-outline-variant/30 max-w-md mx-auto shadow-[0_-4px_16px_rgba(75,30,90,0.06)]"
+          style={{ left: '50%', transform: 'translateX(-50%)' }}
+        >
+          <button
+            type="button"
+            onClick={() => onNavigateTab?.('inicio')}
+            className="flex flex-col items-center justify-center text-tertiary font-medium gap-1 hover:text-primary transition-colors active:scale-90"
+          >
+            <span className="material-symbols-outlined text-[22px]">home</span>
+            <span className="text-label-sm font-label-sm">Início</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigateTab?.('agendar')}
+            className="flex flex-col items-center justify-center text-tertiary font-medium gap-1 hover:text-primary transition-colors active:scale-90"
+          >
+            <span className="material-symbols-outlined text-[22px]">calendar_add_on</span>
+            <span className="text-label-sm font-label-sm">Agendar</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigateTab?.('consultas')}
+            className="flex flex-col items-center justify-center text-tertiary font-medium gap-1 hover:text-primary transition-colors active:scale-90"
+          >
+            <span className="material-symbols-outlined text-[22px]">calendar_month</span>
+            <span className="text-label-sm font-label-sm">Consultas</span>
+          </button>
+          <button
+            type="button"
+            className="flex flex-col items-center justify-center text-primary font-bold gap-1 active:scale-90 relative"
+          >
+            <span
+              className="material-symbols-outlined text-[22px]"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              pregnant_woman
+            </span>
+            <span className="text-label-sm font-label-sm">Pré-natal</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-primary absolute -bottom-1" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigateTab?.('perfil')}
+            className="flex flex-col items-center justify-center text-tertiary font-medium gap-1 hover:text-primary transition-colors active:scale-90"
+          >
+            <span className="material-symbols-outlined text-[22px]">person</span>
+            <span className="text-label-sm font-label-sm">Perfil</span>
+          </button>
+        </nav>
+      </div>
     </div>
   );
 };

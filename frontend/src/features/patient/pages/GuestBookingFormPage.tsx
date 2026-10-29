@@ -14,6 +14,7 @@ export interface GuestBookingFormPageProps {
   initialSymptoms?: string;
   onBack?: () => void;
   onSuccess?: (response: BookGuestResponse) => void;
+  onNavigateTab?: (tab: string) => void;
 }
 
 export const GuestBookingFormPage: React.FC<GuestBookingFormPageProps> = ({
@@ -106,13 +107,13 @@ export const GuestBookingFormPage: React.FC<GuestBookingFormPageProps> = ({
   };
 
   return (
-    <div className="serene-page relative min-h-screen flex flex-col justify-between selection:bg-[var(--color-serene-surface-low)] selection:text-[var(--color-serene-primary-text)]">
-      {/* Mobile Header */}
-      <header className="sticky top-0 z-40 bg-[var(--color-serene-surface)]/95 backdrop-blur-md px-4 py-3 border-b border-[var(--color-serene-outline-variant)] flex items-center justify-between max-w-md mx-auto w-full shadow-sm">
+    <div className="bg-background text-on-surface antialiased font-body-md min-h-screen selection:bg-secondary-fixed selection:text-on-secondary-fixed flex flex-col justify-between">
+      {/* Mobile Top Sticky Header */}
+      <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md px-4 py-3 border-b border-outline-variant/30 flex items-center justify-between max-w-md mx-auto w-full">
         <div className="flex items-center gap-2">
           <button
             aria-label="Voltar"
-            className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-serene-secondary)] hover:bg-[var(--color-serene-surface-low)] transition-colors"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-secondary hover:bg-surface-container transition-colors duration-150"
             type="button"
             onClick={onBack}
           >
@@ -121,206 +122,254 @@ export const GuestBookingFormPage: React.FC<GuestBookingFormPageProps> = ({
             </span>
           </button>
           <div>
-            <h1 className="text-base font-bold text-[var(--color-serene-text-main)] tracking-tight">
+            <h1 className="text-headline-sm font-headline-sm text-on-surface tracking-tight leading-tight font-bold">
               Cadastro Rápido
             </h1>
-            <p className="text-xs text-[var(--color-serene-text-muted)]">Plantão Imediato Ginecologia</p>
+            <p className="text-label-sm font-label-sm text-tertiary">
+              Plantão Imediato Ginecologia
+            </p>
           </div>
         </div>
-
         {/* Live Badge */}
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--color-serene-surface-low)] border border-[var(--color-serene-outline-variant)] text-[var(--color-serene-secondary)]">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-fixed/50 border border-secondary-fixed text-on-secondary-fixed">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-serene-primary)] opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-serene-primary)]" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
           </span>
-          <span className="text-[11px] font-bold tracking-wide">Plantão Ativo</span>
+          <span className="text-label-sm font-label-sm tracking-wide font-bold">Plantão Ativo</span>
         </div>
       </header>
 
-      {/* Main Form Content */}
-      <main className="w-full max-w-md mx-auto px-4 pt-3 pb-32 space-y-4">
+      {/* Main Canvas Content */}
+      <main className="w-full max-w-md mx-auto px-4 pt-3 pb-44 space-y-4">
         {/* Welcoming Informative Banner */}
-        <div className="rounded-2xl bg-[var(--color-serene-surface-low)] border border-[var(--color-serene-outline-variant)] p-3.5 flex items-start gap-3">
-          <div className="w-8 h-8 rounded-xl bg-[var(--color-serene-primary)]/10 flex items-center justify-center text-[var(--color-serene-primary-text)] shrink-0 mt-0.5">
+        <div className="relative overflow-hidden rounded-2xl bg-surface-container-low border border-outline-variant/40 p-3.5 flex items-start gap-3">
+          <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0 mt-0.5">
             <span className="material-symbols-outlined text-lg" data-icon="verified_user">
               verified_user
             </span>
           </div>
           <div>
-            <p className="text-xs font-bold text-[var(--color-serene-text-main)]">Dados clínicos essenciais</p>
-            <p className="text-xs text-[var(--color-serene-text-muted)] mt-0.5 leading-relaxed">
+            <p className="text-label-lg font-label-lg text-on-surface leading-tight font-bold">
+              Dados clínicos essenciais
+            </p>
+            <p className="text-body-sm font-body-sm text-on-surface-variant mt-0.5">
               Necessários pelo CFM para emissão da sua receita com QR Code, atestado e entrada no plantão em menos de 2 minutos.
             </p>
           </div>
         </div>
 
         {/* 1. Resumo do Plantão Selecionado */}
-        <section className="serene-card p-4 space-y-3">
-          <div className="flex items-center justify-between border-b border-[var(--color-serene-outline-variant)]/40 pb-3">
+        <section className="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/30 soft-card-shadow">
+          <div className="flex items-center justify-between border-b border-outline-variant/20 pb-3">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-[var(--color-serene-surface-low)] flex items-center justify-center text-[var(--color-serene-primary-text)] font-bold text-base border border-[var(--color-serene-outline-variant)]">
-                {doctorName.replace('Dra. ', '').charAt(0)}
+              <div className="relative w-12 h-12 rounded-full overflow-hidden ring-2 ring-primary/20 shrink-0 bg-surface-container-high flex items-center justify-center text-primary font-bold">
+                <span className="material-symbols-outlined text-2xl">person</span>
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-bold text-[var(--color-serene-text-main)]">{doctorName}</span>
-                  <span className="material-symbols-outlined text-[var(--color-serene-primary-text)] text-sm" data-icon="check_circle">
+                  <span className="text-label-lg font-label-lg text-on-surface font-bold">
+                    {doctorName}
+                  </span>
+                  <span
+                    className="material-symbols-outlined text-primary text-sm"
+                    data-icon="check_circle"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
                     check_circle
                   </span>
                 </div>
-                <p className="text-xs text-[var(--color-serene-text-muted)]">{doctorCrm}</p>
+                <p className="text-label-md font-label-md text-tertiary">
+                  {doctorCrm}
+                </p>
               </div>
             </div>
             <div className="text-right">
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[var(--color-serene-surface-low)] text-[var(--color-serene-secondary)]">
+              <span className="text-label-sm font-label-sm px-2 py-0.5 rounded-full bg-secondary-container/50 text-on-secondary-container font-semibold">
                 Online agora
               </span>
             </div>
           </div>
-
-          <div className="grid grid-cols-2 gap-2 pt-1">
-            <div className="flex items-center gap-2 p-2 rounded-xl bg-[var(--color-serene-surface-low)]">
-              <span className="material-symbols-outlined text-[var(--color-serene-primary)] text-lg" data-icon="schedule">
+          <div className="grid grid-cols-2 gap-2 pt-3">
+            <div className="flex items-center gap-2 p-2 rounded-xl bg-surface-container-low">
+              <span className="material-symbols-outlined text-primary text-lg" data-icon="schedule">
                 schedule
               </span>
               <div>
-                <p className="text-[10px] text-[var(--color-serene-text-muted)] leading-none">Previsão</p>
-                <p className="text-xs text-[var(--color-serene-text-main)] mt-0.5 font-bold">{estimatedWait}</p>
+                <p className="text-label-sm font-label-sm text-tertiary leading-none">Previsão</p>
+                <p className="text-label-md font-label-md text-on-surface mt-0.5 font-bold">
+                  {estimatedWait}
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 p-2 rounded-xl bg-[var(--color-serene-surface-low)]">
-              <span className="material-symbols-outlined text-[var(--color-serene-secondary)] text-lg" data-icon="receipt_long">
+            <div className="flex items-center gap-2 p-2 rounded-xl bg-surface-container-low">
+              <span className="material-symbols-outlined text-secondary text-lg" data-icon="receipt_long">
                 receipt_long
               </span>
               <div>
-                <p className="text-[10px] text-[var(--color-serene-text-muted)] leading-none">Valor Total</p>
-                <p className="text-xs text-[var(--color-serene-primary-text)] mt-0.5 font-bold">
-                  {price} <span className="text-[10px] font-normal text-[var(--color-serene-text-muted)]">(c/ NF)</span>
+                <p className="text-label-sm font-label-sm text-tertiary leading-none">Valor Total</p>
+                <p className="text-label-md font-label-md text-primary mt-0.5 font-bold">
+                  {price} <span className="text-label-sm font-normal text-tertiary">(c/ NF)</span>
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 2. Formulário Interativo */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Dados Obrigatórios para Prescrição (CFM) */}
-          <section className="serene-card p-4 space-y-3.5">
+        {/* Mensagens de Erro */}
+        {generalError && (
+          <div
+            role="alert"
+            className="p-3 rounded-xl bg-error-container/30 border border-error/20 text-xs text-error font-medium flex items-center gap-2"
+          >
+            <span className="material-symbols-outlined text-base">error</span>
+            <span>{generalError}</span>
+          </div>
+        )}
+
+        {/* Interactive Form */}
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          {/* 2. Dados Obrigatórios para Prescrição (CFM) */}
+          <section className="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/30 soft-card-shadow space-y-3.5">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-[var(--color-serene-surface-low)] flex items-center justify-center text-[var(--color-serene-primary-text)]">
+              <div className="w-6 h-6 rounded-lg bg-surface-container flex items-center justify-center text-primary">
                 <span className="material-symbols-outlined text-[16px]" data-icon="badge">
                   badge
                 </span>
               </div>
-              <h2 className="text-sm font-bold text-[var(--color-serene-text-main)]">
+              <h2 className="text-label-lg font-label-lg text-on-surface font-bold">
                 Dados da Paciente para Prontuário
               </h2>
             </div>
 
             {/* Nome Completo */}
             <div>
-              <label className="block text-xs font-semibold text-[var(--color-serene-text-main)] mb-1" htmlFor="guest-full-name">
-                Nome Completo da Paciente <span className="text-[var(--color-serene-primary-text)]">*</span>
+              <label
+                className="block text-label-md font-label-md text-on-surface-variant mb-1"
+                htmlFor="full_name"
+              >
+                Nome Completo da Paciente <span className="text-primary">*</span>
               </label>
               <input
-                id="guest-full-name"
+                id="full_name"
+                name="full_name"
                 type="text"
                 required
-                className="serene-input text-xs"
-                placeholder="Ex: Mariana Silveira Rocha"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
+                placeholder="Ex: Mariana Silveira Rocha"
+                className="w-full px-3.5 py-2.5 bg-surface-container-lowest border border-outline-variant/60 rounded-xl text-body-sm font-body-sm text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all duration-150 placeholder:text-tertiary/60"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               {/* CPF */}
               <div>
-                <label className="block text-xs font-semibold text-[var(--color-serene-text-main)] mb-1" htmlFor="guest-cpf">
-                  CPF (Obrigatório CFM) <span className="text-[var(--color-serene-primary-text)]">*</span>
+                <label
+                  className="block text-label-md font-label-md text-on-surface-variant mb-1"
+                  htmlFor="cpf"
+                >
+                  CPF (Obrigatório CFM) <span className="text-primary">*</span>
                 </label>
                 <input
-                  id="guest-cpf"
+                  id="cpf"
+                  name="cpf"
                   type="text"
                   required
-                  className={`serene-input text-xs ${cpfError ? 'border-red-500 focus:border-red-600' : ''}`}
-                  placeholder="000.000.000-00"
                   value={cpf}
                   onChange={handleCpfChange}
+                  placeholder="000.000.000-00"
+                  className={`w-full px-3.5 py-2.5 bg-surface-container-lowest border rounded-xl text-body-sm font-body-sm text-on-surface focus:outline-none focus:ring-2 transition-all duration-150 placeholder:text-tertiary/60 ${
+                    cpfError
+                      ? 'border-error focus:ring-error/20'
+                      : 'border-outline-variant/60 focus:border-primary-container focus:ring-primary-container/20'
+                  }`}
                 />
                 {cpfError && (
-                  <p className="text-[11px] text-red-600 font-semibold mt-1">{cpfError}</p>
+                  <span className="text-xs text-error font-medium mt-1 block">{cpfError}</span>
                 )}
               </div>
 
               {/* Data de Nascimento */}
               <div>
-                <label className="block text-xs font-semibold text-[var(--color-serene-text-main)] mb-1" htmlFor="guest-birthdate">
-                  Data de Nascimento <span className="text-[var(--color-serene-primary-text)]">*</span>
+                <label
+                  className="block text-label-md font-label-md text-on-surface-variant mb-1"
+                  htmlFor="birthdate"
+                >
+                  Data de Nascimento <span className="text-primary">*</span>
                 </label>
                 <input
-                  id="guest-birthdate"
+                  id="birthdate"
+                  name="birthdate"
                   type="date"
                   required
-                  className="serene-input text-xs"
                   value={birthDate}
                   onChange={(e) => setBirthDate(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-surface-container-lowest border border-outline-variant/60 rounded-xl text-body-sm font-body-sm text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all duration-150"
                 />
               </div>
             </div>
 
             {/* WhatsApp */}
             <div>
-              <label className="block text-xs font-semibold text-[var(--color-serene-text-main)] mb-1" htmlFor="guest-phone">
-                WhatsApp para Receitas & Acesso <span className="text-[var(--color-serene-primary-text)]">*</span>
+              <label
+                className="block text-label-md font-label-md text-on-surface-variant mb-1"
+                htmlFor="phone"
+              >
+                WhatsApp para Receitas &amp; Acesso <span className="text-primary">*</span>
               </label>
-              <input
-                id="guest-phone"
-                type="tel"
-                required
-                className="serene-input text-xs"
-                placeholder="(11) 98765-4321"
-                value={phone}
-                onChange={handlePhoneChange}
-              />
-              <span className="text-[11px] text-[var(--color-serene-text-muted)] mt-1 block">
+              <div className="relative flex items-center">
+                <span className="absolute left-3.5 text-tertiary text-body-sm font-body-sm font-semibold">
+                  +55
+                </span>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  required
+                  value={phone}
+                  onChange={handlePhoneChange}
+                  placeholder="(11) 98765-4321"
+                  className="w-full pl-12 pr-3.5 py-2.5 bg-surface-container-lowest border border-outline-variant/60 rounded-xl text-body-sm font-body-sm text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all duration-150 placeholder:text-tertiary/60"
+                />
+              </div>
+              <span className="text-label-sm font-label-sm text-tertiary mt-1 block">
                 O link da videochamada chegará instantaneamente por SMS e WhatsApp.
               </span>
             </div>
           </section>
 
           {/* 3. Triagem Rápida de Segurança */}
-          <section className="serene-card p-4 space-y-3.5">
+          <section className="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/30 soft-card-shadow space-y-3.5">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-[var(--color-serene-surface-low)] flex items-center justify-center text-[var(--color-serene-primary-text)]">
+              <div className="w-6 h-6 rounded-lg bg-surface-container flex items-center justify-center text-primary">
                 <span className="material-symbols-outlined text-[16px]" data-icon="medical_services">
                   medical_services
                 </span>
               </div>
-              <h2 className="text-sm font-bold text-[var(--color-serene-text-main)]">
+              <h2 className="text-label-lg font-label-lg text-on-surface font-bold">
                 Triagem Rápida de Segurança
               </h2>
             </div>
 
-            {/* Alergias */}
+            {/* Alergias Prioritárias */}
             <div>
-              <span className="block text-xs font-semibold text-[var(--color-serene-text-main)] mb-1.5">
+              <label className="block text-label-md font-label-md text-on-surface-variant mb-1.5 font-medium">
                 Possui alergia medicamentosa comum?
-              </span>
+              </label>
               <div className="grid grid-cols-3 gap-2">
                 {(['Nenhuma', 'Dipirona', 'AINEs'] as const).map((opt) => (
                   <label key={opt} className="cursor-pointer">
                     <input
                       type="radio"
                       name="allergy"
+                      aria-label={opt}
                       value={opt}
                       checked={allergy === opt}
                       onChange={() => setAllergy(opt)}
                       className="sr-only peer"
-                      aria-label={`Alergia ${opt}`}
                     />
-                    <div className="px-2 py-2 text-center rounded-xl border border-[var(--color-serene-outline-variant)] peer-checked:border-[var(--color-serene-primary)] peer-checked:bg-[var(--color-serene-surface-low)] peer-checked:text-[var(--color-serene-primary-text)] text-xs font-semibold text-[var(--color-serene-text-muted)] transition-all">
+                    <div className="px-2 py-2 text-center rounded-xl border border-outline-variant/60 peer-checked:border-primary peer-checked:bg-primary-fixed/30 peer-checked:text-primary text-label-md font-label-md text-tertiary transition-all duration-150 font-semibold">
                       {opt}
                     </div>
                   </label>
@@ -330,21 +379,23 @@ export const GuestBookingFormPage: React.FC<GuestBookingFormPageProps> = ({
 
             {/* Gestante? */}
             <div>
-              <span className="block text-xs font-semibold text-[var(--color-serene-text-main)] mb-1.5">
+              <label className="block text-label-md font-label-md text-on-surface-variant mb-1.5 font-medium">
                 Você está gestante no momento?
-              </span>
+              </label>
               <div className="grid grid-cols-2 gap-2">
                 <label className="cursor-pointer">
                   <input
                     type="radio"
                     name="pregnant"
+                    aria-label="Não gestante"
                     checked={!isPregnant}
                     onChange={() => setIsPregnant(false)}
                     className="sr-only peer"
-                    aria-label="Não gestante"
                   />
-                  <div className="flex items-center justify-center gap-1.5 py-2 rounded-xl border border-[var(--color-serene-outline-variant)] peer-checked:border-[var(--color-serene-primary)] peer-checked:bg-[var(--color-serene-surface-low)] peer-checked:text-[var(--color-serene-primary-text)] text-xs font-semibold text-[var(--color-serene-text-muted)] transition-all">
-                    <span className="material-symbols-outlined text-[16px]">close</span>
+                  <div className="flex items-center justify-center gap-1.5 py-2 rounded-xl border border-outline-variant/60 peer-checked:border-primary peer-checked:bg-primary-fixed/30 peer-checked:text-primary text-label-md font-label-md text-tertiary transition-all duration-150 font-semibold">
+                    <span className="material-symbols-outlined text-[18px]" data-icon="close">
+                      close
+                    </span>
                     <span>Não</span>
                   </div>
                 </label>
@@ -352,13 +403,15 @@ export const GuestBookingFormPage: React.FC<GuestBookingFormPageProps> = ({
                   <input
                     type="radio"
                     name="pregnant"
+                    aria-label="Sim, gestante"
                     checked={isPregnant}
                     onChange={() => setIsPregnant(true)}
                     className="sr-only peer"
-                    aria-label="Sim, gestante"
                   />
-                  <div className="flex items-center justify-center gap-1.5 py-2 rounded-xl border border-[var(--color-serene-outline-variant)] peer-checked:border-[var(--color-serene-primary)] peer-checked:bg-[var(--color-serene-surface-low)] peer-checked:text-[var(--color-serene-primary-text)] text-xs font-semibold text-[var(--color-serene-text-muted)] transition-all">
-                    <span className="material-symbols-outlined text-[16px]">pregnant_woman</span>
+                  <div className="flex items-center justify-center gap-1.5 py-2 rounded-xl border border-outline-variant/60 peer-checked:border-primary peer-checked:bg-primary-fixed/30 peer-checked:text-primary text-label-md font-label-md text-tertiary transition-all duration-150 font-semibold">
+                    <span className="material-symbols-outlined text-[18px]" data-icon="pregnant_woman">
+                      pregnant_woman
+                    </span>
                     <span>Sim</span>
                   </div>
                 </label>
@@ -367,69 +420,71 @@ export const GuestBookingFormPage: React.FC<GuestBookingFormPageProps> = ({
 
             {/* Sintoma Curto */}
             <div>
-              <label className="block text-xs font-semibold text-[var(--color-serene-text-main)] mb-1" htmlFor="guest-symptoms">
-                O que você está sentindo agora? <span className="text-[var(--color-serene-text-muted)] font-normal">(breve)</span>
+              <label
+                className="block text-label-md font-label-md text-on-surface-variant mb-1"
+                htmlFor="symptoms"
+              >
+                O que você está sentindo agora? <span className="text-tertiary font-normal">(breve)</span>
               </label>
               <textarea
-                id="guest-symptoms"
+                id="symptoms"
+                name="symptoms"
                 rows={2}
-                className="serene-input text-xs resize-none"
-                placeholder="Ex: Dor pélvica súbita, cólica intensa, sangramento incomum..."
                 value={symptoms}
                 onChange={(e) => setSymptoms(e.target.value)}
+                placeholder="Ex: Dor pélvica súbita, cólica intensa, sangramento incomum..."
+                className="w-full px-3.5 py-2.5 bg-surface-container-lowest border border-outline-variant/60 rounded-xl text-body-sm font-body-sm text-on-surface focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all duration-150 placeholder:text-tertiary/60 resize-none"
               />
             </div>
           </section>
 
           {/* 4. Dados para Nota Fiscal / Reembolso */}
-          <section className="serene-card p-4">
+          <section className="bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/30 soft-card-shadow">
             <label className="flex items-start gap-3 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={wantsInvoice}
                 onChange={(e) => setWantsInvoice(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-[var(--color-serene-outline-variant)] text-[var(--color-serene-primary)] focus:ring-[var(--color-serene-primary)]/20"
-                aria-label="Emitir Nota Fiscal para o mesmo CPF da paciente"
+                className="mt-1 h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary/20 transition-all duration-150"
               />
               <div>
-                <p className="text-xs font-bold text-[var(--color-serene-text-main)]">
+                <p className="text-label-md font-label-md text-on-surface font-bold">
                   Emitir Nota Fiscal para o mesmo CPF da paciente
                 </p>
-                <p className="text-[11px] text-[var(--color-serene-text-muted)] mt-0.5">
+                <p className="text-body-sm font-body-sm text-tertiary">
                   Ideal para solicitar reembolso integral ou parcial no seu plano de saúde (Bradesco, SulAmérica, Amil, etc.).
                 </p>
               </div>
             </label>
           </section>
 
-          {generalError && (
-            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
-              {generalError}
+          {/* 5. Fixed Base Action Section */}
+          <div className="fixed bottom-16 left-0 right-0 z-40 bg-surface/95 backdrop-blur-md border-t border-outline-variant/30 px-4 py-3 max-w-md mx-auto">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full custom-gradient-btn text-on-primary font-label-lg text-label-lg py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2 tracking-wide font-bold disabled:opacity-50"
+            >
+              <span>{isSubmitting ? 'Processando Entrada...' : 'Confirmar e Entrar na Sala Virtual'}</span>
+              <span className="material-symbols-outlined text-[20px]" data-icon="arrow_forward">
+                arrow_forward
+              </span>
+            </button>
+            <div className="flex items-center justify-center gap-1.5 mt-2 text-tertiary">
+              <span
+                className="material-symbols-outlined text-[15px]"
+                data-icon="lock"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                lock
+              </span>
+              <span className="text-label-sm font-label-sm tracking-tight">
+                Ambiente médico criptografado • Resolução CFM &amp; LGPD
+              </span>
             </div>
-          )}
+          </div>
         </form>
       </main>
-
-      {/* 5. Fixed Base Action Section (Desempilhamento: sem Bottom Navigation duplicada) */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[var(--color-serene-outline-variant)] px-4 py-3 max-w-md mx-auto shadow-lg">
-        <button
-          type="button"
-          onClick={() => handleSubmit()}
-          disabled={isSubmitting}
-          className="serene-btn-primary w-full text-xs sm:text-sm py-3 px-4 flex items-center justify-center gap-2 font-bold active:scale-[0.98] disabled:opacity-50"
-        >
-          <span>{isSubmitting ? 'Confirmando...' : 'Confirmar e Entrar na Sala Virtual'}</span>
-          <span className="material-symbols-outlined text-[18px]" data-icon="arrow_forward">
-            arrow_forward
-          </span>
-        </button>
-        <div className="flex items-center justify-center gap-1.5 mt-2 text-[var(--color-serene-text-muted)]">
-          <span className="material-symbols-outlined text-[14px] text-[var(--color-serene-primary-text)]" data-icon="lock">
-            lock
-          </span>
-          <span className="text-[11px] tracking-tight">Ambiente médico criptografado • Resolução CFM & LGPD</span>
-        </div>
-      </div>
     </div>
   );
 };

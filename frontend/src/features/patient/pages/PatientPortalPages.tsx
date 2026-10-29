@@ -38,10 +38,19 @@ export function PatientWalkInBookingPage() {
   const navigate = useNavigate();
   const paths = patientPaths(slug);
 
+  const handleNavigateTab = (tab: string) => {
+    if (tab === 'inicio') navigate(paths.base);
+    else if (tab === 'agendar') navigate(paths.agendarAvulso);
+    else if (tab === 'consultas') navigate(paths.consultas);
+    else if (tab === 'prenatal') navigate(paths.cartaoGestante);
+    else if (tab === 'perfil') navigate(paths.cadastroAvancado);
+  };
+
   return (
     <WalkInBookingPage
       onBack={() => navigate(paths.base)}
       onContinue={() => navigate(paths.cadastroRapido)}
+      onNavigateTab={handleNavigateTab}
     />
   );
 }
@@ -55,10 +64,19 @@ export function PatientGuestBookingPage() {
   const navigate = useNavigate();
   const paths = patientPaths(slug);
 
+  const handleNavigateTab = (tab: string) => {
+    if (tab === 'inicio') navigate(paths.base);
+    else if (tab === 'agendar') navigate(paths.agendarAvulso);
+    else if (tab === 'consultas') navigate(paths.consultas);
+    else if (tab === 'prenatal') navigate(paths.cartaoGestante);
+    else if (tab === 'perfil') navigate(paths.cadastroAvancado);
+  };
+
   return (
     <GuestBookingFormPage
       onBack={() => navigate(paths.agendarAvulso)}
       onSuccess={() => navigate(paths.dashboard)}
+      onNavigateTab={handleNavigateTab}
     />
   );
 }
@@ -72,10 +90,19 @@ export function PatientAdvancedRegistrationPage() {
   const navigate = useNavigate();
   const paths = patientPaths(slug);
 
+  const handleNavigateTab = (tab: string) => {
+    if (tab === 'inicio') navigate(paths.base);
+    else if (tab === 'agendar') navigate(paths.agendarAvulso);
+    else if (tab === 'consultas') navigate(paths.consultas);
+    else if (tab === 'prenatal') navigate(paths.cartaoGestante);
+    else if (tab === 'perfil') navigate(paths.cadastroAvancado);
+  };
+
   return (
     <AdvancedRegistrationPage
       onBack={() => navigate(paths.base)}
       onSubmit={() => navigate(paths.dashboard)}
+      onNavigateTab={handleNavigateTab}
     />
   );
 }
@@ -100,6 +127,7 @@ export function PatientDashboardRoute() {
   return (
     <PatientLayoutSerene
       activeTab="inicio"
+      hideBottomNav={true}
       onTabChange={handleTabChange}
       onLogout={() => navigate(paths.base, { replace: true })}
     >
@@ -110,6 +138,13 @@ export function PatientDashboardRoute() {
           else if (section === 'consultas') navigate(paths.consultas);
           else if (section === 'exames') navigate(paths.cartaoGestante);
           else if (section === 'contato') navigate(paths.agendarAvulso);
+        }}
+        onNavigateTab={(tab) => {
+          if (tab === 'inicio') navigate(paths.dashboard);
+          else if (tab === 'agendar') navigate(paths.agendarAvulso);
+          else if (tab === 'consultas') navigate(paths.consultas);
+          else if (tab === 'prenatal') navigate(paths.cartaoGestante);
+          else if (tab === 'perfil') navigate(paths.perfil);
         }}
       />
     </PatientLayoutSerene>
@@ -136,6 +171,7 @@ export function PatientPrenatalCardRoute() {
   return (
     <PatientLayoutSerene
       activeTab="cartao-gestante"
+      hideBottomNav={true}
       breadcrumbs={[
         { label: 'Início', href: paths.dashboard },
         { label: 'Pré-Natal', href: paths.dashboard },
@@ -144,7 +180,16 @@ export function PatientPrenatalCardRoute() {
       onTabChange={handleTabChange}
       onLogout={() => navigate(paths.base, { replace: true })}
     >
-      <DigitalPrenatalCardPage onBack={() => navigate(paths.dashboard)} />
+      <DigitalPrenatalCardPage
+        onBack={() => navigate(paths.dashboard)}
+        onNavigateTab={(tab) => {
+          if (tab === 'inicio') navigate(paths.dashboard);
+          else if (tab === 'agendar') navigate(paths.agendarAvulso);
+          else if (tab === 'consultas') navigate(paths.consultas);
+          else if (tab === 'prenatal') navigate(paths.cartaoGestante);
+          else if (tab === 'perfil') navigate(paths.perfil);
+        }}
+      />
     </PatientLayoutSerene>
   );
 }

@@ -59,14 +59,14 @@ export const PrenatalWidget: React.FC<PrenatalWidgetProps> = ({
 
   return (
     <div
-      className={`bg-gradient-to-br from-[var(--color-serene-surface-card)] via-[var(--color-serene-surface-container-low)] to-[var(--color-serene-surface-container)]/60 rounded-2xl p-5 border border-[var(--color-serene-outline-variant)]/60 shadow-sm relative overflow-hidden ${className}`}
+      className={`bg-white rounded-2xl p-5 border border-slate-200 shadow-xs relative overflow-hidden ${className}`}
     >
-      {/* Decorative Glow */}
-      <div className="absolute -top-10 -right-10 w-32 h-32 bg-[var(--color-serene-secondary-container)]/30 rounded-full blur-2xl pointer-events-none" />
+      {/* Decorative Subtle Glow */}
+      <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#F7ECF8] rounded-full blur-2xl pointer-events-none" />
 
       {/* Header Metric Badges */}
       <div className="flex flex-wrap items-center justify-between gap-2 pb-4">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--color-serene-primary-container)] text-white text-xs font-bold shadow-xs">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#852A91] text-white text-xs font-bold shadow-xs">
           <span className="material-symbols-outlined text-[16px]">child_care</span>
           <span>
             {currentWeeks}ª Semana Gestacional
@@ -74,14 +74,14 @@ export const PrenatalWidget: React.FC<PrenatalWidgetProps> = ({
           </span>
         </div>
         <div className="text-right">
-          <span className="text-xs text-[var(--color-serene-on-surface-variant)] block font-medium">
+          <span className="text-xs text-slate-500 block font-medium">
             DPP Estimada:
           </span>
-          <span className="text-sm font-bold text-[var(--color-serene-on-surface)]">
+          <span className="text-sm font-bold text-slate-800">
             {dueDate}
           </span>
           {daysRemaining !== undefined && (
-            <span className="text-[11px] text-[var(--color-serene-secondary)] font-medium block">
+            <span className="text-[11px] text-[#852A91] font-medium block">
               {daysRemaining} dias restantes
             </span>
           )}
@@ -90,11 +90,11 @@ export const PrenatalWidget: React.FC<PrenatalWidgetProps> = ({
 
       {/* Weekly Progress Bar */}
       <div className="space-y-1.5 py-1">
-        <div className="flex justify-between text-xs text-[var(--color-serene-on-surface-variant)]">
+        <div className="flex justify-between text-xs text-slate-600">
           <span>
             {calculatedTrimester}º Trimestre (Semana {currentWeeks} de {totalWeeks})
           </span>
-          <span className="text-[var(--color-serene-primary-text)] font-bold">
+          <span className="text-[#852A91] font-bold">
             {percentage}% concluído
           </span>
         </div>
@@ -105,15 +105,15 @@ export const PrenatalWidget: React.FC<PrenatalWidgetProps> = ({
           aria-valuemin={1}
           aria-valuemax={totalWeeks}
           aria-valuetext={`Semana ${currentWeeks} de ${totalWeeks} - ${percentage}% concluído`}
-          className="w-full h-3 bg-[var(--color-serene-surface-container-high)] rounded-full overflow-hidden p-0.5 border border-[var(--color-serene-outline-variant)]/40"
+          className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden p-0 border border-slate-200"
         >
           <div
-            className="h-full bg-gradient-to-r from-[var(--color-serene-secondary)] to-[var(--color-serene-primary-container)] rounded-full transition-all duration-500"
+            className="h-full bg-gradient-to-r from-[#852A91] to-[#D83C91] rounded-full transition-all duration-500"
             style={{ width: `${percentage}%` }}
           />
         </div>
 
-        <div className="flex justify-between text-[11px] text-[var(--color-serene-on-surface-variant)] pt-0.5">
+        <div className="flex justify-between text-[11px] text-slate-500 pt-0.5">
           <span>1ª Sem</span>
           <span>Trimestre 2</span>
           <span>{totalWeeks}ª Sem</span>
@@ -121,18 +121,18 @@ export const PrenatalWidget: React.FC<PrenatalWidgetProps> = ({
       </div>
 
       {/* Fetal Size Comparison */}
-      <div className="mt-3.5 p-3.5 rounded-xl bg-[var(--color-serene-surface-card)] border border-[var(--color-serene-outline-variant)]/30 flex items-center gap-3.5">
-        <div className="w-12 h-12 rounded-xl bg-[var(--color-serene-secondary-fixed)] flex items-center justify-center text-2xl shrink-0">
+      <div className="mt-3.5 p-3.5 rounded-xl bg-[#F7ECF8] border border-[#B77AD8]/30 flex items-center gap-3.5">
+        <div className="w-12 h-12 rounded-xl bg-white shadow-xs flex items-center justify-center text-2xl shrink-0">
           {comparison.emoji}
         </div>
         <div className="space-y-0.5 min-w-0">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-serene-secondary)] block">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#852A91] block">
             Tamanho do Bebê
           </span>
-          <p className="text-sm font-bold text-[var(--color-serene-on-surface)]">
+          <p className="text-sm font-bold text-[#1E293B]">
             Como uma {comparison.name}
           </p>
-          <p className="text-xs text-[var(--color-serene-on-surface-variant)]">
+          <p className="text-xs text-slate-600">
             {comparison.sizeDescription}.
           </p>
         </div>
@@ -140,25 +140,25 @@ export const PrenatalWidget: React.FC<PrenatalWidgetProps> = ({
 
       {/* Last validated exam strip */}
       {lastExam && (
-        <div className="mt-3 p-3 rounded-xl bg-[var(--color-serene-surface-card)] border border-[var(--color-serene-outline-variant)]/30 space-y-1">
-          <div className="flex items-center justify-between text-xs font-bold text-[var(--color-serene-on-surface)]">
+        <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+          <div className="flex items-center justify-between text-xs font-bold text-[#1E293B]">
             <div className="flex items-center gap-1 text-emerald-700">
               <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                 check_circle
               </span>
               <span>Último Exame Realizado</span>
             </div>
-            <span className="text-[11px] text-[var(--color-serene-on-surface-variant)] font-normal">
+            <span className="text-[11px] text-slate-500 font-normal">
               {lastExam.date}
             </span>
           </div>
-          <p className="text-xs font-semibold text-[var(--color-serene-on-surface)] pl-4">
+          <p className="text-xs font-semibold text-[#1E293B] pl-4">
             {lastExam.title}
           </p>
           <div className="pl-4 flex items-center justify-between text-xs text-emerald-700">
             <span>{lastExam.status}</span>
             {lastExam.pdfUrl && (
-              <a href={lastExam.pdfUrl} className="text-[var(--color-serene-primary-text)] font-semibold hover:underline">
+              <a href={lastExam.pdfUrl} className="text-[#852A91] font-semibold hover:underline">
                 Ver laudo
               </a>
             )}
@@ -171,7 +171,7 @@ export const PrenatalWidget: React.FC<PrenatalWidgetProps> = ({
         <button
           type="button"
           onClick={onAccessCard}
-          className="w-full py-2.5 px-4 rounded-xl bg-[var(--color-serene-secondary)] text-white hover:bg-[var(--color-serene-secondary)]/90 font-semibold text-sm flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98]"
+          className="w-full py-2.5 px-4 rounded-xl bg-[#852A91] hover:bg-[#6F217B] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98]"
         >
           <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
             badge

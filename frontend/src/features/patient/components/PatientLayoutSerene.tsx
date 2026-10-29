@@ -85,22 +85,30 @@ export const PatientLayoutSerene: React.FC<PatientLayoutSereneProps> = ({
       {/* ======================================================== */}
       <aside
         aria-label="Menu Lateral Desktop"
-        className="hidden lg:flex fixed left-0 top-0 h-screen w-72 flex-col justify-between p-6 z-40 bg-[var(--color-serene-surface-card)] border-r border-[var(--color-serene-outline-variant)]/30 shadow-sm"
+        className="hidden lg:flex fixed left-0 top-0 h-screen w-72 flex-col justify-between p-6 z-40 bg-white border-r border-slate-200 shadow-sm"
       >
         <div className="flex flex-col gap-6">
           {/* Logo Brand / Identity */}
           <div className="flex flex-col gap-1 px-1">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[var(--color-serene-primary-container)] to-[var(--color-serene-primary)] text-white flex items-center justify-center font-bold text-sm shadow-xs">
-                CM
+              <img
+                src="/assets/brand/canamed_logo-removebg-preview.png"
+                alt="Cana Med Mulher"
+                className="h-10 w-auto object-contain"
+                onError={(e) => {
+                  // Fallback se asset não carregar no ambiente de teste
+                  (e.currentTarget as HTMLElement).style.display = 'none';
+                }}
+              />
+              <div className="flex flex-col">
+                <span className="font-extrabold text-lg tracking-tight text-[#852A91]">
+                  Cana Med Mulher
+                </span>
+                <span className="text-xs text-slate-500 font-medium tracking-wide">
+                  Portal da Paciente
+                </span>
               </div>
-              <span className="font-extrabold text-lg tracking-tight text-[var(--color-serene-primary-text)]">
-                Cana Med Mulher
-              </span>
             </div>
-            <span className="text-xs text-[var(--color-serene-on-surface-variant)] font-medium tracking-wide mt-1 pl-0.5">
-              Portal da Paciente
-            </span>
           </div>
 
           {/* Navigation Links */}
@@ -112,15 +120,15 @@ export const PatientLayoutSerene: React.FC<PatientLayoutSereneProps> = ({
                   key={item.id}
                   type="button"
                   onClick={() => handleNavClick(item.id)}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 text-left ${
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-sm transition-all duration-150 text-left ${
                     isActive
-                      ? 'bg-[var(--color-serene-secondary-container)]/40 text-[var(--color-serene-primary-text)] shadow-xs'
-                      : 'text-[var(--color-serene-on-surface-variant)] hover:bg-[var(--color-serene-surface-container-low)] hover:text-[var(--color-serene-primary-text)]'
+                      ? 'bg-[#F7ECF8] text-[#852A91] font-bold border-l-4 border-l-[#852A91] rounded-r-xl shadow-xs'
+                      : 'text-[#64748B] hover:text-[#1E293B] hover:bg-slate-50 font-medium rounded-xl'
                   }`}
                 >
                   <span
                     className={`material-symbols-outlined text-[22px] ${
-                      isActive ? 'text-[var(--color-serene-primary-text)]' : 'text-[var(--color-serene-secondary)]'
+                      isActive ? 'text-[#852A91]' : 'text-slate-500'
                     }`}
                     style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
                   >
@@ -128,13 +136,13 @@ export const PatientLayoutSerene: React.FC<PatientLayoutSereneProps> = ({
                   </span>
                   <span className="flex-1 truncate">{item.label}</span>
                   {item.badge && (
-                    <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--color-serene-primary-fixed)] text-[var(--color-serene-primary-text)]">
+                    <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#F7ECF8] text-[#852A91]">
                       {item.badge}
                     </span>
                   )}
                   {item.hasIndicator && (
                     <span
-                      className="w-2 h-2 rounded-full bg-[var(--color-serene-primary)] animate-pulse"
+                      className="w-2 h-2 rounded-full bg-[#852A91] animate-pulse"
                       title="Gestação ativa"
                     />
                   )}
@@ -145,16 +153,16 @@ export const PatientLayoutSerene: React.FC<PatientLayoutSereneProps> = ({
         </div>
 
         {/* Desktop Footer: Patient Snapshot & Logout */}
-        <div className="flex flex-col gap-3 border-t border-[var(--color-serene-outline-variant)]/30 pt-4">
-          <div className="flex items-center gap-3 px-2 py-2 rounded-xl bg-[var(--color-serene-surface-container-low)]/80">
-            <div className="w-10 h-10 rounded-full bg-[var(--color-serene-surface-container)] flex items-center justify-center font-bold text-sm text-[var(--color-serene-primary-text)] border border-[var(--color-serene-outline-variant)]/50 shrink-0">
+        <div className="flex flex-col gap-3 border-t border-slate-200 pt-4">
+          <div className="flex items-center gap-3 px-2 py-2 rounded-xl bg-slate-50">
+            <div className="w-10 h-10 rounded-full bg-[#F7ECF8] flex items-center justify-center font-bold text-sm text-[#852A91] border border-[#B77AD8]/30 shrink-0">
               {patientName.charAt(0)}
             </div>
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-xs font-bold text-[var(--color-serene-on-surface)] truncate leading-tight">
+              <span className="text-xs font-bold text-[#1E293B] truncate leading-tight">
                 {patientName}
               </span>
-              <span className="text-[11px] text-[var(--color-serene-primary-text)] font-medium">
+              <span className="text-[11px] text-[#852A91] font-medium">
                 {gestationalWeekText}
               </span>
             </div>
@@ -164,7 +172,7 @@ export const PatientLayoutSerene: React.FC<PatientLayoutSereneProps> = ({
             type="button"
             aria-label="Sair da conta"
             onClick={onLogout}
-            className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-[var(--color-serene-on-surface-variant)] hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors text-left"
+            className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-500 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors text-left"
           >
             <span className="material-symbols-outlined text-[18px]">logout</span>
             <span>Sair</span>
@@ -178,7 +186,7 @@ export const PatientLayoutSerene: React.FC<PatientLayoutSereneProps> = ({
       {!hideTopBar && (
         <header
           aria-label="Barra Superior Desktop"
-          className="hidden lg:flex fixed top-0 right-0 left-72 h-18 z-30 items-center justify-between px-8 bg-[var(--color-serene-surface-card)]/90 backdrop-blur-md border-b border-[var(--color-serene-outline-variant)]/30 shadow-sm"
+          className="hidden lg:flex fixed top-0 right-0 left-72 h-18 z-30 items-center justify-between px-8 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-xs"
         >
           {/* Breadcrumbs or Page Title */}
           <div className="flex items-center gap-2">
@@ -186,16 +194,16 @@ export const PatientLayoutSerene: React.FC<PatientLayoutSereneProps> = ({
               <nav aria-label="Breadcrumb" className="flex items-center space-x-1.5 text-xs">
                 {breadcrumbs.map((crumb, idx) => (
                   <React.Fragment key={idx}>
-                    {idx > 0 && <span className="text-[var(--color-serene-outline-variant)]">/</span>}
+                    {idx > 0 && <span className="text-slate-400">/</span>}
                     {crumb.href ? (
                       <a
                         href={crumb.href}
-                        className="text-[var(--color-serene-on-surface-variant)] hover:text-[var(--color-serene-primary-text)] font-medium transition-colors"
+                        className="text-slate-600 hover:text-[#852A91] font-medium transition-colors"
                       >
                         {crumb.label}
                       </a>
                     ) : (
-                      <span className="text-[var(--color-serene-primary-text)] font-bold">
+                      <span className="text-[#852A91] font-bold">
                         {crumb.label}
                       </span>
                     )}
@@ -204,7 +212,7 @@ export const PatientLayoutSerene: React.FC<PatientLayoutSereneProps> = ({
               </nav>
             ) : (
               <div className="flex items-center gap-2">
-                <h1 className="text-base font-bold text-[var(--color-serene-on-surface)]">
+                <h1 className="text-base font-bold text-[#1E293B]">
                   Painel do Paciente
                 </h1>
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1">
@@ -218,7 +226,7 @@ export const PatientLayoutSerene: React.FC<PatientLayoutSereneProps> = ({
           <div className="flex items-center gap-3">
             <a
               href={emergencyPhone}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[var(--color-serene-primary-text)] to-[var(--color-serene-primary)] text-white text-xs font-bold shadow-sm hover:brightness-105 active:scale-95 transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#852A91] hover:bg-[#6F217B] text-white text-xs font-bold shadow-xs hover:shadow-sm active:scale-95 transition-all"
             >
               <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                 emergency
@@ -242,7 +250,7 @@ export const PatientLayoutSerene: React.FC<PatientLayoutSereneProps> = ({
       {!hideBottomNav && (
         <nav
           aria-label="Navegação Principal Mobile"
-          className="lg:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-1.5 h-16 bg-[var(--color-serene-surface)] border-t border-[var(--color-serene-outline-variant)]/30 shadow-[0_-4px_16px_rgba(75,30,90,0.06)]"
+          className="lg:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-1.5 h-16 bg-white border-t border-slate-200 shadow-[0_-2px_10px_rgba(30,41,59,0.05)]"
         >
           {mobileNavItems.map((item) => {
             const isActive = activeTab === item.id;
@@ -253,8 +261,8 @@ export const PatientLayoutSerene: React.FC<PatientLayoutSereneProps> = ({
                 onClick={() => handleNavClick(item.id)}
                 className={`flex flex-col items-center justify-center min-w-[48px] min-h-[48px] p-1 gap-0.5 active:scale-90 transition-transform ${
                   isActive
-                    ? 'text-[var(--color-serene-primary-text)] font-bold'
-                    : 'text-[var(--color-serene-on-surface-variant)] font-medium hover:text-[var(--color-serene-primary-text)]'
+                    ? 'text-[#852A91] font-bold'
+                    : 'text-[#64748B] font-medium hover:text-[#852A91]'
                 }`}
               >
                 <span

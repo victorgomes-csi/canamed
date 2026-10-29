@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 
 declare const process: any;
 
-describe('Design System Serene Bloom - Tokens & Ícones', () => {
-  it('deve conter o arquivo patient-serene.css com tokens de paleta e contraste WCAG AA', async () => {
+describe('Design System Serene / Cana Med Mulher - Tokens & Ícones', () => {
+  it('deve conter o arquivo patient-serene.css com tokens de paleta oficiais e contraste WCAG AA', async () => {
     // @ts-ignore
     const fs = await import('node:fs');
     // @ts-ignore
@@ -13,18 +13,25 @@ describe('Design System Serene Bloom - Tokens & Ícones', () => {
     expect(fs.existsSync(sereneCssPath)).toBe(true);
     const cssContent = fs.readFileSync(sereneCssPath, 'utf-8');
 
-    // WCAG AA Tokens
-    expect(cssContent).toContain('--color-serene-primary-text: #B30063;');
-    expect(cssContent).toContain('--color-serene-primary: #D8257C;');
-    expect(cssContent).toContain('--color-serene-secondary: #7C4C8A;');
-    expect(cssContent).toContain('--color-serene-surface: #FDF7FF;');
-    expect(cssContent).toContain('--color-serene-surface-low: #F8F1FF;');
+    // Tokens Canônicos Cana Med Mulher
+    expect(cssContent).toContain('--color-serene-primary: #852A91;');
+    expect(cssContent).toContain('--color-serene-primary-hover: #6F217B;');
+    expect(cssContent).toContain('--color-serene-primary-text: #852A91;');
+    expect(cssContent).toContain('--color-serene-secondary: #6F217B;');
+    expect(cssContent).toContain('--color-serene-surface: #F7F8FA;');
     expect(cssContent).toContain('--color-serene-surface-card: #FFFFFF;');
-    expect(cssContent).toContain('--color-serene-outline: #8C6F78;');
-    expect(cssContent).toContain('--color-serene-text-main: #1D1929;');
+    expect(cssContent).toContain('--color-serene-text-main: #1E293B;');
     expect(cssContent).toContain('--color-serene-emergency: #DC2626;');
 
-    // Sombras Luminescentes & Soft
+    // Classes utilitárias fundamentais
+    expect(cssContent).toContain('.canamed-input');
+    expect(cssContent).toContain('.canamed-select');
+    expect(cssContent).toContain('.canamed-btn-primary');
+    expect(cssContent).toContain('.canamed-btn-secondary');
+    expect(cssContent).toContain('.canamed-card');
+    expect(cssContent).toContain('.canamed-chip');
+
+    // Sombras Clínicas Suaves
     expect(cssContent).toContain('--shadow-serene-soft:');
     expect(cssContent).toContain('--shadow-serene-luminescence:');
   });
@@ -40,3 +47,4 @@ describe('Design System Serene Bloom - Tokens & Ícones', () => {
     expect(htmlContent).toContain('Material+Symbols+Outlined');
   });
 });
+

@@ -139,13 +139,13 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
   };
 
   return (
-    <div className="bg-background text-on-surface antialiased min-h-full flex flex-col justify-between selection:bg-primary-fixed selection:text-on-primary-fixed">
+    <div className="bg-[#F7F8FA] text-[#1E293B] antialiased min-h-full flex flex-col justify-between selection:bg-[#F7ECF8] selection:text-[#852A91]">
       {/* Top App Bar Header */}
-      <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 h-16 max-w-screen-md mx-auto bg-surface/90 backdrop-blur-md shadow-sm border-b border-outline-variant/30">
+      <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 h-16 max-w-screen-md mx-auto bg-white/95 backdrop-blur-md shadow-xs border-b border-slate-200">
         <div className="flex items-center gap-2">
           <button
             aria-label="Voltar"
-            className="w-10 h-10 rounded-full flex items-center justify-center text-secondary hover:bg-surface-container active:scale-95 transition-all duration-150"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-100 active:scale-95 transition-all duration-150"
             type="button"
             onClick={handleBack}
           >
@@ -154,16 +154,16 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
             </span>
           </button>
           <div className="flex flex-col">
-            <span className="font-headline-sm text-headline-sm font-bold text-primary tracking-tight">
+            <span className="text-base font-bold text-[#852A91] tracking-tight">
               Cadastro Avançado
             </span>
-            <span className="font-label-sm text-label-sm text-tertiary">
+            <span className="text-xs text-[#64748B]">
               Área da Paciente
             </span>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="h-9 px-2 py-1 rounded-xl bg-surface-container-low flex items-center justify-center shadow-sm border border-outline-variant/30">
+          <div className="h-9 px-2 py-1 rounded-xl bg-slate-50 flex items-center justify-center shadow-xs border border-slate-200">
             <img
               alt="Logo Cana Med Mulher"
               className="h-6 w-auto object-contain"
@@ -176,24 +176,24 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
       {/* Main Container */}
       <main className="flex-1 w-full max-w-screen-md mx-auto pt-20 pb-36 px-4 space-y-6">
         {/* Barra de Progresso Clínico */}
-        <section className="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_2px_8px_-2px_rgba(75,30,90,0.04)] border border-outline-variant/30">
+        <section className="bg-white rounded-2xl p-4 shadow-xs border border-slate-200">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-primary-container animate-pulse" />
-              <span className="font-label-lg text-label-lg text-primary font-bold">
+              <span className="w-2 h-2 rounded-full bg-[#852A91] animate-pulse" />
+              <span className="text-xs font-bold text-[#852A91]">
                 Passo 1 de 3
               </span>
             </div>
-            <span className="font-label-md text-label-md text-secondary font-bold bg-surface-container px-2.5 py-0.5 rounded-full">
+            <span className="text-xs font-bold text-[#852A91] bg-[#F7ECF8] px-2.5 py-0.5 rounded-full">
               75% Concluído
             </span>
           </div>
-          <p className="font-body-sm text-body-sm text-tertiary mb-3">
+          <p className="text-xs text-[#64748B] mb-3">
             Perfil Clínico Completo e Histórico Pré-Natal
           </p>
-          <div className="w-full bg-surface-container rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
             <div
-              className="bg-gradient-to-r from-primary to-primary-container h-full rounded-full transition-all duration-500"
+              className="bg-[#852A91] h-full rounded-full transition-all duration-500"
               style={{ width: '75%' }}
             />
           </div>
@@ -202,18 +202,18 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
         {/* Formulário Multi-Seção */}
         <form className="space-y-5" id="clinical-record-form" onSubmit={handleSubmit}>
           {/* 1. Identificação e Contato */}
-          <div className="bg-surface-container-lowest rounded-2xl p-5 shadow-[0_2px_8px_-2px_rgba(75,30,90,0.04)] border border-outline-variant/30">
+          <div className="bg-white rounded-2xl p-5 md:p-6 shadow-xs border border-slate-200">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
-                <span className="material-symbols-outlined" data-icon="person_outline">
+              <div className="w-9 h-9 rounded-xl bg-[#F7ECF8] flex items-center justify-center text-[#852A91] font-bold">
+                <span className="material-symbols-outlined text-[20px]" data-icon="person_outline">
                   person_outline
                 </span>
               </div>
               <div>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold">
+                <h2 className="text-base font-bold text-[#1E293B]">
                   Identificação e Contato
                 </h2>
-                <p className="font-body-sm text-body-sm text-tertiary">
+                <p className="text-xs text-[#64748B]">
                   Dados para prontuário seguro e notificações
                 </p>
               </div>
@@ -223,10 +223,10 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
               {/* Nome Completo */}
               <div>
                 <label
-                  className="block font-label-md text-label-md text-on-surface-variant mb-1.5"
+                  className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5"
                   htmlFor="full-name"
                 >
-                  Nome Completo da Paciente <span className="text-primary">*</span>
+                  Nome Completo da Paciente <span className="text-[#852A91]">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -238,10 +238,10 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                       setIsDirty(true);
                       setFullName(e.target.value);
                     }}
-                    className="w-full h-12 px-3.5 rounded-xl border border-outline-variant/50 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary-container focus:ring-4 focus:ring-primary-container/10 transition-all"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-sm focus:outline-none focus:border-[#852A91] focus:ring-2 focus:ring-[#852A91]/20 transition-all"
                   />
-                  <span className="absolute right-3.5 top-3 text-secondary/60">
-                    <span className="material-symbols-outlined" data-icon="badge">
+                  <span className="absolute right-3.5 top-3 text-slate-400">
+                    <span className="material-symbols-outlined text-[20px]" data-icon="badge">
                       badge
                     </span>
                   </span>
@@ -252,10 +252,10 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label
-                    className="block font-label-md text-label-md text-on-surface-variant mb-1.5"
+                    className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5"
                     htmlFor="cpf"
                   >
-                    CPF <span className="text-primary">*</span>
+                    CPF <span className="text-[#852A91]">*</span>
                   </label>
                   <input
                     id="cpf"
@@ -266,15 +266,15 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                       setIsDirty(true);
                       setCpf(e.target.value);
                     }}
-                    className="w-full h-12 px-3.5 rounded-xl border border-outline-variant/50 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary-container focus:ring-4 focus:ring-primary-container/10 transition-all"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-sm focus:outline-none focus:border-[#852A91] focus:ring-2 focus:ring-[#852A91]/20 transition-all"
                   />
                 </div>
                 <div>
                   <label
-                    className="block font-label-md text-label-md text-on-surface-variant mb-1.5"
+                    className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5"
                     htmlFor="birthdate"
                   >
-                    Nascimento <span className="text-primary">*</span>
+                    Nascimento <span className="text-[#852A91]">*</span>
                   </label>
                   <input
                     id="birthdate"
@@ -285,7 +285,7 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                       setIsDirty(true);
                       setBirthDate(e.target.value);
                     }}
-                    className="w-full h-12 px-3.5 rounded-xl border border-outline-variant/50 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary-container focus:ring-4 focus:ring-primary-container/10 transition-all"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-sm focus:outline-none focus:border-[#852A91] focus:ring-2 focus:ring-[#852A91]/20 transition-all"
                   />
                 </div>
               </div>
@@ -294,10 +294,10 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label
-                    className="block font-label-md text-label-md text-on-surface-variant mb-1.5"
+                    className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5"
                     htmlFor="phone"
                   >
-                    Celular / WhatsApp <span className="text-primary">*</span>
+                    Celular / WhatsApp <span className="text-[#852A91]">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -309,10 +309,10 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                         setIsDirty(true);
                         setPhone(e.target.value);
                       }}
-                      className="w-full h-12 px-3.5 rounded-xl border border-outline-variant/50 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary-container focus:ring-4 focus:ring-primary-container/10 transition-all"
+                      className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-sm focus:outline-none focus:border-[#852A91] focus:ring-2 focus:ring-[#852A91]/20 transition-all"
                     />
-                    <span className="absolute right-3.5 top-3 text-secondary/60">
-                      <span className="material-symbols-outlined" data-icon="phone_iphone">
+                    <span className="absolute right-3.5 top-3 text-slate-400">
+                      <span className="material-symbols-outlined text-[20px]" data-icon="phone_iphone">
                         phone_iphone
                       </span>
                     </span>
@@ -320,10 +320,10 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                 </div>
                 <div>
                   <label
-                    className="block font-label-md text-label-md text-on-surface-variant mb-1.5"
+                    className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5"
                     htmlFor="email"
                   >
-                    E-mail para Laudos <span className="text-primary">*</span>
+                    E-mail para Laudos <span className="text-[#852A91]">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -335,10 +335,10 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                         setIsDirty(true);
                         setEmail(e.target.value);
                       }}
-                      className="w-full h-12 px-3.5 rounded-xl border border-outline-variant/50 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary-container focus:ring-4 focus:ring-primary-container/10 transition-all"
+                      className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-sm focus:outline-none focus:border-[#852A91] focus:ring-2 focus:ring-[#852A91]/20 transition-all"
                     />
-                    <span className="absolute right-3.5 top-3 text-secondary/60">
-                      <span className="material-symbols-outlined" data-icon="mail">
+                    <span className="absolute right-3.5 top-3 text-slate-400">
+                      <span className="material-symbols-outlined text-[20px]" data-icon="mail">
                         mail
                       </span>
                     </span>
@@ -347,8 +347,8 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
               </div>
 
               {/* Contato de Emergência */}
-              <div className="pt-2 border-t border-surface-container">
-                <label className="block font-label-md text-label-md text-on-surface-variant mb-1.5">
+              <div className="pt-2 border-t border-slate-100">
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                   Contato de Emergência &amp; Parentesco
                 </label>
                 <div className="grid grid-cols-5 gap-2">
@@ -360,7 +360,7 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                       setEmergencyContactName(e.target.value);
                     }}
                     placeholder="Nome do contato (Ex: Lucas Silveira)"
-                    className="col-span-3 h-12 px-3.5 rounded-xl border border-outline-variant/50 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary-container focus:ring-4 focus:ring-primary-container/10 transition-all"
+                    className="col-span-3 h-11 px-3.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-sm focus:outline-none focus:border-[#852A91] focus:ring-2 focus:ring-[#852A91]/20 transition-all"
                   />
                   <select
                     value={emergencyContactRelation}
@@ -368,7 +368,7 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                       setIsDirty(true);
                       setEmergencyContactRelation(e.target.value);
                     }}
-                    className="col-span-2 h-12 px-2.5 rounded-xl border border-outline-variant/50 bg-surface-container-lowest text-on-surface font-label-lg text-label-lg focus:outline-none focus:border-primary-container focus:ring-4 focus:ring-primary-container/10"
+                    className="col-span-2 h-11 px-2.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-sm focus:outline-none focus:border-[#852A91] focus:ring-2 focus:ring-[#852A91]/20 font-semibold"
                   >
                     <option value="Cônjuge">Cônjuge</option>
                     <option value="Mãe">Mãe</option>
@@ -382,18 +382,18 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
           </div>
 
           {/* 2. Histórico Ginecológico e Obstétrico */}
-          <div className="bg-surface-container-lowest rounded-2xl p-5 shadow-[0_2px_8px_-2px_rgba(75,30,90,0.04)] border border-outline-variant/30">
+          <div className="bg-white rounded-2xl p-5 md:p-6 shadow-xs border border-slate-200">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
-                <span className="material-symbols-outlined" data-icon="pregnant_woman">
+              <div className="w-9 h-9 rounded-xl bg-[#F7ECF8] flex items-center justify-center text-[#852A91] font-bold">
+                <span className="material-symbols-outlined text-[20px]" data-icon="pregnant_woman">
                   pregnant_woman
                 </span>
               </div>
               <div>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold">
+                <h2 className="text-base font-bold text-[#1E293B]">
                   Histórico Ginecológico &amp; Clínico
                 </h2>
-                <p className="font-body-sm text-body-sm text-tertiary">
+                <p className="text-xs text-[#64748B]">
                   Informações fundamentais para o acompanhamento
                 </p>
               </div>
@@ -402,7 +402,7 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
             <div className="space-y-4">
               {/* Tipo Sanguíneo */}
               <div>
-                <span className="block font-label-md text-label-md text-on-surface-variant mb-2">
+                <span className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                   Tipo Sanguíneo e Fator Rh
                 </span>
                 <div className="grid grid-cols-4 gap-2" id="blood-group-selector">
@@ -416,10 +416,10 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                           setIsDirty(true);
                           setBloodType(bt);
                         }}
-                        className={`blood-chip h-10 rounded-xl font-label-md text-label-md flex items-center justify-center transition-all ${
+                        className={`blood-chip h-10 rounded-xl text-xs flex items-center justify-center transition-all ${
                           isSelected
-                            ? 'active border border-primary-container bg-primary-container text-on-primary-container shadow-sm font-bold'
-                            : 'border border-outline-variant/40 bg-surface text-tertiary hover:bg-surface-container'
+                            ? 'active border border-[#852A91] bg-[#852A91] text-white shadow-xs font-bold'
+                            : 'border border-slate-200 bg-white text-slate-700 hover:border-[#852A91]/40'
                         }`}
                       >
                         {bt}
@@ -431,7 +431,7 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
 
               {/* Alergias */}
               <div>
-                <span className="block font-label-md text-label-md text-on-surface-variant mb-2">
+                <span className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                   Alergias Medicamentosas (Toque para selecionar)
                 </span>
                 <div className="flex flex-wrap gap-2" id="allergies-container">
@@ -442,10 +442,10 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                         key={alg}
                         type="button"
                         onClick={() => handleToggleAllergy(alg)}
-                        className={`px-3 py-1.5 rounded-full font-label-md text-label-md flex items-center gap-1 transition-all ${
+                        className={`px-3 py-1.5 rounded-full text-xs flex items-center gap-1 transition-all ${
                           isSelected
-                            ? 'border border-primary text-primary bg-primary-fixed font-semibold'
-                            : 'border border-outline-variant/40 text-tertiary bg-surface hover:bg-surface-container'
+                            ? 'border border-[#852A91] text-[#852A91] bg-[#F7ECF8] font-bold shadow-xs'
+                            : 'border border-slate-200 text-slate-700 bg-white hover:border-[#852A91]/40'
                         }`}
                       >
                         <span className="material-symbols-outlined text-sm" data-icon={isSelected ? 'check' : 'add'}>
@@ -459,14 +459,14 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
               </div>
 
               {/* GPA */}
-              <div className="p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/20">
-                <span className="block font-label-lg text-label-lg text-secondary font-bold mb-2">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <span className="block text-xs font-bold text-[#852A91] uppercase tracking-wider mb-3">
                   Histórico Obstétrico (GPA)
                 </span>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="bg-surface-container-lowest p-2.5 rounded-lg text-center border border-outline-variant/30">
-                    <span className="block font-label-sm text-label-sm text-tertiary">Gestações</span>
-                    <div className="flex items-center justify-center gap-2 mt-1">
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-white p-3 rounded-xl text-center border border-slate-200 shadow-xs">
+                    <span className="block text-xs font-medium text-[#64748B]">Gestações</span>
+                    <div className="flex items-center justify-center gap-2.5 mt-2">
                       <button
                         type="button"
                         aria-label="Diminuir gestações"
@@ -474,11 +474,11 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                           setIsDirty(true);
                           setGestations(Math.max(0, gestations - 1));
                         }}
-                        className="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-primary text-xs"
+                        className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center justify-center text-sm font-bold transition-colors"
                       >
                         -
                       </button>
-                      <span data-testid="gpa-gestations" className="font-headline-sm text-headline-sm font-bold text-primary">
+                      <span data-testid="gpa-gestations" className="text-base font-bold text-[#1E293B]">
                         {gestations}
                       </span>
                       <button
@@ -488,15 +488,15 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                           setIsDirty(true);
                           setGestations(gestations + 1);
                         }}
-                        className="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-primary text-xs"
+                        className="w-8 h-8 rounded-lg bg-[#F7ECF8] text-[#852A91] hover:bg-[#B77AD8]/30 flex items-center justify-center text-sm font-bold transition-colors"
                       >
                         +
                       </button>
                     </div>
                   </div>
-                  <div className="bg-surface-container-lowest p-2.5 rounded-lg text-center border border-outline-variant/30">
-                    <span className="block font-label-sm text-label-sm text-tertiary">Partos</span>
-                    <div className="flex items-center justify-center gap-2 mt-1">
+                  <div className="bg-white p-3 rounded-xl text-center border border-slate-200 shadow-xs">
+                    <span className="block text-xs font-medium text-[#64748B]">Partos</span>
+                    <div className="flex items-center justify-center gap-2.5 mt-2">
                       <button
                         type="button"
                         aria-label="Diminuir partos"
@@ -504,11 +504,11 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                           setIsDirty(true);
                           setBirths(Math.max(0, births - 1));
                         }}
-                        className="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-secondary text-xs"
+                        className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center justify-center text-sm font-bold transition-colors"
                       >
                         -
                       </button>
-                      <span data-testid="gpa-births" className="font-headline-sm text-headline-sm font-bold text-secondary">
+                      <span data-testid="gpa-births" className="text-base font-bold text-[#1E293B]">
                         {births}
                       </span>
                       <button
@@ -518,15 +518,15 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                           setIsDirty(true);
                           setBirths(births + 1);
                         }}
-                        className="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-secondary text-xs"
+                        className="w-8 h-8 rounded-lg bg-[#F7ECF8] text-[#852A91] hover:bg-[#B77AD8]/30 flex items-center justify-center text-sm font-bold transition-colors"
                       >
                         +
                       </button>
                     </div>
                   </div>
-                  <div className="bg-surface-container-lowest p-2.5 rounded-lg text-center border border-outline-variant/30">
-                    <span className="block font-label-sm text-label-sm text-tertiary">Abortos</span>
-                    <div className="flex items-center justify-center gap-2 mt-1">
+                  <div className="bg-white p-3 rounded-xl text-center border border-slate-200 shadow-xs">
+                    <span className="block text-xs font-medium text-[#64748B]">Abortos</span>
+                    <div className="flex items-center justify-center gap-2.5 mt-2">
                       <button
                         type="button"
                         aria-label="Diminuir abortos"
@@ -534,11 +534,11 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                           setIsDirty(true);
                           setAbortions(Math.max(0, abortions - 1));
                         }}
-                        className="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-secondary text-xs"
+                        className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center justify-center text-sm font-bold transition-colors"
                       >
                         -
                       </button>
-                      <span data-testid="gpa-abortions" className="font-headline-sm text-headline-sm font-bold text-secondary">
+                      <span data-testid="gpa-abortions" className="text-base font-bold text-[#1E293B]">
                         {abortions}
                       </span>
                       <button
@@ -548,7 +548,7 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                           setIsDirty(true);
                           setAbortions(abortions + 1);
                         }}
-                        className="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-secondary text-xs"
+                        className="w-8 h-8 rounded-lg bg-[#F7ECF8] text-[#852A91] hover:bg-[#B77AD8]/30 flex items-center justify-center text-sm font-bold transition-colors"
                       >
                         +
                       </button>
@@ -560,7 +560,7 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
               {/* Medicamentos */}
               <div>
                 <label
-                  className="block font-label-md text-label-md text-on-surface-variant mb-1.5"
+                  className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5"
                   htmlFor="supplements"
                 >
                   Medicamentos em Uso Contínuo ou Polivitamínicos
@@ -573,25 +573,25 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                     setIsDirty(true);
                     setContinuousMeds(e.target.value);
                   }}
-                  className="w-full h-12 px-3.5 rounded-xl border border-outline-variant/50 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary-container focus:ring-4 focus:ring-primary-container/10 transition-all"
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-sm focus:outline-none focus:border-[#852A91] focus:ring-2 focus:ring-[#852A91]/20 transition-all"
                 />
               </div>
             </div>
           </div>
 
           {/* 3. Convênio ou Reembolso */}
-          <div className="bg-surface-container-lowest rounded-2xl p-5 shadow-[0_2px_8px_-2px_rgba(75,30,90,0.04)] border border-outline-variant/30">
+          <div className="bg-white rounded-2xl p-5 md:p-6 shadow-xs border border-slate-200">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
-                <span className="material-symbols-outlined" data-icon="health_and_safety">
+              <div className="w-9 h-9 rounded-xl bg-[#F7ECF8] flex items-center justify-center text-[#852A91] font-bold">
+                <span className="material-symbols-outlined text-[20px]" data-icon="health_and_safety">
                   health_and_safety
                 </span>
               </div>
               <div>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold">
+                <h2 className="text-base font-bold text-[#1E293B]">
                   Convênio ou Reembolso
                 </h2>
-                <p className="font-body-sm text-body-sm text-tertiary">
+                <p className="text-xs text-[#64748B]">
                   Cobertura para consultas obstétricas e partos
                 </p>
               </div>
@@ -599,7 +599,7 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
 
             <div className="space-y-4">
               <div>
-                <span className="block font-label-md text-label-md text-on-surface-variant mb-2">
+                <span className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                   Operadora de Saúde
                 </span>
                 <div className="grid grid-cols-2 gap-2" id="insurance-picker">
@@ -610,8 +610,8 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                         key={opt.id}
                         className={`cursor-pointer rounded-xl p-3 flex items-center gap-2.5 transition-all ${
                           isSelected
-                            ? 'border-2 border-primary-container bg-surface-container/50'
-                            : 'border border-outline-variant/40 hover:bg-surface'
+                            ? 'border-2 border-[#852A91] bg-[#F7ECF8]/40'
+                            : 'border border-slate-200 hover:border-slate-300 bg-white'
                         }`}
                       >
                         <input
@@ -623,11 +623,11 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                             setIsDirty(true);
                             setInsuranceName(opt.label);
                           }}
-                          className="text-primary focus:ring-primary-container"
+                          className="text-[#852A91] focus:ring-[#852A91]"
                         />
                         <span
-                          className={`font-label-lg text-label-lg text-on-surface ${
-                            isSelected ? 'font-bold' : 'font-semibold'
+                          className={`text-xs text-[#1E293B] ${
+                            isSelected ? 'font-bold' : 'font-medium'
                           }`}
                         >
                           {opt.label}
@@ -642,7 +642,7 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label
-                    className="block font-label-md text-label-md text-on-surface-variant mb-1.5"
+                    className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5"
                     htmlFor="card-number"
                   >
                     Número da Carteirinha
@@ -655,12 +655,12 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                       setIsDirty(true);
                       setInsuranceCardNumber(e.target.value);
                     }}
-                    className="w-full h-12 px-3.5 rounded-xl border border-outline-variant/50 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary-container focus:ring-4 focus:ring-primary-container/10 transition-all"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-sm focus:outline-none focus:border-[#852A91] focus:ring-2 focus:ring-[#852A91]/20 transition-all"
                   />
                 </div>
                 <div>
                   <label
-                    className="block font-label-md text-label-md text-on-surface-variant mb-1.5"
+                    className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5"
                     htmlFor="plan-tier"
                   >
                     Plano / Categoria
@@ -673,7 +673,7 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                       setIsDirty(true);
                       setInsurancePlanTier(e.target.value);
                     }}
-                    className="w-full h-12 px-3.5 rounded-xl border border-outline-variant/50 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary-container focus:ring-4 focus:ring-primary-container/10 transition-all"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white text-slate-800 text-sm focus:outline-none focus:border-[#852A91] focus:ring-2 focus:ring-[#852A91]/20 transition-all"
                   />
                 </div>
               </div>
@@ -681,7 +681,7 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
           </div>
 
           {/* 4. Consentimento Médico CFM & LGPD */}
-          <div className="bg-surface-container-low rounded-2xl p-4 border border-outline-variant/30 flex items-start gap-3">
+          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 flex items-start gap-3">
             <div className="pt-0.5">
               <input
                 id="consent-lgpd"
@@ -691,11 +691,11 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
                   setIsDirty(true);
                   setConsentLgpd(e.target.checked);
                 }}
-                className="w-5 h-5 rounded text-primary-container focus:ring-primary-container border-outline-variant"
+                className="w-5 h-5 rounded text-[#852A91] focus:ring-[#852A91] border-slate-300 accent-[#852A91]"
               />
             </div>
             <label
-              className="cursor-pointer font-body-sm text-body-sm text-on-surface leading-snug"
+              className="cursor-pointer text-xs text-slate-700 leading-snug"
               htmlFor="consent-lgpd"
             >
               Declaro a veracidade dos dados clínicos fornecidos e autorizo a <strong>Cana Med Mulher</strong> a armazenar e processar meu prontuário ginecológico e obstétrico em conformidade com as resoluções do CFM e a LGPD (Lei 13.709/18).
@@ -706,7 +706,7 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
           <div className="pt-2 space-y-3">
             <button
               type="submit"
-              className="w-full h-13 py-3.5 px-6 rounded-xl bg-primary-container hover:bg-primary text-on-primary font-headline-sm text-headline-sm font-bold shadow-[0_4px_16px_rgba(216,37,124,0.25)] active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2"
+              className="w-full h-12 py-3.5 px-6 rounded-xl bg-[#852A91] hover:bg-[#6F217B] text-white font-bold text-sm shadow-md shadow-[#852A91]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
             >
               <span>Concluir Cadastro</span>
               <span className="material-symbols-outlined" data-icon="check_circle">
@@ -716,7 +716,7 @@ export const AdvancedRegistrationPage: React.FC<AdvancedRegistrationPageProps> =
             <button
               type="button"
               onClick={handleDraft}
-              className="w-full h-12 py-3 px-6 rounded-xl bg-surface-container hover:bg-surface-container-high text-secondary font-label-lg text-label-lg font-semibold active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2"
+              className="w-full h-12 py-3 px-6 rounded-xl bg-white border border-[#852A91] hover:bg-[#F7ECF8] text-[#852A91] font-bold text-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2"
             >
               <span className="material-symbols-outlined text-base" data-icon="save">
                 save
